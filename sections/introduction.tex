@@ -1,141 +1,41 @@
-\chapter{Introduction}
-\label{sec:intro}
+\chapter{IEEE 802.11 Standard Medium Access Protocol for WLAN}
+\label{sec:introduction}
 
-\kant[4] % Dummy text
+This chapter introduces the fundamental concepts of Medium Access Control (MAC) protocols in wireless local area networks (WLANs). We discuss the design decisions of the IEEE 802.11 standard, including the comparison between collision detection and collision avoidance, the mechanics of handshaking, and the core coordination functions.
 
-\begin{equation}
-    \iint_D \diff x \diff y
-    =
-    \int_0^{2\pi} \int_0^t \rho \diff \rho \diff t
-    =
-    \frac{4}{3} \pi^3.
-\end{equation}
+\section{Why Not CSMA/CD?}
+In wired Ethernet (IEEE 802.3), Carrier Sense Multiple Access with Collision Detection (CSMA/CD) is widely used. However, CSMA/CD is not viable in wireless environments due to:
+\begin{itemize}
+    \item \textbf{Half-Duplex Radio Limitation:} Wireless transceivers cannot transmit and receive on the same frequency channel simultaneously. A station's own transmission would drown out any incoming signal, making it impossible to detect a collision while transmitting.
+    \item \textbf{Attenuation & Path Loss:} Signal strength attenuates rapidly over distance. A collision occurring near a receiver might not be strong enough to be detected at the transmitter.
+    \item \textbf{Hidden Station Problem:} Collisions occur at the receiver, not the sender. Senders may not detect a collision due to obstacles or physical distance.
+\end{itemize}
 
-\section{Figures and Tables}
+\section{CSMA with Collision Avoidance (CSMA/CA)}
+To address these limitations, IEEE 802.11 uses CSMA/CA. Instead of detecting collisions after they occur, CSMA/CA attempts to prevent them beforehand:
+\begin{itemize}
+    \item \textbf{Physical Carrier Sensing:} Stations listen to the channel before transmitting.
+    \item \textbf{Virtual Carrier Sensing:} Achieved using the Network Allocation Vector (NAV) carried in the headers of frames.
+    \item \textbf{Random Backoff:} When the medium is busy, stations defer transmission and wait for a random backoff period.
+\end{itemize}
 
-% Standalone with \input:
-\begin{figure}[htbp]
-    \centering
-    \input{figures/ball}
-    \caption[One ball]{One ball.}
-\end{figure}
+\section{RTS/CTS Handshake & Hidden/Exposed Station Problems}
+To resolve the hidden station and exposed station problems:
+\begin{itemize}
+    \item \textbf{RTS/CTS Mechanism:} The transmitter sends a Request to Send (RTS) frame. The receiver replies with a Clear to Send (CTS) frame. Any station hearing the CTS defers its transmission, mitigating the hidden station problem.
+    \item \textbf{Hidden Station Problem:} Occurs when station A can communicate with B, and station C can communicate with B, but A and C cannot hear each other. A and C may transmit simultaneously to B, causing a collision at B.
+    \item \textbf{Exposed Station Problem:} Occurs when station B can communicate with A, and station C can communicate with D. If B is transmitting to A, C might defer transmitting to D because it senses B's transmission, even though C's transmission to D would not interfere with B's reception at A.
+\end{itemize}
 
-% Standalone with \includegraphics:
-\begin{figure}[thbp]
-    \centering
-    \includegraphics{balls}
-    \caption[Two balls]{Two balls.}
-\end{figure}
+\section{Basic Access, Acknowledgements, and Backoff}
+\begin{itemize}
+    \item \textbf{Basic Access:} The default mechanism where data is sent immediately after sensing the channel free for a Distributed Inter-Frame Space (DIFS) duration.
+    \item \textbf{Acknowledgements (ACK):} Since collision detection is not possible, the receiver must send an explicit ACK frame to confirm successful reception.
+    \item \textbf{Exponential Backoff:} If an ACK is not received, the station assumes a collision occurred, doubles its Contention Window (CW), and schedules a retransmission.
+\end{itemize}
 
-% Todonotes:
-\begin{figure}[hbp]
-    \centering
-    \missingfigure{Three balls.}
-    \caption[Three balls]{Three balls.}
-\end{figure}
-
-\kant[5-6] % Dummy text
-
-% Booktabs:
-\begin{table}[htbp]
-    \centering
-    \begin{tabular}{@{}ll@{}}
-        \toprule
-        \textbf{Correct}               & \textbf{Incorrect}      \\
-        \midrule
-        \( \varphi \colon X \to Y \)   & \( \varphi : X \to Y \) \\[0.5ex]
-        \( \varphi(x) \coloneqq x^2 \) & \( \varphi(x) := x^2 \) \\
-        \bottomrule
-    \end{tabular}
-    \caption[Colons]{Proper colon usage.}
-\end{table}
-
-\begin{table}[htbp]
-    \centering
-    \begin{tabular}{@{}ll@{}}
-        \toprule
-        \textbf{Correct}     & \textbf{Incorrect}         \\
-        \midrule
-        \( A \implies B \)   & \( A \Rightarrow B \)      \\
-        \( A \impliedby B \) & \( A \Leftarrow B \)       \\
-        \( A \iff B \)       & \( A \Leftrightarrow B \)  \\
-        \bottomrule
-    \end{tabular}
-    \caption[Arrows]{Proper arrow usage.}
-\end{table}
-
-% Tablefootnote and multirow:
-\begin{table}[htbp]
-    \centering
-    \begin{tabular}{@{}ll@{}}
-        \toprule
-        \textbf{Correct}
-        & 
-        \textbf{Incorrect}
-        \\
-        \midrule
-        \( -1 \) 
-        & 
-        -1
-        \\[0.3ex]
-        1--10
-        &
-        1-10
-        \\[0.3ex]
-        Birch--Swinnerton-Dyer\tablefootnote{It is now easy to tell that Birch and Swinnerton-Dyer are two people.} conjecture
-        &
-        Birch-Swinnerton-Dyer conjecture
-        \\[0.3ex]
-        The ball \dash which is blue \dash is round.
-        &
-        \multirow{ 2}{*}{The ball - which is blue - is round.}
-        \\[0.3ex]
-        The ball---which is blue---is round. 
-        &
-        \\
-        \bottomrule
-    \end{tabular}
-    \caption[Dashes]{Proper dash usage.}
-\end{table}
-
-\begin{table}[hbtp]
-    \centering
-    \begin{tabular}{@{}*{2}{p{0.5\textwidth}}@{}}
-        \toprule
-        \textbf{Correct} &  \textbf{Incorrect}
-        \\
-        \midrule
-        \enquote{This is an \enquote{inner quote} inside an outer quote}
-        &
-        'This is an "inner quote" inside an outer quote'
-        \\
-        \bottomrule
-    \end{tabular}
-    \caption[Quotation marks]
-    {Proper quotation mark usage.
-    The \texttt{\textbackslash enquote} command chooses the correct
-    quotation marks for the specified language.}
-\end{table}
-
-\section{Outline}
-
-The rest of the text is organised as follows:
-\begin{description}
-    \item[\cref{sec:second}]
-    is second to none, with the notable exception of \cref{sec:intro}.
-    The main tool introduced here is the employment of unintelligible sentences.
-
-    \item[\cref{sec:third}]
-    asserts the basic properties of being the third chapter of a text.
-    This section reveals the shocking truth of filler content.
-
-    \item[\cref{sec:fourth}]
-    demonstrates how easily one can get to four chapters by simply using the \texttt{kantlipsum} package to generate dummy words.
-
-    \item[\cref{sec:first-app}]
-    features additional material for the specially interested.
-
-    \item[\cref{sec:second-app}]
-    consists of results best relegated to the back of the document,
-    ensuring that nobody will ever read it.
-\end{description}
+\section{Distributed and Point Coordination Functions (DCF & PCF)}
+\begin{itemize}
+    \item \textbf{Distributed Coordination Function (DCF):} The primary contention-based access method, relying on carrier sensing and random backoff.
+    \item \textbf{Point Coordination Function (PCF):} A contention-free, centralized polling-based access method, managed by a Point Coordinator (typically the Access Point).
+\end{itemize}

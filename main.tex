@@ -8,10 +8,10 @@
 \usepackage{mnfrontpage} % Front page
 \usepackage{kantlipsum}  % Dummy text
 
-\title{Title}
-\subtitle{Optional Subtitle}
-\author{First Author \and Second Author}
-\kind{Report \#17\hfill\the\year} % Optional
+\title{Design and performance evaluation of the Medium access layer protocol of wireless networks}
+\subtitle{A Comprehensive Synthesis of WLAN, 5G, IoT, and Analytical Modeling}
+\author{Jaswanth \and Mobile Computing Lab, IIT Madras}
+\kind{Research Monograph\hfill\the\year} % Optional
 
 \includeonly
 {
@@ -21,6 +21,15 @@
     sections/chapter2,
     sections/chapter3,
     sections/chapter4,
+    sections/chapter5,
+    sections/chapter6,
+    sections/chapter7,
+    sections/chapter8,
+    sections/chapter9,
+    sections/chapter10,
+    sections/chapter11,
+    sections/chapter12,
+    sections/chapter13,
     sections/appendixA,
     sections/appendixB,
 }
@@ -45,13 +54,27 @@
 
     \mainmatter         % Folios in Arabic numerals, numbered chapters.
 
+    % Part 1: Foundations and Standards
+    \part{Foundations and Standards}
     \include{sections/introduction}
-
-    \part{The First Part}
-
     \include{sections/chapter2}
+
+    % Part 2: Network Architectures & Paradigms
+    \part{Network Architectures and Paradigms}
     \include{sections/chapter3}
     \include{sections/chapter4}
+    \include{sections/chapter5}
+    \include{sections/chapter6}
+    \include{sections/chapter7}
+    \include{sections/chapter8}
+    \include{sections/chapter9}
+
+    % Part 3: Advanced Optimization & Modelling
+    \part{Advanced Optimization and Modelling}
+    \include{sections/chapter10}
+    \include{sections/chapter11}
+    \include{sections/chapter12}
+    \include{sections/chapter13}
 
     \appendix           % "Chapter" is renamed "Appendix"
     \appendixpage       % Similar to \part*{Appendices}, but appears in TOC.

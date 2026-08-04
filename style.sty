@@ -24,12 +24,13 @@
 %% Fonts and typography
 \RequirePackage{lmodern}           % Latin Modern
 \renewcommand{\sfdefault}{phv}     % Helvetica
-\RequirePackage[scaled]{beramono}  % Bera Mono (Bitstream Vera Sans Mono)
+\IfFileExists{beramono.sty}{\RequirePackage[scaled]{beramono}}{}  % Bera Mono (Bitstream Vera Sans Mono) if available
 \RequirePackage[final]{microtype}  % Improved typography
 \pretolerance = 1000               % Relaxes parameters for line breaks
 \tolerance    = 2000               % Relaxes parameters for line breaks
 \setlength{\emergencystretch}{1em} % Relaxes parameters for line breaks
-\RequirePackage{siunitx}           % Typesetting units
+\IfFileExists{siunitx.sty}{\RequirePackage{siunitx}}{}           % Typesetting units
+\IfFileExists{listings.sty}{
 \RequirePackage{listings}          % Typesetting code
 \lstset
 {
@@ -39,6 +40,7 @@
     showstringspaces = false,
     frame            = tb
 }
+}{}
 \RequirePackage[obeyspaces,
                 spaces,
                 hyphens]{url}      % Typesetting URLs
@@ -129,7 +131,7 @@
 
 
 %% Bibliography
-\RequirePackage{mathscinet}
+\IfFileExists{mathscinet.sty}{\RequirePackage{mathscinet}}{}
 \RequirePackage[backend    = biber,
                 sortcites  = true,
                 giveninits = true,

@@ -1,14 +1,38 @@
-\chapter{The Second Chapter}
-\label{sec:second}
+\chapter{Advanced Features and QoS in IEEE 802.11}
+\label{sec:chapter2}
 
-\kant[7-11] % Dummy text
+This chapter explores the evolution of QoS, frame optimization, and physical-MAC layer enhancements in the modern iterations of the IEEE 802.11 standard (ranging from 802.11e to 802.11be/Wi-Fi 7).
 
-\begin{theorem}[{\cite[95]{AM69}}]
-    \label{thm:dedekind}
-    Let \( A \) be a Noetherian domain of dimension one. Then the following are equivalent:
-    \begin{enumerate}
-        \item \( A \) is integrally closed;
-        \item Every primary ideal in \( A \) is a prime power;
-        \item Every local ring \( A_\mathfrak{p} \) \( (\mathfrak{p} \neq 0) \) is a discrete valuation ring.
-    \end{enumerate}
-\end{theorem}
+\section{EDCF, Inter-Frame Spaces, and Access Categories}
+\begin{itemize}
+    \item \textbf{Enhanced Distributed Channel Access (EDCA/EDCF):} Introduced in 802.11e to provide quality of service. It defines four Access Categories (AC): Background (AC\_BK), Best Effort (AC\_BE), Video (AC\_VI), and Voice (AC\_VO).
+    \item \textbf{Short Inter-Frame Space (SIFS):} The shortest spacing between frames, used for high-priority transmissions like ACKs and CTS.
+    \item \textbf{Service Differentiation & QoS:} Different ACs have different Arbitrary Inter-Frame Spaces (AIFS) and Contention Window (CW) limits, giving higher priority traffic faster access to the medium.
+\end{itemize}
+
+\section{MAC-Level Frame Aggregation and Block ACK}
+To reduce protocol overhead, modern standards combine multiple frames before transmission:
+\begin{itemize}
+    \item \textbf{A-MSDU (Aggregate MAC Service Data Unit):} Groups multiple MSDUs into a single MPDU.
+    \item \textbf{A-MPDU (Aggregate MAC Protocol Data Unit):} Groups multiple MPDUs into a single Physical Layer Convergence Procedure (PLCP) Service Data Unit (PSDU).
+    \item \textbf{Block Acknowledgment (Block ACK):} Allows a receiver to acknowledge multiple MPDUs in an A-MPDU using a single control frame, saving significant overhead.
+\end{itemize}
+
+\section{Transmission Opportunity (TXOP)}
+A TXOP is a bounded time interval during which a station can transmit as many frames as possible (using frame burst and SIFS) after winning contention, preventing channel re-contention for every single frame.
+
+\section{Power Saving: Target Wake Time (TWT)}
+Introduced in 802.11ax (Wi-Fi 6), TWT allows APs and client stations to negotiate specific times to wake up and exchange data. This drastically improves battery life and reduces contention in high-density environments.
+
+\section{High Throughput PHY-MAC Integrations}
+\begin{itemize}
+    \item \textbf{MU-MIMO (Multi-User Multiple Input Multiple Output):} Allows the AP to transmit to or receive from multiple users simultaneously over different spatial streams.
+    \item \textbf{OFDMA (Orthogonal Frequency Division Multiple Access):} Divides the channel bandwidth into smaller sub-channels (Resource Units), enabling simultaneous transmission from different stations.
+    \item \textbf{BSS Coloring (BSR Coloring):} Identifies overlapping Basic Service Sets (OBSS) using colors in the PHY header, allowing stations to ignore traffic from neighboring networks and reduce collision deferrals.
+\end{itemize}
+
+\section{Next-Generation Enhancements: MLO & Multi-AP}
+\begin{itemize}
+    \item \textbf{Multi-Link Operation (MLO):} Introduced in Wi-Fi 7, enabling stations to transmit and receive data across multiple frequency bands (2.4 GHz, 5 GHz, 6 GHz) concurrently.
+    \item \textbf{Multi-AP Coordination:} Coordinated spatial reuse, beamforming, and joint scheduling across multiple Access Points to manage interference in dense deployments.
+\end{itemize}
