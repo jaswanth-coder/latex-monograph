@@ -219,24 +219,10 @@
     \put(25 mm + \MNFP@indent, 25 mm)
     {
         \includegraphics[width = 27mm]
-            {mnfrontpage-images/mnfrontpage-apollon}
+            {mnfrontpage-images/iitm_logo}
     }
     
-    \ifthenelse{ \equal{\MNFP@Dept}{mn} }
-    {
-        \put(22 mm + \MNFP@indent, 220 mm)
-        {
-            \includegraphics[scale = 0.5]
-                {mnfrontpage-images/mnfrontpage-logo-\MNFP@Dept-\MNFP@lang}
-        }
-    }
-    {
-        \put(19 mm + \MNFP@indent, 222 mm)
-        {
-            \includegraphics[scale = 0.6]
-                {mnfrontpage-images/mnfrontpage-logo-\MNFP@Dept-\MNFP@lang}
-        }
-    }
+    % Removed top university logos as requested
 }
     
 %% Include the title, subtitle, author and date:
