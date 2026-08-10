@@ -1,14 +1,1025 @@
+```latex
 \chapter{Vehicular Networks}
 \label{sec:chapter9}
 
-This chapter focuses on Vehicular Ad-hoc Networks (VANETs) and cellular vehicle-to-everything (C-V2X) architectures.
+Vehicular communication networks constitute an important component of
+Intelligent Transportation Systems (ITS), enabling vehicles to exchange
+information with other vehicles, roadside infrastructure, pedestrians, and
+communication networks. The integration of wireless communication with
+on-board sensing and computing allows vehicles to obtain information beyond
+the sensing range of their local sensors and supports applications ranging
+from collision avoidance and traffic management to cooperative driving and
+passenger infotainment.
 
-\section{Overview of Contributions}
-Contributions from researchers under the Mobile Computing Lab include:
+Vehicular communication technology has evolved considerably over the past
+two decades. Early research primarily focused on Vehicular Ad Hoc Networks
+(VANETs), in which vehicles dynamically establish wireless links with nearby
+vehicles and roadside infrastructure. Dedicated Short-Range Communications
+(DSRC), based primarily on IEEE 802.11p and the Wireless Access in Vehicular
+Environments (WAVE) architecture, emerged as one of the earliest standardized
+solutions for vehicular communication
+\cite{kenney2011dsrc,jiang2008ieee,morgan2010dsrc}.
+
+The rapid development of cellular communication subsequently resulted in
+Cellular Vehicle-to-Everything (C-V2X). LTE-V2X introduced direct sidelink
+communication between vehicles through the PC5 interface, while the evolution
+toward fifth-generation cellular systems resulted in New Radio V2X
+(NR-V2X). NR-V2X extends the capabilities of LTE-V2X to support advanced
+applications including vehicle platooning, cooperative perception, advanced
+driving, and remote driving
+\cite{seo2016lte,molinamasegosa2017ltev,lien2020nr}.
+
+This chapter presents the evolution of vehicular networking technologies,
+beginning with VANETs and IEEE 802.11p-based communication and subsequently
+discussing LTE-V2X and NR-V2X. Particular emphasis is placed on safety
+message dissemination, mobility-related challenges, sidelink communication,
+and radio resource allocation.
+
+% ============================================================
+\section{Vehicular Communication Networks}
+\label{sec:vehicular_communication_networks}
+% ============================================================
+
+A vehicular network consists of vehicles equipped with communication,
+sensing, positioning, and computing capabilities that exchange information
+with other entities in the transportation environment. Unlike conventional
+wireless networks, vehicular networks are characterized by high node
+mobility, rapidly changing network topology, intermittent connectivity,
+stringent communication latency requirements, and highly dynamic wireless
+channels.
+
+Vehicular communications are commonly grouped under the general term
+Vehicle-to-Everything (V2X). Depending on the communicating entities, V2X
+communication can be categorized as follows:
+
 \begin{itemize}
-    \item \textbf{Dhananjay Kumar:} Routing protocols and dynamic access schemes in high-mobility topologies.
-    \item \textbf{Indulekha:} Safety message dissemination and resource allocation in V2X networks.
+    \item \textbf{Vehicle-to-Vehicle (V2V):} Direct communication among
+    vehicles for exchanging information such as position, velocity,
+    acceleration, heading, and safety warnings.
+
+    \item \textbf{Vehicle-to-Infrastructure (V2I):} Communication between
+    vehicles and roadside infrastructure such as Roadside Units (RSUs),
+    traffic lights, or traffic-management systems.
+
+    \item \textbf{Vehicle-to-Pedestrian (V2P):} Communication between
+    vehicles and vulnerable road users equipped with compatible communication
+    devices.
+
+    \item \textbf{Vehicle-to-Network (V2N):} Communication between vehicles
+    and remote network services through cellular infrastructure.
 \end{itemize}
 
-\section{Mobility Challenges & Safety Message Dissemination}
-We review dynamic MAC modifications and low-latency schemes needed to handle highly dynamic network structures, Doppler shifts, and strict safety latency requirements.
+Together, these communication modes provide vehicles with information beyond
+their direct sensing range and enable cooperative decision making among road
+users.
+
+% ------------------------------------------------------------
+\subsection{Evolution from VANETs to V2X Networks}
+% ------------------------------------------------------------
+
+Vehicular Ad Hoc Networks evolved from Mobile Ad Hoc Networks (MANETs), but
+the mobility characteristics of vehicles distinguish VANETs from conventional
+ad hoc networks. Vehicle movement is constrained by road geometry and traffic
+rules, while relative velocities can be very high. Consequently, communication
+links may exist only for short durations and the network topology can change
+rapidly.
+
+Early VANET architectures relied mainly on distributed communication among
+vehicles and RSUs. IEEE 802.11p was developed specifically to support
+low-latency wireless access in vehicular environments
+\cite{jiang2008ieee,kenney2011dsrc}. The resulting DSRC/WAVE architecture
+enabled direct communication without requiring vehicles to first establish a
+connection with cellular infrastructure.
+
+The emergence of LTE and device-to-device communication introduced a second
+major technology family for V2X. Cellular V2X combines the wide-area
+connectivity of cellular networks with direct sidelink communication between
+vehicles. The resulting evolution can broadly be represented as
+
+\[
+\text{VANET}
+\rightarrow
+\text{DSRC/IEEE 802.11p}
+\rightarrow
+\text{LTE-V2X}
+\rightarrow
+\text{NR-V2X}
+\rightarrow
+\text{Internet of Vehicles}.
+\]
+
+Future vehicular networks increasingly integrate communication, sensing,
+computing, cloud services, and edge intelligence, leading toward the broader
+concept of the Internet of Vehicles (IoV)
+\cite{zhou2020evolutionary,xu2018iov}.
+
+% ------------------------------------------------------------
+\subsection{Vehicular Applications}
+% ------------------------------------------------------------
+
+Applications supported by vehicular networks can broadly be divided into
+safety-related applications, traffic-efficiency applications, and
+infotainment services.
+
+Safety applications are generally the most time-critical. Examples include
+forward-collision warning, emergency braking notification, intersection
+collision warning, lane-change assistance, and hazardous-road-condition
+notification. These applications typically require frequent dissemination of
+vehicle status information together with highly reliable reception and low
+communication latency.
+
+Traffic-efficiency applications use information collected from vehicles and
+road infrastructure to improve traffic flow. Examples include congestion
+notification, adaptive route planning, traffic signal coordination, and
+optimal speed advisory.
+
+Infotainment applications include Internet connectivity, multimedia
+streaming, map updates, passenger services, and cloud-based vehicle services.
+Unlike many safety applications, these services can require relatively high
+data rates while tolerating larger communication delays.
+
+The emergence of automated driving has introduced another category of
+communication-intensive applications. Vehicle platooning, cooperative
+perception, sensor-information sharing, trajectory coordination, and remote
+driving require substantially stronger combinations of reliability, latency,
+and throughput than traditional vehicular safety messaging.
+
+% ============================================================
+\section{IEEE 802.11-Based Vehicular Networks}
+\label{sec:80211_vanet}
+% ============================================================
+
+Dedicated Short-Range Communications was among the earliest widely studied
+radio technologies for V2X communication. In the United States, DSRC was
+developed around operation in the 5.9~GHz band and was supported by the
+IEEE 802.11p physical and Medium Access Control (MAC) layers together with
+the IEEE 1609 WAVE family of standards
+\cite{kenney2011dsrc,morgan2010dsrc}.
+
+IEEE 802.11p evolved from IEEE 802.11a but introduced modifications to enable
+communication in rapidly varying vehicular environments
+\cite{jiang2008ieee}. Vehicles equipped with On-Board Units (OBUs) can
+communicate directly with other vehicles or with RSUs without requiring a
+conventional Wi-Fi association procedure.
+
+% ------------------------------------------------------------
+\subsection{Safety Message Dissemination}
+% ------------------------------------------------------------
+
+A fundamental operation in VANETs is the dissemination of periodic safety
+messages. Such messages convey information including vehicle position,
+speed, direction, acceleration, and vehicle state. Neighboring vehicles use
+these messages to maintain awareness of the surrounding traffic environment.
+
+In DSRC-based networks, safety packets are commonly transmitted through
+broadcast communication. This approach minimizes connection-establishment
+overhead and allows a single transmission to inform multiple neighboring
+vehicles. Vehicle-to-vehicle safety messaging using DSRC has therefore been
+an important research topic since the early development of VANETs
+\cite{xu2004safety,jiang2006dsrc}.
+
+However, broadcast communication does not inherently guarantee successful
+packet reception. As vehicular density increases, a large number of vehicles
+may simultaneously compete for channel access. Packet collisions and channel
+congestion can consequently reduce the probability that safety information is
+successfully delivered.
+
+% ------------------------------------------------------------
+\subsection{MAC Challenges in IEEE 802.11p}
+% ------------------------------------------------------------
+
+IEEE 802.11p employs contention-based channel access derived from the IEEE
+802.11 family. Although this distributed operation is attractive because it
+does not require centralized coordination, its performance can degrade in
+dense traffic conditions.
+
+Important MAC-layer challenges include:
+
+\begin{itemize}
+    \item contention among a large number of simultaneously transmitting
+    vehicles;
+    \item hidden-terminal collisions;
+    \item rapidly varying numbers of neighboring vehicles;
+    \item excessive channel occupancy caused by frequent safety beacons;
+    \item lack of deterministic packet-access delay; and
+    \item degradation in packet-delivery reliability under high network load.
+\end{itemize}
+
+These limitations have motivated numerous adaptive MAC, congestion-control,
+and mobility-aware access schemes. For example, mobility-aware MAC protocols
+have been developed specifically to reduce packet collisions for vehicular
+safety applications \cite{lyu2018momac}, while TDMA-based approaches such as
+VeMAC have also been proposed to provide more predictable broadcast access
+\cite{omar2013vemac}.
+
+% ============================================================
+\section{Cellular Vehicle-to-Everything Communications}
+\label{sec:cv2x}
+% ============================================================
+
+The limitations of contention-based vehicular communication and the rapid
+evolution of mobile cellular systems motivated the development of Cellular
+Vehicle-to-Everything communication. Cellular systems provide extensive
+network coverage, centralized radio-resource management, mature security
+mechanisms, and integration with wide-area network services
+\cite{araniti2013lte,gyawali2021challenges}.
+
+A major development that enabled cellular V2X was the introduction of direct
+device-to-device sidelink communication. C-V2X therefore supports both
+infrastructure-based communication through the conventional cellular
+interface and direct communication between nearby road users.
+
+% ------------------------------------------------------------
+\subsection{LTE-V2X Architecture}
+% ------------------------------------------------------------
+
+LTE-V2X was standardized by the 3rd Generation Partnership Project (3GPP)
+for supporting vehicular communication. Two major communication interfaces
+are relevant:
+
+\begin{itemize}
+    \item \textbf{Uu interface:} Conventional communication between a vehicle
+    User Equipment (UE) and the cellular base station.
+
+    \item \textbf{PC5 interface:} Direct sidelink communication between
+    nearby UEs without routing each packet through the cellular base station.
+\end{itemize}
+
+The PC5 sidelink is particularly important for safety applications because
+vehicles can directly exchange messages even when conventional cellular
+coverage is unavailable.
+
+% ------------------------------------------------------------
+\subsection{LTE-V2X Resource Allocation}
+% ------------------------------------------------------------
+
+LTE-V2X introduced two principal sidelink resource-allocation mechanisms,
+commonly referred to as Mode~3 and Mode~4.
+
+\subsubsection{Mode 3: Network-Scheduled Resource Allocation}
+
+In Mode~3, the serving evolved Node B (eNB) coordinates sidelink radio
+resources. The network can therefore use information available at the base
+station to reduce conflicting resource assignments.
+
+Two general scheduling strategies can be employed. In dynamic scheduling,
+vehicles request radio resources whenever packets need to be transmitted.
+Although flexible, frequent requests increase signaling overhead and access
+latency.
+
+Semi-Persistent Scheduling (SPS) is more appropriate when messages are
+generated periodically. Resources are reserved for several consecutive
+transmissions, thereby reducing repeated scheduling requests and control
+signaling.
+
+\subsubsection{Mode 4: Autonomous Resource Selection}
+
+Mode~4 allows vehicles to select resources autonomously from a preconfigured
+resource pool and can therefore operate outside cellular coverage.
+
+Resource selection employs a sensing-based SPS procedure. Vehicles monitor
+sidelink resources and attempt to exclude resources that are likely to be
+occupied by neighboring transmitters before selecting candidate transmission
+resources. Once selected, the resource can be retained for multiple
+transmissions before a resource-reselection procedure is performed.
+
+The autonomous nature of Mode~4 makes it suitable for distributed V2V
+communication. However, because vehicles only possess partial information
+about the transmission decisions of other UEs, resource collisions remain an
+important performance limitation
+\cite{gonzalezmartin2018mode4,bazzi2018mode4,molinamasegosa2017mode4}.
+
+% ============================================================
+\section{5G and NR-V2X Communications}
+\label{sec:nrv2x}
+% ============================================================
+
+The requirements of advanced automated-driving applications exceed the
+capabilities originally considered during the design of LTE-V2X. NR-V2X was
+therefore standardized in 3GPP Release~16 to complement LTE-V2X and support
+more advanced vehicular services
+\cite{3gpp38885,lien2020nr}.
+
+Examples include vehicle platooning, cooperative and extended sensing,
+advanced driving, and remote driving. Compared with LTE-V2X, these
+applications can involve a combination of periodic and aperiodic traffic,
+variable packet sizes, stringent latency constraints, and substantially larger
+information payloads.
+
+NR-V2X also expands the supported communication types. Whereas basic
+LTE-V2X sidelink operation primarily focuses on broadcast communication,
+NR-V2X supports broadcast, groupcast, and unicast communication. Groupcast is
+particularly relevant to applications such as platooning, where information is
+intended for a specific group of cooperating vehicles.
+
+% ------------------------------------------------------------
+\subsection{Flexible NR Numerology}
+% ------------------------------------------------------------
+
+Another important feature of NR is flexible numerology. LTE-V2X employs a
+15~kHz subcarrier spacing, whereas NR-V2X can support larger subcarrier
+spacings including 30, 60, and 120~kHz. Increasing the subcarrier spacing
+reduces the corresponding slot duration and can therefore help support
+latency-sensitive applications.
+
+The appropriate numerology nevertheless depends on factors such as vehicle
+speed, propagation conditions, delay requirements, and sensitivity to
+inter-carrier and inter-symbol interference.
+
+% ------------------------------------------------------------
+\subsection{NR-V2X Sidelink Resource Allocation}
+% ------------------------------------------------------------
+
+NR-V2X defines two principal resource-allocation modes.
+
+\subsubsection{Mode 1}
+
+In Mode~1, radio resources are assigned through the cellular network. A gNB
+can dynamically schedule sidelink resources or provide configured grants for
+repeated transmissions. Network coordination permits the infrastructure to
+consider communication requirements such as packet periodicity, packet size,
+latency, and reliability when assigning resources.
+
+\subsubsection{Mode 2}
+
+Mode~2 supports autonomous resource selection and can operate without
+continuous assistance from the gNB. Vehicles select resources from configured
+or preconfigured sidelink resource pools.
+
+Unlike the LTE-V2X Mode~4 design, which was principally developed around
+periodic traffic, NR-V2X Mode~2 must support both periodic and aperiodic
+traffic. Consequently, enhancements to sensing and resource-selection
+procedures are important aspects of NR-V2X resource allocation
+\cite{ali2021mode2}.
+
+% ============================================================
+\section{Mobility Challenges and Safety Message Dissemination}
+\label{sec:mobility_challenges}
+% ============================================================
+
+Vehicular networking differs fundamentally from many conventional wireless
+systems because communication conditions vary rapidly in both space and
+time. Several challenges directly influence the reliability of safety-message
+dissemination.
+
+\subsection{Rapidly Changing Topology}
+
+Vehicles frequently enter and leave each other's communication range. The
+duration of a V2V link may therefore be short, particularly when vehicles
+travel in opposite directions or at significantly different speeds.
+
+\subsection{Doppler and Time-Varying Channels}
+
+High vehicle velocities result in significant Doppler shifts and reduced
+channel coherence times. Reliable channel estimation and synchronization
+become increasingly difficult as relative velocity and carrier frequency
+increase.
+
+\subsection{Congestion and Interference}
+
+Dense vehicular scenarios can contain hundreds of simultaneously active
+transmitters. In contention-based networks, this produces channel congestion,
+whereas sidelink cellular systems must address interference caused by reuse of
+the same time-frequency resources.
+
+\subsection{Latency and Reliability}
+
+Safety applications impose substantially more stringent communication
+requirements than conventional best-effort wireless services. A packet that
+arrives after its safety information has become obsolete can have little
+practical value even when it is successfully decoded. Consequently,
+vehicular communication protocols must jointly consider packet reception
+reliability, latency, packet age, and information-update frequency.
+
+% ============================================================
+\section{Radio Resource Allocation in Vehicular Networks}
+\label{sec:v2x_resource_allocation}
+% ============================================================
+
+Efficient radio resource allocation is particularly important in vehicular
+networks because multiple vehicles must frequently share limited
+time-frequency resources while satisfying heterogeneous communication
+requirements.
+
+Resource-allocation methods can broadly be categorized as centralized,
+distributed, and hybrid approaches.
+
+In centralized approaches, a base station or roadside controller collects
+network information and determines resource assignments. Such methods can
+achieve coordinated interference management but introduce signaling overhead
+and depend on infrastructure availability.
+
+Distributed methods allow individual vehicles to select their own
+transmission resources. They offer greater robustness to infrastructure
+unavailability but must make decisions using incomplete knowledge of
+neighboring resource selections.
+
+Spatial resource reuse is particularly important in V2X networks because the
+same resource can potentially be assigned to geographically separated
+transmitters whose mutual interference is sufficiently small. Consequently,
+location-aware, clustering-based, graph-based, and interference-aware
+resource-allocation mechanisms have been extensively investigated
+\cite{abantoleon2017graph,cecchini2018reuse}.
+
+More recently, learning-based approaches have also been investigated for
+vehicular resource allocation. Reinforcement learning enables vehicles or
+infrastructure controllers to adapt resource-selection decisions using
+observations of network conditions rather than relying entirely on fixed
+heuristic rules.
+
+% ============================================================
+\section{Heterogeneous Vehicular Networks}
+\label{sec:heterogeneous_v2x}
+% ============================================================
+
+IEEE 802.11-based V2X and cellular V2X possess complementary characteristics.
+DSRC provides distributed short-range communication without requiring
+cellular infrastructure, whereas cellular technologies provide extensive
+network coverage and coordinated resource management.
+
+This observation motivated heterogeneous architectures in which multiple
+radio access technologies coexist. Such systems can dynamically select
+between IEEE 802.11p and cellular communication according to application
+requirements, channel availability, network load, or vehicle location
+\cite{abboud2016interworking,ucar2016hybrid}.
+
+However, heterogeneous V2X introduces additional challenges, including
+network selection, vertical handover, mobility management, duplicated
+signaling, and coordination among different radio interfaces.
+
+% ============================================================
+\section{Evolution Toward the Internet of Vehicles}
+\label{sec:iov}
+% ============================================================
+
+The Internet of Vehicles represents a broader evolution of conventional
+vehicular communication. Instead of treating V2X solely as a mechanism for
+short-range safety-message exchange, IoV integrates vehicles with road
+infrastructure, cellular networks, edge-computing platforms, cloud systems,
+and intelligent transportation services.
+
+Future vehicular networks are expected to combine communication with
+distributed sensing, computing, artificial intelligence, and automated
+driving. Multi-access edge computing can reduce the latency associated with
+remote processing, while network slicing and software-defined networking can
+provide differentiated services for heterogeneous vehicular applications.
+
+The resulting architecture moves from simple connectivity toward
+cooperative intelligence, where vehicles exchange not only status messages
+but also sensor observations, environmental information, trajectories, and
+control-related information.
+
+
+% ============================================================
+\section{Research Contributions in Vehicular Networks}
+\label{sec:vehicular_research_contributions}
+% ============================================================
+
+The research on vehicular networks initially focused on the
+performance of IEEE 802.11p-based Vehicular Ad Hoc Networks
+(VANETs) for road-safety applications. Subsequent work extended
+this study toward cellular V2X technologies, including LTE-V2X
+and NR-V2X, with particular emphasis on radio resource
+allocation and support for advanced vehicular communication
+services.
+
+% ------------------------------------------------------------
+\subsection{Traffic-Safety Evaluation of IEEE 802.11p/WAVE Networks}
+\label{subsec:wave_safety_evaluation}
+% ------------------------------------------------------------
+
+An early study investigated the effectiveness of the Wireless
+Access in Vehicular Environments (WAVE) protocol in supporting
+traffic-safety applications in Vehicular Ad Hoc Networks
+(VANETs) \cite{venkatesh2019wave}. The work considered the
+IEEE 802.11p physical layer together with the IEEE 1609 WAVE
+protocol stack for communication between vehicles and Roadside
+Units (RSUs).
+
+In the considered architecture, vehicles are equipped with
+On-Board Units (OBUs) and periodically broadcast beacon
+messages containing information such as their position and
+intended route. RSUs collect information from vehicles within
+their communication range and estimate traffic congestion along
+the corresponding road segments. When congestion is detected,
+the RSU broadcasts the relevant information to approaching
+vehicles, enabling them to select an alternative route.
+
+The study was aimed at understanding how communication-network
+parameters affect the ultimate traffic-safety performance of a
+vehicular network. In particular, the effects of transmission
+bit rate, beacon transmission interval, transmit power, vehicle
+density, and vehicle mobility were investigated. Unlike studies
+that characterize a VANET exclusively through communication
+metrics such as throughput, packet loss, or packet delay, the
+work considered the vehicle collision rate as an application-level
+measure of traffic safety.
+
+A coupled traffic and communication simulation framework was
+used for the evaluation. The Simulation of Urban Mobility
+(SUMO) was employed to generate vehicular mobility and road
+traffic, while OMNeT++ together with the Veins framework was
+used to simulate IEEE 802.11p/WAVE communication. Vehicles
+periodically transmit their location information, and RSUs
+maintain information about traffic conditions in their coverage
+regions. When congestion is identified, vehicles can determine
+an alternate path using shortest-path routing.
+
+The evaluation demonstrated the strong coupling between
+communication parameters and traffic-safety performance.
+Frequent beacon transmission improves the freshness of traffic
+information available to vehicles; however, excessively frequent
+transmissions can increase MAC-layer contention and packet
+collisions. Similarly, increasing transmission power initially
+improves communication coverage, but excessive transmit power
+increases the number of simultaneously contending vehicles and
+can consequently increase MAC-layer collisions.
+
+Vehicle density and mobility were also shown to significantly
+affect safety performance. Higher vehicular density increases
+both road congestion and contention for the shared wireless
+channel. The study therefore highlighted that the communication
+parameters of a WAVE-based VANET cannot be configured
+independently of the underlying traffic conditions.
+
+This work established the initial connection between
+communication-level configuration and road-safety performance
+in the vehicular networking studies considered in this chapter.
+It also motivated subsequent investigations of more coordinated
+cellular V2X technologies and adaptive radio-resource
+management mechanisms.
+
+% ------------------------------------------------------------
+\subsection{Performance Analysis and Adaptive Resource Allocation in Cellular V2X}
+\label{subsec:cv2x_performance_resource_allocation}
+% ------------------------------------------------------------
+
+Following the earlier investigations of IEEE 802.11p/WAVE-based
+vehicular networks, subsequent research considered the evolution
+toward cellular Vehicle-to-Everything (C-V2X) communication
+\cite{bhargavi2022rat}. In particular, the performance of
+LTE-V2X and New Radio V2X (NR-V2X) was investigated with
+emphasis on the impact of physical- and MAC-layer parameters
+on the reliability and timeliness of vehicular information
+exchange.
+
+LTE-V2X, introduced by 3GPP for direct sidelink vehicular
+communication, enables vehicles to communicate through the PC5
+interface. In LTE-V2X, a fixed subcarrier spacing of $15$~kHz
+is employed, while radio resources can either be assigned by the
+cellular infrastructure or selected autonomously by the vehicles.
+NR-V2X extends this framework by introducing a flexible OFDM
+numerology and additional mechanisms for supporting more
+stringent and heterogeneous vehicular communication
+requirements.
+
+A detailed simulation-based evaluation was carried out using
+LTEV2Vsim for LTE-V2X and WiLabV2Xsim for NR-V2X. The
+study investigated the effects of several important system
+parameters, including inter-vehicle distance, vehicle density,
+Modulation and Coding Scheme (MCS), transmit power, and
+Subcarrier Spacing (SCS). Performance was evaluated using
+three principal metrics: Packet Reception Ratio (PRR), Data
+Age, and Update Delay.
+
+The Packet Reception Ratio characterizes communication
+reliability by measuring the fraction of intended receivers that
+successfully receive a transmitted packet. Update Delay
+characterizes the time separation between consecutive
+successfully received beacon messages from a transmitting
+vehicle, while Data Age captures the freshness of the
+successfully delivered vehicular information. The simultaneous
+consideration of reliability and information timeliness is
+particularly important for safety-related vehicular applications,
+where successful reception alone is insufficient if the received
+information has become outdated.
+
+The numerical study showed that the performance of NR-V2X
+depends strongly on the selected physical-layer and
+resource-allocation parameters. Increasing the distance between
+communicating vehicles degrades packet-reception performance,
+while vehicle density influences the interference and contention
+experienced within the shared sidelink resource pool. Similarly,
+the MCS and transmit power determine a trade-off between
+communication robustness, spectral efficiency, and interference
+to neighboring vehicles.
+
+An important feature of NR-V2X is its flexible numerology.
+Unlike LTE-V2X, which employs a fixed $15$~kHz subcarrier
+spacing, NR-V2X supports multiple subcarrier spacings. Larger
+SCS values shorten the corresponding slot duration and improve
+robustness against frequency-domain impairments associated with
+high mobility. However, a single SCS configuration is not
+necessarily suitable for all vehicular conditions.
+
+Motivated by this observation, an adaptive resource-allocation
+mechanism was proposed in which the SCS is dynamically
+selected according to the operating conditions of the vehicular
+network. Rather than retaining a fixed numerology configuration,
+the proposed approach adapts the radio-resource configuration
+with the objective of improving the Packet Reception Ratio.
+Simulation results demonstrated that the adaptive strategy can
+provide improved reception performance compared with the
+default resource-allocation configuration.
+
+This study therefore extended the vehicular networking research
+from the evaluation of contention-based IEEE 802.11p/WAVE
+systems toward adaptive radio-resource management in cellular
+V2X. It also highlighted the importance of jointly considering
+communication reliability and information freshness when
+evaluating resource-allocation strategies for highly dynamic
+vehicular networks.
+
+% ------------------------------------------------------------
+\subsection{Learning-Based Resource Allocation for Aperiodic NR-V2X Traffic}
+\label{subsec:drl_nrv2x_resource_allocation}
+% ------------------------------------------------------------
+
+The increasing diversity of V2X applications introduces traffic
+patterns that differ considerably from the periodic safety-message
+generation originally considered in conventional sidelink scheduling.
+In particular, NR-V2X must accommodate aperiodic packet generation
+and variable packet sizes while maintaining high reliability and
+information freshness. To address these requirements, a learning-based
+adaptive resource-allocation framework was developed for NR-V2X
+Mode~2 \cite{indulekha2024drl}.
+
+NR-V2X Mode~2 enables vehicles to autonomously select sidelink
+resources using Sensing-Based Semi-Persistent Scheduling (SB-SPS).
+Under SB-SPS, a vehicle reserves resources for a number of
+consecutive transmissions according to a Resource Reservation
+Interval (RRI). When the reselection counter expires, the vehicle
+either retains the previously selected resource with probability
+$P_{\mathrm{keep}}$ or performs a new resource-selection procedure.
+Candidate resources are identified through sidelink sensing using
+Sidelink Control Information (SCI), Reference Signal Received Power
+(RSRP), and Received Signal Strength Indicator (RSSI).
+
+Although SB-SPS is effective for periodic message generation, its
+semi-persistent reservation mechanism can lead to inefficient resource
+utilization when traffic becomes aperiodic. If the next packet is
+generated later than the previously reserved transmission opportunity,
+the reserved resource may remain unused. Similarly, variations in
+packet size can cause a previously reserved resource to become
+insufficient for a subsequent larger packet, forcing the vehicle to
+perform resource reselection.
+
+To improve the adaptability of sidelink resource reservation, three
+important parameters were jointly considered: the Modulation and
+Coding Scheme (MCS), the Resource Reservation Interval (RRI), and
+the resource Keep-Alive probability $P_{\mathrm{keep}}$. The MCS
+determines the trade-off between transmission rate and link
+robustness, while the RRI controls the temporal spacing between
+reserved transmission opportunities. The parameter
+$P_{\mathrm{keep}}$ determines whether previously selected sidelink
+resources are retained after expiration of the reselection counter.
+
+A Double Deep Q-Network (DDQN)-based resource-allocation
+mechanism was developed to dynamically adapt these parameters
+according to the observed vehicular-network conditions. The
+optimization objective balances communication reliability,
+information freshness, and channel congestion through a utility of
+the form
+\begin{equation}
+    \Phi =
+    \gamma_{1}\,\mathrm{PRR}
+    -
+    \gamma_{2}\,\mathrm{DA}
+    -
+    \gamma_{3}\,\mathrm{CBR},
+\end{equation}
+where $\mathrm{PRR}$ denotes the Packet Reception Ratio,
+$\mathrm{DA}$ denotes the Data Age, $\mathrm{CBR}$ denotes the
+Channel Busy Ratio, and $\gamma_{1}$, $\gamma_{2}$, and
+$\gamma_{3}$ determine their relative importance.
+
+The corresponding reinforcement-learning problem is represented as
+a Markov Decision Process. The state contains information describing
+the current channel occupancy, packet-transmission status, timing
+information, and vehicle-position updates. The action taken by the
+learning agent consists of selecting the triplet
+\begin{equation}
+    a_t =
+    \left[
+    \mathrm{MCS}(t),
+    \mathrm{RRI}(t),
+    P_{\mathrm{keep}}(t)
+    \right].
+\end{equation}
+The reward is derived from the reliability--freshness--congestion
+utility $\Phi$, enabling the agent to learn resource configurations
+that respond to changes in packet generation, packet size, and
+network conditions.
+
+DDQN was adopted to improve the stability of value-based learning
+by separating action selection from target-value evaluation. A
+behavior Q-network determines the resource-allocation action, while
+a target network is periodically updated to provide stable learning
+targets. Experience replay is used to train the network from
+previously observed state--action--reward transitions.
+
+The proposed framework was evaluated using WiLabV2Xsim under
+NR-V2X Mode~2 operation. The experiments considered variations in
+vehicle density, packet size, packet-generation interval, MCS,
+RRI, and resource keep probability. The results showed that
+dynamically adapting these parameters provides a better balance
+between packet-reception reliability and information freshness than
+using fixed parameter configurations.
+
+In particular, adaptive MCS selection improved packet reception at
+larger communication distances while reducing Data Age for
+different packet sizes. Adaptive selection of $P_{\mathrm{keep}}$
+improved robustness under changing vehicle densities, while dynamic
+RRI adaptation was particularly beneficial for aperiodic traffic,
+where a fixed reservation interval can result in either unused
+resources or delayed information updates.
+
+This work extended the earlier parameter-based resource-allocation
+studies toward intelligent and environment-aware radio-resource
+management. It demonstrated that learning-based adaptation can be
+used to modify fundamental NR-V2X Mode~2 scheduling parameters in
+response to heterogeneous and unpredictable vehicular traffic.
+
+% ------------------------------------------------------------
+\subsection{Learning-Based Resource Allocation for Aperiodic NR-V2X Traffic}
+\label{subsec:drl_nrv2x_resource_allocation}
+% ------------------------------------------------------------
+
+The increasing diversity of V2X applications introduces traffic
+patterns that differ considerably from the periodic safety-message
+generation originally considered in conventional sidelink scheduling.
+In particular, NR-V2X must accommodate aperiodic packet generation
+and variable packet sizes while maintaining high reliability and
+information freshness. To address these requirements, a learning-based
+adaptive resource-allocation framework was developed for NR-V2X
+Mode~2 \cite{indulekha2024drl}.
+
+NR-V2X Mode~2 enables vehicles to autonomously select sidelink
+resources using Sensing-Based Semi-Persistent Scheduling (SB-SPS).
+Under SB-SPS, a vehicle reserves resources for a number of
+consecutive transmissions according to a Resource Reservation
+Interval (RRI). When the reselection counter expires, the vehicle
+either retains the previously selected resource with probability
+$P_{\mathrm{keep}}$ or performs a new resource-selection procedure.
+Candidate resources are identified through sidelink sensing using
+Sidelink Control Information (SCI), Reference Signal Received Power
+(RSRP), and Received Signal Strength Indicator (RSSI).
+
+Although SB-SPS is effective for periodic message generation, its
+semi-persistent reservation mechanism can lead to inefficient resource
+utilization when traffic becomes aperiodic. If the next packet is
+generated later than the previously reserved transmission opportunity,
+the reserved resource may remain unused. Similarly, variations in
+packet size can cause a previously reserved resource to become
+insufficient for a subsequent larger packet, forcing the vehicle to
+perform resource reselection.
+
+To improve the adaptability of sidelink resource reservation, three
+important parameters were jointly considered: the Modulation and
+Coding Scheme (MCS), the Resource Reservation Interval (RRI), and
+the resource Keep-Alive probability $P_{\mathrm{keep}}$. The MCS
+determines the trade-off between transmission rate and link
+robustness, while the RRI controls the temporal spacing between
+reserved transmission opportunities. The parameter
+$P_{\mathrm{keep}}$ determines whether previously selected sidelink
+resources are retained after expiration of the reselection counter.
+
+A Double Deep Q-Network (DDQN)-based resource-allocation
+mechanism was developed to dynamically adapt these parameters
+according to the observed vehicular-network conditions. The
+optimization objective balances communication reliability,
+information freshness, and channel congestion through a utility of
+the form
+\begin{equation}
+    \Phi =
+    \gamma_{1}\,\mathrm{PRR}
+    -
+    \gamma_{2}\,\mathrm{DA}
+    -
+    \gamma_{3}\,\mathrm{CBR},
+\end{equation}
+where $\mathrm{PRR}$ denotes the Packet Reception Ratio,
+$\mathrm{DA}$ denotes the Data Age, $\mathrm{CBR}$ denotes the
+Channel Busy Ratio, and $\gamma_{1}$, $\gamma_{2}$, and
+$\gamma_{3}$ determine their relative importance.
+
+The corresponding reinforcement-learning problem is represented as
+a Markov Decision Process. The state contains information describing
+the current channel occupancy, packet-transmission status, timing
+information, and vehicle-position updates. The action taken by the
+learning agent consists of selecting the triplet
+\begin{equation}
+    a_t =
+    \left[
+    \mathrm{MCS}(t),
+    \mathrm{RRI}(t),
+    P_{\mathrm{keep}}(t)
+    \right].
+\end{equation}
+The reward is derived from the reliability--freshness--congestion
+utility $\Phi$, enabling the agent to learn resource configurations
+that respond to changes in packet generation, packet size, and
+network conditions.
+
+DDQN was adopted to improve the stability of value-based learning
+by separating action selection from target-value evaluation. A
+behavior Q-network determines the resource-allocation action, while
+a target network is periodically updated to provide stable learning
+targets. Experience replay is used to train the network from
+previously observed state--action--reward transitions.
+
+The proposed framework was evaluated using WiLabV2Xsim under
+NR-V2X Mode~2 operation. The experiments considered variations in
+vehicle density, packet size, packet-generation interval, MCS,
+RRI, and resource keep probability. The results showed that
+dynamically adapting these parameters provides a better balance
+between packet-reception reliability and information freshness than
+using fixed parameter configurations.
+
+In particular, adaptive MCS selection improved packet reception at
+larger communication distances while reducing Data Age for
+different packet sizes. Adaptive selection of $P_{\mathrm{keep}}$
+improved robustness under changing vehicle densities, while dynamic
+RRI adaptation was particularly beneficial for aperiodic traffic,
+where a fixed reservation interval can result in either unused
+resources or delayed information updates.
+
+This work extended the earlier parameter-based resource-allocation
+studies toward intelligent and environment-aware radio-resource
+management. It demonstrated that learning-based adaptation can be
+used to modify fundamental NR-V2X Mode~2 scheduling parameters in
+response to heterogeneous and unpredictable vehicular traffic.
+
+% ------------------------------------------------------------
+\subsection{Dynamic Resource and Power Allocation for ISAC-Aided NR-V2X}
+\label{subsec:isac_nrv2x_resource_power}
+% ------------------------------------------------------------
+
+As vehicular communication systems evolve toward higher levels
+of automation, communication reliability alone is no longer
+sufficient to characterize system performance. Advanced V2X
+applications increasingly require vehicles to simultaneously
+exchange information and sense their surrounding environment.
+Motivated by this requirement, an Integrated Sensing and
+Communication (ISAC)-aided NR-V2X framework was developed
+for jointly optimizing communication and sensing performance
+\cite{indulekha2024isac}.
+
+The proposed framework considers an NR-V2X sidelink network
+in which vehicles exchange Cooperative Awareness Messages
+(CAMs) while simultaneously performing radar sensing using
+the reflected communication waveform. This enables the same
+radio resources and waveform structure to support both
+information exchange and estimation of neighboring vehicle
+parameters such as range and relative velocity.
+
+For sensing, an OFDM-based radar model is employed. The
+transmitted V2X waveform is reflected by neighboring vehicles,
+and the received echo is processed to estimate propagation delay
+and Doppler shift. These parameters are subsequently used to
+estimate the target range and relative velocity. A Delay--Doppler
+representation is generated from the received signal, and target
+peaks are detected using a Cell-Averaging Constant False Alarm
+Rate (CA-CFAR) procedure.
+
+The communication component follows the NR-V2X sidelink
+resource-allocation framework. In Mode~2, vehicles autonomously
+select transmission resources using the Sensing-Based
+Semi-Persistent Scheduling (SB-SPS) mechanism. Candidate
+resources are identified using Sidelink Control Information
+(SCI), Reference Signal Received Power (RSRP), and Received
+Signal Strength Indicator (RSSI) measurements. The performance
+of this resource-allocation process depends strongly on physical-
+and MAC-layer parameters such as the Modulation and Coding
+Scheme (MCS), Subcarrier Spacing (SCS), and transmission power.
+
+A key challenge in an ISAC-enabled vehicular network is that
+the parameters that improve communication performance do not
+necessarily provide the best sensing performance. For example,
+changes in transmit power and SCS affect not only packet
+reception and channel utilization but also the accuracy of range
+and velocity estimation. Hence, the problem was formulated as
+a joint communication--sensing optimization.
+
+The communication performance is characterized using Packet
+Reception Ratio (PRR) and Channel Busy Ratio (CBR), while
+the sensing performance is quantified using the Cram\'er--Rao
+Lower Bounds (CRLBs) for range and velocity estimation. The
+joint utility is expressed as
+\begin{equation}
+    \Psi =
+    \delta_{1}\mathrm{PRR}
+    -
+    \delta_{2}\mathrm{CBR}
+    -
+    \delta_{3}
+    \left(
+    \mathrm{CRLB}_{\mathrm{range}}
+    +
+    \mathrm{CRLB}_{\mathrm{speed}}
+    \right),
+\end{equation}
+where $\delta_{1}$, $\delta_{2}$, and $\delta_{3}$ control the
+relative importance of communication reliability, congestion,
+and sensing accuracy.
+
+The corresponding resource- and power-allocation problem is
+formulated as
+\begin{equation}
+    \max_{M_k,\Delta f,P_T} \; \Psi,
+\end{equation}
+subject to feasible ranges for the MCS $M_k$, subcarrier
+spacing $\Delta f$, and transmission power $P_T$.
+
+A Double Deep Q-Network (DDQN) is employed to dynamically
+adapt these parameters according to the instantaneous vehicular
+environment. The Markov Decision Process state incorporates
+packet-transmission information, congestion information, sensing
+quality, and timing information. The action at time $t$ is given
+by
+\begin{equation}
+    a_t =
+    \left[
+    M_k(t),
+    \Delta f(t),
+    P_T(t)
+    \right].
+\end{equation}
+
+The reward is directly derived from the joint ISAC utility
+$\Psi$, allowing the learning agent to seek operating points
+that simultaneously maintain high packet-reception reliability,
+low channel congestion, and accurate sensing. Experience replay
+and separate primary and target Q-networks are used to improve
+learning stability.
+
+The proposed method was evaluated using an extended
+WiLabV2Xsim environment incorporating both NR-V2X
+communication and sensing functionality. Simulations considered
+different vehicle densities, packet sizes, MCS values, subcarrier
+spacings, and transmission powers. Results showed that the
+learning-based approach was able to outperform fixed
+resource-allocation configurations in both communication and
+sensing metrics.
+
+In particular, the proposed strategy maintained higher PRR and
+lower CBR under increasing vehicular density while
+simultaneously reducing the CRLB of range and velocity
+estimation. This work therefore extended the earlier
+communication-centric resource-allocation framework toward a
+joint communication--sensing design, demonstrating the potential
+of learning-based ISAC resource management for future
+vehicular networks.
+
+% ============================================================
+\section{Overview of Contributions}
+\label{sec:vehicular_contributions}
+% ============================================================
+
+Research carried out in the Mobile Computing Lab has addressed different
+aspects of vehicular communication networks, with particular emphasis on
+communication under high mobility, safety-message dissemination, and radio
+resource management.
+
+\begin{itemize}
+
+    \item \textbf{Dhananjay Kumar:}
+    Research on routing protocols and dynamic access mechanisms for vehicular
+    networks, with emphasis on communication under rapidly changing network
+    topologies.
+
+    \item \textbf{Indulekha:}
+    Research on safety-message dissemination and radio resource allocation in
+    V2X networks, addressing the reliability and latency requirements of
+    vehicular communication.
+
+\end{itemize}
+
+These contributions reflect the broader evolution of vehicular networking
+research from distributed VANET communication toward cellular-assisted and
+resource-aware V2X systems.
+
+% ============================================================
+\section{Summary}
+\label{sec:vehicular_summary}
+% ============================================================
+
+Vehicular networking has progressed from distributed VANET architectures
+toward increasingly sophisticated V2X systems. IEEE 802.11p and DSRC
+established the foundation for direct short-range vehicular communication,
+particularly for safety-message dissemination. However, contention,
+congestion, and limited coordination motivated the investigation of
+cellular-based alternatives.
+
+LTE-V2X introduced direct PC5 sidelink communication together with both
+network-controlled and autonomous resource allocation. NR-V2X subsequently
+extended this framework to support advanced applications, flexible
+numerologies, unicast and groupcast communication, and more sophisticated
+resource-allocation mechanisms.
+
+The continuing evolution toward the Internet of Vehicles is integrating V2X
+communication with sensing, computing, artificial intelligence, and automated
+driving. Reliable safety-message dissemination and efficient radio resource
+allocation therefore remain central problems in the design of future
+vehicular communication networks.
+
