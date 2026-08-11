@@ -21,6 +21,10 @@
 \RequirePackage[T1]{fontenc}
 
 
+\RequirePackage{algorithm}
+\RequirePackage{algpseudocode}
+
+
 %% Fonts and typography
 \RequirePackage{lmodern}           % Latin Modern
 \renewcommand{\sfdefault}{phv}     % Helvetica
@@ -87,7 +91,7 @@
 \RequirePackage{etoolbox}                                % Hooks
 \RequirePackage{pgffor}                                  % For-loops
 \RequirePackage{comment}                                 % Multiline comments
-\RequirePackage[notref, notcite]{showkeys}               % Labels in margins
+% \RequirePackage[notref, notcite]{showkeys}               % Labels in margins
 \renewcommand{\showkeyslabelformat}[1]
 {
     \fbox
@@ -130,28 +134,45 @@
 \RequirePackage{tablefootnote}  % Footnotes for tables
 
 
+% %% Bibliography
+% \IfFileExists{mathscinet.sty}{\RequirePackage{mathscinet}}{}
+% \RequirePackage[backend    = biber,
+%                 sortcites  = true,
+%                 giveninits = true,
+%                 doi        = false,
+%                 isbn       = false,
+%                 url        = false,
+%                 sortlocale = nb_NO,
+%                 style      = alphabetic]{biblatex}
+% \DeclareNameAlias{sortname}{family-given}
+% \DeclareNameAlias{default}{family-given}
+% \DeclareFieldFormat[article]{volume}{\bibstring{jourvol}\addnbspace#1}
+% \DeclareFieldFormat[article]{number}{\bibstring{number}\addnbspace#1}
+% \renewbibmacro*{volume+number+eid}
+% {
+%     \printfield{volume}
+%     \setunit{\addcomma\space}
+%     \printfield{number}
+%     \setunit{\addcomma\space}
+%     \printfield{eid}
+% }
+% \addbibresource{bibliography.bib}
+
+
 %% Bibliography
 \IfFileExists{mathscinet.sty}{\RequirePackage{mathscinet}}{}
-\RequirePackage[backend    = biber,
-                sortcites  = true,
-                giveninits = true,
-                doi        = false,
-                isbn       = false,
-                url        = false,
-                sortlocale = nb_NO,
-                style      = alphabetic]{biblatex}
-\DeclareNameAlias{sortname}{family-given}
-\DeclareNameAlias{default}{family-given}
-\DeclareFieldFormat[article]{volume}{\bibstring{jourvol}\addnbspace#1}
-\DeclareFieldFormat[article]{number}{\bibstring{number}\addnbspace#1}
-\renewbibmacro*{volume+number+eid}
-{
-    \printfield{volume}
-    \setunit{\addcomma\space}
-    \printfield{number}
-    \setunit{\addcomma\space}
-    \printfield{eid}
-}
+
+\RequirePackage[
+    backend=biber,
+    style=ieee,
+    sorting=none,
+    sortcites=true,
+    giveninits=true,
+    doi=true,
+    isbn=false,
+    url=false
+]{biblatex}
+
 \addbibresource{bibliography.bib}
 
 

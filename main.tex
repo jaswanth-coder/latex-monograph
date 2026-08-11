@@ -7,6 +7,18 @@
 \usepackage{style}       % Custom style
 \usepackage{mnfrontpage} % Front page
 \usepackage{kantlipsum}  % Dummy text
+\documentclass[a4paper, british]{memoir}
+
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+% % ONLY if biblatex is NOT already loaded in style.sty:
+%  \usepackage[
+%     backend=biber,
+%      style=ieee,
+%      sorting=none
+%  ]{biblatex}
 
 \title{Design and performance evaluation of the Medium access layer protocol of wireless networks}
 \subtitle{A Comprehensive Synthesis of WLAN, 5G, IoT, and Analytical Modeling}
@@ -33,7 +45,7 @@
     sections/appendixA,
     sections/appendixB,
 }
-
+\addbibresource{bibliography.bib}
 \begin{document}
 
     \frontmatter        % Folios in Roman numerals, unnumbered chapters.
@@ -85,5 +97,7 @@
     \backmatter         % Folios in Arabic numerals, unnumbered chapters.
 
     \printbibliography
+
+    
 
 \end{document}

@@ -48,6 +48,15 @@ mobility, rapidly changing network topology, intermittent connectivity,
 stringent communication latency requirements, and highly dynamic wireless
 channels.
 
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\columnwidth]
+    {figures/Chapter 9 images/TS-V2X-communications_W640.jpg}
+    \caption{V2X communication architecture and communication modes.}
+    \label{fig:v2x_communications}
+\end{figure}
+
 Vehicular communications are commonly grouped under the general term
 Vehicle-to-Everything (V2X). Depending on the communicating entities, V2X
 communication can be categorized as follows:
@@ -114,41 +123,99 @@ concept of the Internet of Vehicles (IoV)
 \cite{zhou2020evolutionary,xu2018iov}.
 
 % ------------------------------------------------------------
-\subsection{Vehicular Applications}
+\subsection{V2X Applications}
 % ------------------------------------------------------------
 
-Applications supported by vehicular networks can broadly be divided into
-safety-related applications, traffic-efficiency applications, and
-infotainment services.
+Vehicular communication networks support a wide range of applications that
+can broadly be classified into four categories: \emph{road safety},
+\emph{traffic management}, \emph{infotainment}, and
+\emph{autonomous driving}, as illustrated in
+Fig.~\ref{fig:v2x_applications}.
 
-Safety applications are generally the most time-critical. Examples include
-forward-collision warning, emergency braking notification, intersection
-collision warning, lane-change assistance, and hazardous-road-condition
-notification. These applications typically require frequent dissemination of
-vehicle status information together with highly reliable reception and low
-communication latency.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/V2X APPLICATIONS.png}
+    \caption{Major application categories supported by V2X communication networks.}
+    \label{fig:v2x_applications}
+\end{figure}
 
-Traffic-efficiency applications use information collected from vehicles and
-road infrastructure to improve traffic flow. Examples include congestion
-notification, adaptive route planning, traffic signal coordination, and
-optimal speed advisory.
+\begin{itemize}
 
-Infotainment applications include Internet connectivity, multimedia
-streaming, map updates, passenger services, and cloud-based vehicle services.
-Unlike many safety applications, these services can require relatively high
-data rates while tolerating larger communication delays.
+    \item \textbf{Road Safety:}
+    Road-safety applications are among the most time-critical services in
+    vehicular networks and generally require highly reliable and low-latency
+    communication. Typical applications include collision warning, collision
+    avoidance, road-hazard warning, intersection warning, remote diagnostics,
+    and emergency-vehicle alerts.
 
-The emergence of automated driving has introduced another category of
-communication-intensive applications. Vehicle platooning, cooperative
-perception, sensor-information sharing, trajectory coordination, and remote
-driving require substantially stronger combinations of reliability, latency,
-and throughput than traditional vehicular safety messaging.
+    \item \textbf{Traffic Management:}
+    Traffic-management applications utilize information exchanged among
+    vehicles and roadside infrastructure to improve traffic flow and reduce
+    congestion. Representative services include speed management, traffic
+    information dissemination, routing information, and cooperative
+    navigation.
+
+    \item \textbf{Infotainment:}
+    Infotainment applications provide connectivity and multimedia services to
+    vehicle occupants. These services generally tolerate larger communication
+    delays than safety applications but may require higher data rates.
+    Examples include in-vehicle Internet access, video streaming, online
+    gaming, weather-information services, and information on points of
+    interest.
+
+    \item \textbf{Autonomous Driving:}
+    Automated and cooperative driving applications rely on timely information
+    exchange between vehicles and their surroundings. Representative
+    applications include electronic stability control, automatic braking,
+    adaptive cruise control, and cooperative awareness. These services impose
+    stringent requirements on communication reliability, latency, and
+    information freshness.
+
+\end{itemize}
+
+The communication requirements of these application classes vary
+considerably. Road-safety and autonomous-driving applications are primarily
+latency- and reliability-sensitive, whereas infotainment services are more
+throughput-oriented. Consequently, vehicular networks must support
+heterogeneous quality-of-service requirements under rapidly changing network
+topologies and wireless-channel conditions.
 
 % ============================================================
 \section{IEEE 802.11-Based Vehicular Networks}
 \label{sec:80211_vanet}
 % ============================================================
+\begin{table}[!ht]
+\centering
+\caption{Comparison between IEEE 802.11p and IEEE 802.11bd}
+\label{tab:80211p_80211bd_comparison}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{p{0.33\textwidth} p{0.25\textwidth} p{0.32\textwidth}}
+\hline\hline
+\textbf{Features} & \textbf{802.11p} & \textbf{802.11bd} \\
+\hline
+Supported relative speed
+& 252 kmph
+& 500 kmph \\
 
+Sub-carrier spacing
+& 156.25 kHz
+& 78.125, 156.25, 312.5 kHz \\
+
+Channel coding
+& BCC
+& LDPC \\
+
+Midambles
+& No
+& Yes \\
+
+Radio bands
+& 5.9 GHz
+& 5.9 GHz, 60 GHz \\
+\hline\hline
+\end{tabular}
+\end{table}
 Dedicated Short-Range Communications was among the earliest widely studied
 radio technologies for V2X communication. In the United States, DSRC was
 developed around operation in the 5.9~GHz band and was supported by the
@@ -228,6 +295,55 @@ A major development that enabled cellular V2X was the introduction of direct
 device-to-device sidelink communication. C-V2X therefore supports both
 infrastructure-based communication through the conventional cellular
 interface and direct communication between nearby road users.
+
+
+\begin{table}[!ht]
+\centering
+\caption{Comparison between LTE-V2X and NR-V2X}
+\label{tab:lte_nr_v2x_comparison}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{p{0.31\textwidth} p{0.31\textwidth} p{0.32\textwidth}}
+\hline\hline
+\textbf{Features} & \textbf{LTE-V2X} & \textbf{NR-V2X} \\
+\hline
+
+Subcarrier spacing
+& 15 kHz
+& 15, 30, 60, 120 kHz \\
+
+Communication modes
+& Broadcast
+& Unicast, Groupcast, Broadcast \\
+
+MCS
+& QPSK, 16-QAM
+& QPSK, 16-QAM, 64-QAM \\
+
+Waveform
+& SC-FDMA
+& OFDM \\
+
+PSCCH and PSSCH
+& FDM
+& TDM \\
+
+Feedback channel
+& No
+& PSFCH \\
+
+DMRS/subframe
+& 4
+& Flexible \\
+
+Sidelink modes
+& 3, 4
+& 1, 2 \\
+
+\hline\hline
+\end{tabular}
+\end{table}
+
+
 
 % ------------------------------------------------------------
 \subsection{LTE-V2X Architecture}
@@ -396,36 +512,361 @@ reliability, latency, packet age, and information-update frequency.
 \label{sec:v2x_resource_allocation}
 % ============================================================
 
-Efficient radio resource allocation is particularly important in vehicular
-networks because multiple vehicles must frequently share limited
-time-frequency resources while satisfying heterogeneous communication
-requirements.
+Radio resource allocation is a fundamental component of vehicular
+communication systems because a potentially large number of vehicles must
+share a limited set of time--frequency resources while satisfying stringent
+requirements on reliability, latency, communication range, and information
+freshness. The resource-allocation problem becomes particularly challenging
+in vehicular environments because network topology, channel conditions,
+vehicle density, and traffic-generation patterns vary rapidly with time.
 
-Resource-allocation methods can broadly be categorized as centralized,
-distributed, and hybrid approaches.
+Broadly, vehicular resource-allocation mechanisms can be classified as
+\emph{network-controlled} and \emph{autonomous} schemes. In
+network-controlled operation, a cellular base station coordinates sidelink
+resources using information available at the infrastructure. In autonomous
+operation, each vehicle selects resources from a configured or preconfigured
+resource pool based primarily on locally available sensing information.
+Hybrid schemes can additionally exploit infrastructure assistance while
+retaining distributed resource-selection capability.
 
-In centralized approaches, a base station or roadside controller collects
-network information and determines resource assignments. Such methods can
-achieve coordinated interference management but introduce signaling overhead
-and depend on infrastructure availability.
+% ------------------------------------------------------------
+\subsection{Sidelink Resource Pools and Resource Selection}
+% ------------------------------------------------------------
 
-Distributed methods allow individual vehicles to select their own
-transmission resources. They offer greater robustness to infrastructure
-unavailability but must make decisions using incomplete knowledge of
-neighboring resource selections.
+Direct V2X communication over the PC5 interface is organized using sidelink
+resource pools. A resource pool defines the time--frequency resources that
+may be used for sidelink transmission. Depending on the operating mode, the
+resources within the pool can either be assigned by the cellular
+infrastructure or selected autonomously by the transmitting User Equipment
+(UE).
 
-Spatial resource reuse is particularly important in V2X networks because the
-same resource can potentially be assigned to geographically separated
-transmitters whose mutual interference is sufficiently small. Consequently,
-location-aware, clustering-based, graph-based, and interference-aware
-resource-allocation mechanisms have been extensively investigated
-\cite{abantoleon2017graph,cecchini2018reuse}.
+The available bandwidth is divided into Physical Resource Blocks (PRBs),
+which are grouped into subchannels for sidelink transmission. A Transport
+Block (TB), carrying a vehicular packet such as a Cooperative Awareness
+Message (CAM) or Basic Safety Message (BSM), is transmitted over the
+Physical Sidelink Shared Channel (PSSCH). Associated control information is
+conveyed through Sidelink Control Information (SCI), which informs
+neighboring vehicles about parameters required for reception and resource
+coordination.
 
-More recently, learning-based approaches have also been investigated for
-vehicular resource allocation. Reinforcement learning enables vehicles or
-infrastructure controllers to adapt resource-selection decisions using
-observations of network conditions rather than relying entirely on fixed
-heuristic rules.
+The resource-allocation process must therefore determine not only the
+time--frequency resources used by each vehicle, but also how long resources
+are retained, when they are reselected, and how simultaneously operating
+vehicles avoid repeatedly selecting overlapping resources.
+
+% ------------------------------------------------------------
+\subsection{Network-Controlled Resource Allocation}
+% ------------------------------------------------------------
+
+Network-controlled resource allocation exploits the global or regional
+information available at the cellular infrastructure. In LTE-V2X, this
+operation is referred to as Mode~3, whereas NR-V2X introduces the
+corresponding Mode~1 operation.
+
+In LTE-V2X Mode~3, an evolved Node B (eNB) manages the sidelink resources
+used by vehicles. Resource assignment can be performed through dynamic
+scheduling or Semi-Persistent Scheduling (SPS). Under dynamic scheduling,
+a vehicle requests resources for each new Transport Block. This provides
+flexibility but introduces repeated uplink and downlink control signaling.
+SPS instead reserves resources over several transmissions and is therefore
+well suited to periodic safety-message generation.
+
+NR-V2X Mode~1 retains network-controlled allocation but introduces
+additional scheduling flexibility. A gNB can dynamically assign sidelink
+resources through a Dynamic Grant (DG), or pre-allocate resources through a
+Configured Grant (CG). Dynamic grants require vehicles to request resources
+for individual Transport Blocks, whereas configured grants allow a set of
+sidelink resources to be assigned in advance for multiple transmissions.
+The latter reduces scheduling latency and signaling overhead for recurring
+traffic.
+
+Network-controlled allocation enables coordinated interference management
+and potentially efficient spatial reuse. However, it requires network
+coverage and introduces control signaling between vehicles and the serving
+base station. Its effectiveness can also depend on the availability and
+timeliness of Channel State Information (CSI), traffic information, vehicle
+position, and interference measurements.
+
+% ------------------------------------------------------------
+\subsection{Autonomous Resource Allocation and LTE-V2X Mode~4}
+% ------------------------------------------------------------
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/LTEV2X FRAMESTRUCTURE.png}
+    \caption{LTE V2X FRAME STRUCTURE}
+    \label{fig:v2x_communications}
+\end{figure}
+Autonomous resource allocation is particularly important for direct
+vehicle-to-vehicle communication because safety services should remain
+operational even when cellular infrastructure is unavailable. LTE-V2X
+Mode~4 therefore allows vehicles to autonomously select sidelink resources
+from a configured or preconfigured resource pool.
+
+Mode~4 employs a Sensing-Based Semi-Persistent Scheduling (SB-SPS)
+procedure. Rather than selecting a completely new resource for every packet,
+a vehicle senses previous sidelink activity, identifies candidate resources,
+selects an appropriate resource, and reserves it for several consecutive
+transmissions.
+
+The operation of SB-SPS can be summarized through four main components:
+the sensing window, selection window, resource exclusion procedure, and
+semi-persistent reservation mechanism.
+
+\subsubsection{Sensing Window}
+
+Before performing resource selection, a vehicle observes sidelink activity
+during a sensing window. The purpose of sensing is to estimate which
+resources have recently been occupied or announced as reserved by
+neighboring vehicles.
+
+Sidelink Control Information received from neighboring vehicles indicates
+their resource reservations and corresponding Resource Reservation
+Intervals (RRIs). The transmitting UE can therefore predict resources that
+are likely to be occupied during its future transmissions.
+
+\subsubsection{Selection Window}
+
+When a new resource must be selected, candidate resources are constructed
+within a future \emph{selection window}. The beginning of this window
+accounts for the UE processing time required to perform resource selection,
+while its end must satisfy the latency requirement of the packet awaiting
+transmission.
+
+Consequently, the allowable selection window is closely coupled with the
+latency requirement of the vehicular application. Safety-critical packets
+with short Packet Delay Budgets (PDBs) provide a smaller time interval over
+which resources can be selected.
+
+\subsubsection{Resource Exclusion Based on Sensing}
+
+Resources predicted to be occupied by neighboring vehicles are removed
+from the candidate set. This prediction is based on decoded SCI messages,
+announced reservations, and Reference Signal Received Power (RSRP)
+measurements.
+
+A candidate resource associated with another vehicle's reservation is
+excluded when the measured RSRP exceeds a configured threshold. If too few
+candidate resources remain after exclusion, the RSRP threshold is
+progressively relaxed to increase the number of available candidates.
+
+LTE-V2X Mode~4 subsequently evaluates the average Received Signal Strength
+Indicator (RSSI) of the surviving candidate resources. Resources
+experiencing the lowest average RSSI are preferred, thereby reducing the
+likelihood of selecting highly interfered time--frequency resources.
+
+A resource is finally selected from the resulting candidate set. The
+distributed nature of this procedure reduces the probability of resource
+collisions without requiring centralized coordination.
+
+\subsubsection{Semi-Persistent Reservation}
+
+Once a resource has been selected, SB-SPS allows the vehicle to retain the
+same resource for multiple consecutive transmissions. The temporal
+separation between successive reserved resources is controlled by the
+Resource Reservation Interval (RRI).
+
+A Reselection Counter determines the number of consecutive Transport Blocks
+for which the selected resource is maintained. The counter is decremented
+after transmission, and when it reaches zero the vehicle decides whether to
+retain the existing reservation or perform resource reselection.
+
+If $P_{\mathrm{keep}}$ denotes the probability of retaining the current
+resource, the vehicle retains the previously selected resource with
+probability $P_{\mathrm{keep}}$ and initiates a new sensing-based selection
+procedure with probability
+\begin{equation}
+    P_{\mathrm{reselect}}
+    =
+    1-P_{\mathrm{keep}}.
+\end{equation}
+
+Resource retention reduces reselection overhead and provides temporal
+stability. However, excessive retention can preserve resource collisions
+when neighboring vehicles have selected overlapping resources. Conversely,
+frequent reselection can increase sensing and scheduling overhead.
+Consequently, the choice of $P_{\mathrm{keep}}$ creates an important
+trade-off between scheduling stability and adaptability.
+
+% ------------------------------------------------------------
+\subsection{NR-V2X Mode~2 Resource Allocation}
+% ------------------------------------------------------------
+
+NR-V2X Mode~2 generalizes autonomous sidelink resource allocation for the
+more heterogeneous traffic patterns and Quality-of-Service (QoS)
+requirements associated with advanced vehicular applications. Similar to
+LTE-V2X Mode~4, vehicles can autonomously select resources without
+continuous gNB assistance. However, the NR-V2X procedure introduces several
+important modifications.
+
+First, Mode~2 supports both \emph{dynamic} and \emph{semi-persistent}
+resource allocation. Under dynamic allocation, new sidelink resources are
+selected for each Transport Block and may additionally be reserved for its
+retransmissions. Under semi-persistent allocation, resources are selected
+for several consecutive Transport Blocks separated according to an RRI.
+
+NR-V2X also provides substantially greater flexibility in the choice of
+RRI. In addition to longer periodic intervals, integer RRI values between
+1~ms and 99~ms can be supported, allowing the reservation periodicity to be
+better matched to heterogeneous and latency-sensitive traffic patterns.
+
+The selected RRI is also related to the Reselection Counter, which determines
+how many consecutive Transport Blocks use the selected resources. After the
+counter reaches zero, a vehicle can either retain the selected resources or
+perform another resource-selection procedure, thereby maintaining the
+semi-persistent character of distributed scheduling.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/RESOURCE ALLOCATION NR.png}
+    \caption{5G V2X resource Grid}
+    \label{fig:v2x_communications}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsubsection{NR-V2X Mode~2 Sensing and Candidate Selection}
+% ------------------------------------------------------------
+
+The NR-V2X Mode~2 resource-selection procedure first constructs a set of
+candidate resources within the selection window. Resources that cannot be
+reliably evaluated because the UE was transmitting during the corresponding
+sensing opportunities can be excluded. Candidate resources predicted to
+overlap with reservations announced through first-stage SCI messages from
+neighboring UEs are also removed.
+
+The exclusion decision considers the RSRP measured for the received
+reservation. A resource is excluded when the measured RSRP exceeds a
+priority-dependent threshold. If the percentage of available candidate
+resources becomes smaller than a configured value, the RSRP threshold is
+increased by 3~dB and the exclusion procedure is repeated until a sufficient
+candidate set is available.
+
+Unlike LTE-V2X Mode~4, NR-V2X Mode~2 does not include the additional stage
+that ranks surviving candidate resources according to their average RSSI.
+After the exclusion procedure, the transmitting UE randomly selects the
+required sidelink resources from the available candidate set.
+
+This distinction is important because NR-V2X resource selection should not
+be interpreted simply as the LTE Mode~4 SB-SPS procedure operating with a
+different numerology.
+
+% ------------------------------------------------------------
+\subsection{Resource Reservation, Reselection, and RRI}
+% ------------------------------------------------------------
+
+Resource reservation is communicated to neighboring vehicles through SCI so
+that nearby UEs can avoid resources expected to be occupied in future slots.
+For semi-persistent operation, the RRI defines the separation between
+resources allocated to consecutive Transport Blocks.
+
+For example, NR-V2X Mode~2 permits a set of configured RRI values including
+short intervals between 1~ms and 99~ms together with longer periodic
+intervals extending up to 1000~ms. This increased flexibility is important
+for supporting both periodic safety messages and emerging applications with
+more heterogeneous packet-generation characteristics.
+
+The relationship between RRI and the Reselection Counter controls the
+duration of a reservation. Short RRIs generate more frequent transmissions
+and therefore require careful congestion management, whereas large RRIs
+reduce resource occupancy but may increase the time between consecutive
+updates.
+
+Resource reselection may additionally become necessary when the currently
+reserved resources cannot accommodate a newly generated Transport Block,
+when the transmission cannot satisfy its latency requirement, or when new
+sensing information indicates that the selected resource is no longer
+suitable.
+
+% ------------------------------------------------------------
+\subsection{Re-Evaluation and Pre-Emption in NR-V2X}
+% ------------------------------------------------------------
+
+A significant enhancement in NR-V2X Mode~2 is the possibility of
+\emph{resource re-evaluation}. After an initial resource has been selected,
+the UE can repeat the sensing and exclusion procedure before transmission.
+If new information indicates that the selected resource has become
+unavailable, another resource can be selected from the updated candidate
+set.
+
+This mechanism improves robustness to changes occurring between initial
+resource selection and actual transmission, including previously undetected
+reservations or rapidly varying interference conditions.
+
+NR-V2X Mode~2 also introduces a \emph{pre-emption} mechanism for handling
+traffic with different priorities. When a lower-priority UE determines that
+a higher-priority transmission is expected to use one of its reserved
+resources, the lower-priority UE can release that reservation and select
+another resource. This mechanism enables distributed resource allocation to
+better accommodate heterogeneous vehicular services with different latency
+and reliability requirements.
+
+% ------------------------------------------------------------
+\subsection{Congestion-Aware Resource Allocation}
+% ------------------------------------------------------------
+
+The performance of autonomous sidelink scheduling deteriorates as the number
+of simultaneously transmitting vehicles increases. When many vehicles reuse
+the same resource pool, the number of collision-free candidate resources
+decreases and persistent resource collisions become more likely.
+
+Two commonly used indicators of sidelink congestion are the Channel Busy
+Ratio (CBR) and Channel Occupancy Ratio (CR). CBR characterizes the fraction
+of observed sidelink resources whose measured received signal strength
+exceeds a configured threshold, whereas CR characterizes the fraction of
+resources occupied by an individual transmitting UE.
+
+These metrics can be used to adapt transmission and resource-allocation
+parameters. Under high channel load, a vehicle may reduce its resource
+occupancy by modifying the MCS, transmit power, packet-transmission rate, or
+other scheduling parameters. Congestion-aware operation is therefore closely
+coupled with both PHY-layer configuration and MAC-layer resource reservation.
+
+% ------------------------------------------------------------
+\subsection{Spatial Reuse and Interference-Aware Allocation}
+% ------------------------------------------------------------
+
+Spatial resource reuse is essential for achieving high capacity in dense V2X
+networks. The same time--frequency resource can be reused by geographically
+separated vehicle pairs when the resulting mutual interference remains
+sufficiently small. Resource assignment must therefore account not only for
+whether a resource is occupied but also for the spatial relationship among
+simultaneous transmitters and receivers.
+
+Location-aware, clustering-based, graph-based, and interference-aware
+resource-allocation methods have consequently been investigated for
+vehicular systems
+\cite{abantoleon2017graph,cecchini2018reuse}. Graph-based formulations, for
+example, can represent mutually interfering V2V links as adjacent vertices
+or edges and allocate radio resources so that strongly interfering links are
+separated whenever possible.
+
+% ------------------------------------------------------------
+\subsection{Learning-Based Resource Allocation}
+% ------------------------------------------------------------
+
+The large number of interacting parameters involved in V2X sidelink
+operation has motivated learning-based resource-allocation techniques.
+Parameters such as the Modulation and Coding Scheme (MCS), transmit power,
+subcarrier spacing, Resource Reservation Interval, and resource-retention
+probability affect reliability, latency, information freshness, and channel
+congestion in a coupled manner.
+
+Reinforcement learning can therefore be used to adapt resource-allocation
+decisions according to observed network conditions rather than relying on a
+single fixed configuration. The learning state can incorporate information
+such as vehicle density, channel occupancy, previous packet-reception
+performance, packet size, packet-generation interval, and sensing
+measurements, while the action can control one or more PHY- and MAC-layer
+parameters.
+
+Such approaches are particularly relevant for NR-V2X Mode~2 because
+autonomous vehicles must make distributed scheduling decisions using only
+partial observations of the surrounding network. Nevertheless,
+learning-based schemes do not replace the underlying NR-V2X resource
+selection procedure. Rather, they should operate within the feasible
+resource pools, sensing rules, reservation mechanisms, and QoS constraints
+defined by the sidelink protocol.
 
 % ============================================================
 \section{Heterogeneous Vehicular Networks}
@@ -505,6 +946,14 @@ the corresponding road segments. When congestion is detected,
 the RSU broadcasts the relevant information to approaching
 vehicles, enabling them to select an alternative route.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/traffic control sumo.png}
+    \caption{Simulation environment for the traffic safety evaluation}
+    \label{fig:v2x_communications}
+\end{figure}
+
 The study was aimed at understanding how communication-network
 parameters affect the ultimate traffic-safety performance of a
 vehicular network. In particular, the effects of transmission
@@ -525,6 +974,14 @@ maintain information about traffic conditions in their coverage
 regions. When congestion is identified, vehicles can determine
 an alternate path using shortest-path routing.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/bolona map.png}
+    \caption{Screenshot of the partial Bolona Ringway map used in the simulation}
+    \label{fig:v2x_communications}
+\end{figure}
+
 The evaluation demonstrated the strong coupling between
 communication parameters and traffic-safety performance.
 Frequent beacon transmission improves the freshness of traffic
@@ -542,6 +999,74 @@ channel. The study therefore highlighted that the communication
 parameters of a WAVE-based VANET cannot be configured
 independently of the underlying traffic conditions.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+   {figures/Chapter 9 images/TRAFFIC FIG1.png}
+        \caption{Collision rate versus packet bit rate for different packet
+        transmission intervals.}
+        \label{fig:traffic_collision_bitrate}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+   {figures/Chapter 9 images/TRAFFIC FIG2.png}
+        \caption{Collision rate under different vehicle mobility ranges.}
+        \label{fig:traffic_collision_mobility}
+\end{figure}
+
+% \begin{figure}[!ht]
+%     \centering
+
+%     % ---------------- Left figure ----------------
+%     \begin{subfigure}[t]{0.48\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]
+%         {figures/Chapter 9 images/TRAFFIC FIG1.png}
+%         \caption{Collision rate versus packet bit rate for different packet
+%         transmission intervals.}
+%         \label{fig:traffic_collision_bitrate}
+%     \end{subfigure}
+%     \hfill
+%     % ---------------- Right figure ----------------
+%     \begin{subfigure}[t]{0.48\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]
+%         {figures/Chapter 9 images/TRAFFIC FIG2.png}
+%         \caption{Collision rate under different vehicle mobility ranges.}
+%         \label{fig:traffic_collision_mobility}
+%     \end{subfigure}
+
+%     \caption{Impact of traffic-generation parameters and vehicle mobility on
+%     packet collision performance in vehicular networks:
+%     (a) collision rate as a function of packet bit rate for different packet
+%     transmission intervals, and
+%     (b) collision rate for different vehicle speed ranges.}
+%     \label{fig:traffic_collision_performance}
+% \end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]
+    {figures/Chapter 9 images/TRAFFIC FIG3.png}
+    \caption{Collision rate against the number of vehicles. Bit rate =
+    27~Mbps, packet interval = 0.25~s, mobility range = 20--80~km/h,
+    and transmit power = 17.5~mW.}
+    \label{fig:traffic_collision_vehicles}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]
+    {figures/Chapter 9 images/TRAFFIC FIG4.png}
+    \caption{Collision rate against transmit power. Bit rate =
+    27~Mbps, packet interval = 0.25~s, mobility range = 20--80~km/h,
+    and number of vehicles = 1000.}
+    \label{fig:traffic_collision_txpower}
+\end{figure}
+
+
 This work established the initial connection between
 communication-level configuration and road-safety performance
 in the vehicular networking studies considered in this chapter.
@@ -549,6 +1074,27 @@ It also motivated subsequent investigations of more coordinated
 cellular V2X technologies and adaptive radio-resource
 management mechanisms.
 
+
+\begin{table}[!ht]
+\centering
+\caption{Parameters used for the simulation}
+\label{tab:simulation_parameters}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{p{0.58\textwidth} p{0.34\textwidth}}
+\hline\hline
+\textbf{Parameters in OMNeT++} & \textbf{Values} \\
+\hline
+Simulation time          & 205 sec \\
+Max TA attempts           & 14 \\
+PHY sensitivity           & $-95$ dBm \\
+Update interval           & 0.1 sec \\
+Transmission bit rate     & 3, 12, 18, 24, 27 Mbps \\
+Packet interval           & 0.25, 0.5, 1 sec \\
+TX power                  & 2, 5, 8, 10, 20, 30 mW \\
+Number of vehicles        & 1000, 2000, 3000, 4000, 5000 \\
+\hline\hline
+\end{tabular}
+\end{table}
 % ------------------------------------------------------------
 \subsection{Performance Analysis and Adaptive Resource Allocation in Cellular V2X}
 \label{subsec:cv2x_performance_resource_allocation}
@@ -563,6 +1109,31 @@ emphasis on the impact of physical- and MAC-layer parameters
 on the reliability and timeliness of vehicular information
 exchange.
 
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/PAV2X FIG1.png}
+        \caption{PRR versus distance between vehicles for different subcarrier spacings (SCS).}
+        \label{fig:pav2x_prr_distance}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/PAV2X FIG4.png}
+        \caption{PRR versus vehicular density for different subcarrier spacings (SCS).}
+        \label{fig:pav2x_prr_density}
+    \end{subfigure}
+
+    \caption{Packet reception ratio (PRR) performance for different subcarrier spacings:
+    (a) PRR versus inter-vehicle distance, and
+    (b) PRR versus vehicular density.}
+    \label{fig:pav2x_prr_scs}
+\end{figure}
+
 LTE-V2X, introduced by 3GPP for direct sidelink vehicular
 communication, enables vehicles to communicate through the PC5
 interface. In LTE-V2X, a fixed subcarrier spacing of $15$~kHz
@@ -572,6 +1143,32 @@ NR-V2X extends this framework by introducing a flexible OFDM
 numerology and additional mechanisms for supporting more
 stringent and heterogeneous vehicular communication
 requirements.
+
+\begin{table}[!ht]
+\centering
+\caption{Simulation settings}
+\label{tab:simulation_settings}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{|p{0.66\textwidth}|p{0.16\textwidth}|}
+\hline
+\centering \textbf{Parameter} & \centering\arraybackslash \textbf{Value} \\
+\hline
+\centering Simulation Time (s) & \centering\arraybackslash 150 \\
+\centering Technology & \centering\arraybackslash NR-V2X \\
+\centering Beacon Size (in Bytes) & \centering\arraybackslash 190 \\
+\centering Bandwidth ($B$) (in MHz) & \centering\arraybackslash 10 \\
+\centering Contention Window (CW) & \centering\arraybackslash 15 \\
+\centering Density of vehicles ($\rho$) & \centering\arraybackslash 35 \\
+\centering Mean speed of vehicles ($v_{\mathrm{Mean}}$) & \centering\arraybackslash 240 \\
+\centering Resource keep probability ($p_k$) & \centering\arraybackslash 0.8 \\
+\centering Noise figure of the receiver (dB) & \centering\arraybackslash 9 \\
+\centering Modulation and Coding Scheme (MCS) & \centering\arraybackslash 7 \\
+\centering Channel Model & \centering\arraybackslash Winner+ \\
+\centering Delay Resolution (s) & \centering\arraybackslash 0.001 \\
+\centering Duplexing Type & \centering\arraybackslash HD \\
+\hline
+\end{tabular}
+\end{table}
 
 A detailed simulation-based evaluation was carried out using
 LTEV2Vsim for LTE-V2X and WiLabV2Xsim for NR-V2X. The
@@ -593,6 +1190,59 @@ consideration of reliability and information timeliness is
 particularly important for safety-related vehicular applications,
 where successful reception alone is insufficient if the received
 information has become outdated.
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=5.5cm,height=6cm]
+        {figures/Chapter 9 images/PAV2X FIG3.png}
+        \caption{Data age versus vehicular density for different subcarrier spacings (SCS).}
+        \label{fig:pav2x_data_age_density}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=5.5cm,height=6cm]
+        {figures/Chapter 9 images/PAV2X FIG4.png}
+        \caption{Update delay versus vehicular density for different subcarrier spacings (SCS).}
+        \label{fig:pav2x_update_delay_density}
+    \end{subfigure}
+
+    \caption{Impact of vehicular density for different subcarrier spacings:
+    (a) data age versus vehicular density, and
+    (b) update delay versus vehicular density.}
+    \label{fig:pav2x_age_delay_density}
+\end{figure}
+
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/PAV2X ADA1.png}
+    \caption{Comparison of Default and mod
+ified algorithm: PRR versus Transmission
+power}
+    \label{fig:v2x_communications}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/PAV2X ADA2.png}
+    \caption{Comparison of Default and Mod
+ified algorithm: PRR versus MCS}
+    \label{fig:v2x_communications}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/PAV2X ADA3.png}
+    \caption{Comparison of Default and Mod
+ified algorithm: PRR versus Density}
+    \label{fig:v2x_communications}
+\end{figure}
 
 The numerical study showed that the performance of NR-V2X
 depends strongly on the selected physical-layer and
@@ -611,6 +1261,8 @@ SCS values shorten the corresponding slot duration and improve
 robustness against frequency-domain impairments associated with
 high mobility. However, a single SCS configuration is not
 necessarily suitable for all vehicular conditions.
+
+
 
 Motivated by this observation, an adaptive resource-allocation
 mechanism was proposed in which the SCS is dynamically
@@ -664,6 +1316,14 @@ packet size can cause a previously reserved resource to become
 insufficient for a subsequent larger packet, forcing the vehicle to
 perform resource reselection.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=10cm, height=6cm]
+    {figures/Chapter 9 images/Aperiodic.png}
+    \caption{Resource underutilization scenarios}
+    \label{fig:v2x_communications}
+\end{figure}
+
 To improve the adaptability of sidelink resource reservation, three
 important parameters were jointly considered: the Modulation and
 Coding Scheme (MCS), the Resource Reservation Interval (RRI), and
@@ -673,6 +1333,93 @@ robustness, while the RRI controls the temporal spacing between
 reserved transmission opportunities. The parameter
 $P_{\mathrm{keep}}$ determines whether previously selected sidelink
 resources are retained after expiration of the reselection counter.
+
+\begin{algorithm}[H]
+\caption{Double Deep Q-Learning for Adaptive Resource Allocation in NR-V2X}
+\label{alg:ddqn_nrv2x}
+\begin{algorithmic}[1]
+
+\State Initialize Q-network with random weights $\theta$
+\State Initialize target Q-network with weights $\theta^{-} \gets \theta$
+\State Initialize replay memory $\mathcal{D}$
+
+\For{episode $=1$ to $M$}
+
+    \State Initialize state $s_0$ based on V2X parameters
+
+    \For{$t=1$ to $T$}
+
+        \State With probability $\epsilon$, select a random action
+        \[
+        a_t = (\mathrm{MCS},\mathrm{RRI},P_{\mathrm{keep}})
+        \]
+
+        \State Otherwise, select
+        \[
+        a_t =
+        \arg\max_{a}
+        Q(s_t,a;\theta)
+        \]
+
+        \State Execute action $a_t$ in the V2X environment
+        \State Observe reward $r_t$ and next state $s_{t+1}$
+
+        \State Store transition
+        \[
+        (s_t,a_t,r_t,s_{t+1})
+        \]
+        in replay memory $\mathcal{D}$
+
+        \State Sample a minibatch of transitions
+        \[
+        (s_j,a_j,r_j,s_{j+1})
+        \]
+        from $\mathcal{D}$
+
+        \State Select the next action using the online Q-network:
+        \[
+        a_j^{*}
+        =
+        \arg\max_{a}
+        Q(s_{j+1},a;\theta)
+        \]
+
+        \If{$s_{j+1}$ is terminal}
+            \State $y_j \gets r_j$
+        \Else
+            \State
+            \[
+            y_j
+            \gets
+            r_j
+            +
+            \gamma
+            Q(s_{j+1},a_j^{*};\theta^{-})
+            \]
+        \EndIf
+
+        \State Update $\theta$ by minimizing
+        \[
+        \left(
+        y_j-Q(s_j,a_j;\theta)
+        \right)^2
+        \]
+
+        \If{$C$ steps have passed}
+            \State Update target network:
+            \[
+            \theta^{-} \gets \theta
+            \]
+        \EndIf
+
+        \State $s_t \gets s_{t+1}$
+
+    \EndFor
+
+\EndFor
+
+\end{algorithmic}
+\end{algorithm}
 
 A Double Deep Q-Network (DDQN)-based resource-allocation
 mechanism was developed to dynamically adapt these parameters
@@ -711,115 +1458,32 @@ utility $\Phi$, enabling the agent to learn resource configurations
 that respond to changes in packet generation, packet size, and
 network conditions.
 
-DDQN was adopted to improve the stability of value-based learning
-by separating action selection from target-value evaluation. A
-behavior Q-network determines the resource-allocation action, while
-a target network is periodically updated to provide stable learning
-targets. Experience replay is used to train the network from
-previously observed state--action--reward transitions.
+\begin{figure}[!ht]
+    \centering
 
-The proposed framework was evaluated using WiLabV2Xsim under
-NR-V2X Mode~2 operation. The experiments considered variations in
-vehicle density, packet size, packet-generation interval, MCS,
-RRI, and resource keep probability. The results showed that
-dynamically adapting these parameters provides a better balance
-between packet-reception reliability and information freshness than
-using fixed parameter configurations.
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/APERIODIC FIG1.png}
+        \caption{PRR versus distance for fixed MCS cases and the proposed method.}
+        \label{fig:aperiodic_prr_distance}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/APERIODIC FIG2.png}
+        \caption{Data age versus packet size for fixed MCS cases and the proposed method.}
+        \label{fig:aperiodic_data_age}
+    \end{subfigure}
 
-In particular, adaptive MCS selection improved packet reception at
-larger communication distances while reducing Data Age for
-different packet sizes. Adaptive selection of $P_{\mathrm{keep}}$
-improved robustness under changing vehicle densities, while dynamic
-RRI adaptation was particularly beneficial for aperiodic traffic,
-where a fixed reservation interval can result in either unused
-resources or delayed information updates.
+    \caption{Performance comparison of the proposed method with fixed MCS configurations:
+    (a) packet reception ratio (PRR) versus communication distance, and
+    (b) data age versus packet size.}
+    \label{fig:aperiodic_performance}
+\end{figure}
 
-This work extended the earlier parameter-based resource-allocation
-studies toward intelligent and environment-aware radio-resource
-management. It demonstrated that learning-based adaptation can be
-used to modify fundamental NR-V2X Mode~2 scheduling parameters in
-response to heterogeneous and unpredictable vehicular traffic.
 
-% ------------------------------------------------------------
-\subsection{Learning-Based Resource Allocation for Aperiodic NR-V2X Traffic}
-\label{subsec:drl_nrv2x_resource_allocation}
-% ------------------------------------------------------------
-
-The increasing diversity of V2X applications introduces traffic
-patterns that differ considerably from the periodic safety-message
-generation originally considered in conventional sidelink scheduling.
-In particular, NR-V2X must accommodate aperiodic packet generation
-and variable packet sizes while maintaining high reliability and
-information freshness. To address these requirements, a learning-based
-adaptive resource-allocation framework was developed for NR-V2X
-Mode~2 \cite{indulekha2024drl}.
-
-NR-V2X Mode~2 enables vehicles to autonomously select sidelink
-resources using Sensing-Based Semi-Persistent Scheduling (SB-SPS).
-Under SB-SPS, a vehicle reserves resources for a number of
-consecutive transmissions according to a Resource Reservation
-Interval (RRI). When the reselection counter expires, the vehicle
-either retains the previously selected resource with probability
-$P_{\mathrm{keep}}$ or performs a new resource-selection procedure.
-Candidate resources are identified through sidelink sensing using
-Sidelink Control Information (SCI), Reference Signal Received Power
-(RSRP), and Received Signal Strength Indicator (RSSI).
-
-Although SB-SPS is effective for periodic message generation, its
-semi-persistent reservation mechanism can lead to inefficient resource
-utilization when traffic becomes aperiodic. If the next packet is
-generated later than the previously reserved transmission opportunity,
-the reserved resource may remain unused. Similarly, variations in
-packet size can cause a previously reserved resource to become
-insufficient for a subsequent larger packet, forcing the vehicle to
-perform resource reselection.
-
-To improve the adaptability of sidelink resource reservation, three
-important parameters were jointly considered: the Modulation and
-Coding Scheme (MCS), the Resource Reservation Interval (RRI), and
-the resource Keep-Alive probability $P_{\mathrm{keep}}$. The MCS
-determines the trade-off between transmission rate and link
-robustness, while the RRI controls the temporal spacing between
-reserved transmission opportunities. The parameter
-$P_{\mathrm{keep}}$ determines whether previously selected sidelink
-resources are retained after expiration of the reselection counter.
-
-A Double Deep Q-Network (DDQN)-based resource-allocation
-mechanism was developed to dynamically adapt these parameters
-according to the observed vehicular-network conditions. The
-optimization objective balances communication reliability,
-information freshness, and channel congestion through a utility of
-the form
-\begin{equation}
-    \Phi =
-    \gamma_{1}\,\mathrm{PRR}
-    -
-    \gamma_{2}\,\mathrm{DA}
-    -
-    \gamma_{3}\,\mathrm{CBR},
-\end{equation}
-where $\mathrm{PRR}$ denotes the Packet Reception Ratio,
-$\mathrm{DA}$ denotes the Data Age, $\mathrm{CBR}$ denotes the
-Channel Busy Ratio, and $\gamma_{1}$, $\gamma_{2}$, and
-$\gamma_{3}$ determine their relative importance.
-
-The corresponding reinforcement-learning problem is represented as
-a Markov Decision Process. The state contains information describing
-the current channel occupancy, packet-transmission status, timing
-information, and vehicle-position updates. The action taken by the
-learning agent consists of selecting the triplet
-\begin{equation}
-    a_t =
-    \left[
-    \mathrm{MCS}(t),
-    \mathrm{RRI}(t),
-    P_{\mathrm{keep}}(t)
-    \right].
-\end{equation}
-The reward is derived from the reliability--freshness--congestion
-utility $\Phi$, enabling the agent to learn resource configurations
-that respond to changes in packet generation, packet size, and
-network conditions.
 
 DDQN was adopted to improve the stability of value-based learning
 by separating action selection from target-value evaluation. A
@@ -836,6 +1500,34 @@ dynamically adapting these parameters provides a better balance
 between packet-reception reliability and information freshness than
 using fixed parameter configurations.
 
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/APERIODIC FIG3.png}
+        \caption{Variation of PRR with vehicular density $\rho$ for fixed
+        $P_{\mathrm{keep}}$ values and the proposed method.}
+        \label{fig:aperiodic_prr_pkeep}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/APERIODIC FIG4.png}
+        \caption{Variation of data age with vehicular density $\rho$ for fixed
+        $P_{\mathrm{keep}}$ values and the proposed method.}
+        \label{fig:aperiodic_dataage_pkeep}
+    \end{subfigure}
+
+    \caption{Performance comparison for different resource reselection
+    retention probabilities:
+    (a) PRR versus vehicular density, and
+    (b) data age versus vehicular density.}
+    \label{fig:aperiodic_pkeep_performance}
+\end{figure}
+
 In particular, adaptive MCS selection improved packet reception at
 larger communication distances while reducing Data Age for
 different packet sizes. Adaptive selection of $P_{\mathrm{keep}}$
@@ -843,6 +1535,32 @@ improved robustness under changing vehicle densities, while dynamic
 RRI adaptation was particularly beneficial for aperiodic traffic,
 where a fixed reservation interval can result in either unused
 resources or delayed information updates.
+
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/APERIODIC FIG7.png}
+        \caption{PRR versus training episodes for the proposed method.}
+        \label{fig:aperiodic_prr_training}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/APERIODIC FIG8.png}
+        \caption{Data age versus training episodes for the proposed method.}
+        \label{fig:aperiodic_dataage_training}
+    \end{subfigure}
+
+    \caption{Training convergence of the proposed method:
+    (a) average packet reception ratio (PRR), and
+    (b) data age as a function of training episodes.}
+    \label{fig:aperiodic_training_convergence}
+\end{figure}
+
 
 This work extended the earlier parameter-based resource-allocation
 studies toward intelligent and environment-aware radio-resource
@@ -855,121 +1573,1748 @@ response to heterogeneous and unpredictable vehicular traffic.
 \label{subsec:isac_nrv2x_resource_power}
 % ------------------------------------------------------------
 
-As vehicular communication systems evolve toward higher levels
-of automation, communication reliability alone is no longer
-sufficient to characterize system performance. Advanced V2X
-applications increasingly require vehicles to simultaneously
-exchange information and sense their surrounding environment.
-Motivated by this requirement, an Integrated Sensing and
-Communication (ISAC)-aided NR-V2X framework was developed
-for jointly optimizing communication and sensing performance
-\cite{indulekha2024isac}.
+As vehicular communication systems evolve toward increasingly automated
+operation, communication reliability alone is insufficient to characterize
+the performance of a V2X network. Advanced vehicular applications require
+vehicles to exchange information while simultaneously sensing neighboring
+vehicles and the surrounding environment. This motivates the use of
+Integrated Sensing and Communication (ISAC), where a common waveform,
+spectrum, and radio-frequency front end are exploited for both data
+transmission and environmental sensing.
 
-The proposed framework considers an NR-V2X sidelink network
-in which vehicles exchange Cooperative Awareness Messages
-(CAMs) while simultaneously performing radar sensing using
-the reflected communication waveform. This enables the same
-radio resources and waveform structure to support both
-information exchange and estimation of neighboring vehicle
-parameters such as range and relative velocity.
+A dynamic resource- and power-allocation framework was therefore developed
+for an ISAC-aided NR-V2X network, in which the Modulation and Coding Scheme
+(MCS), Subcarrier Spacing (SCS), and transmission power are jointly adapted
+using Deep Reinforcement Learning (DRL)
+\cite{indulekha2024isac}. The objective is to improve communication
+reliability while simultaneously maintaining low channel congestion and
+accurate vehicular sensing.
 
-For sensing, an OFDM-based radar model is employed. The
-transmitted V2X waveform is reflected by neighboring vehicles,
-and the received echo is processed to estimate propagation delay
-and Doppler shift. These parameters are subsequently used to
-estimate the target range and relative velocity. A Delay--Doppler
-representation is generated from the received signal, and target
-peaks are detected using a Cell-Averaging Constant False Alarm
-Rate (CA-CFAR) procedure.
+% ------------------------------------------------------------
+\subsubsection{ISAC-Aided Vehicular System Model}
+% ------------------------------------------------------------
 
-The communication component follows the NR-V2X sidelink
-resource-allocation framework. In Mode~2, vehicles autonomously
-select transmission resources using the Sensing-Based
-Semi-Persistent Scheduling (SB-SPS) mechanism. Candidate
-resources are identified using Sidelink Control Information
-(SCI), Reference Signal Received Power (RSRP), and Received
-Signal Strength Indicator (RSSI) measurements. The performance
-of this resource-allocation process depends strongly on physical-
-and MAC-layer parameters such as the Modulation and Coding
-Scheme (MCS), Subcarrier Spacing (SCS), and transmission power.
+Consider a vehicular network consisting of $N_v$ vehicles represented by
 
-A key challenge in an ISAC-enabled vehicular network is that
-the parameters that improve communication performance do not
-necessarily provide the best sensing performance. For example,
-changes in transmit power and SCS affect not only packet
-reception and channel utilization but also the accuracy of range
-and velocity estimation. Hence, the problem was formulated as
-a joint communication--sensing optimization.
-
-The communication performance is characterized using Packet
-Reception Ratio (PRR) and Channel Busy Ratio (CBR), while
-the sensing performance is quantified using the Cram\'er--Rao
-Lower Bounds (CRLBs) for range and velocity estimation. The
-joint utility is expressed as
 \begin{equation}
-    \Psi =
-    \delta_{1}\mathrm{PRR}
-    -
-    \delta_{2}\mathrm{CBR}
-    -
-    \delta_{3}
-    \left(
-    \mathrm{CRLB}_{\mathrm{range}}
-    +
-    \mathrm{CRLB}_{\mathrm{speed}}
-    \right),
-\end{equation}
-where $\delta_{1}$, $\delta_{2}$, and $\delta_{3}$ control the
-relative importance of communication reliability, congestion,
-and sensing accuracy.
-
-The corresponding resource- and power-allocation problem is
-formulated as
-\begin{equation}
-    \max_{M_k,\Delta f,P_T} \; \Psi,
-\end{equation}
-subject to feasible ranges for the MCS $M_k$, subcarrier
-spacing $\Delta f$, and transmission power $P_T$.
-
-A Double Deep Q-Network (DDQN) is employed to dynamically
-adapt these parameters according to the instantaneous vehicular
-environment. The Markov Decision Process state incorporates
-packet-transmission information, congestion information, sensing
-quality, and timing information. The action at time $t$ is given
-by
-\begin{equation}
-    a_t =
-    \left[
-    M_k(t),
-    \Delta f(t),
-    P_T(t)
-    \right].
+\mathcal{V}
+=
+\left\{
+v_1,v_2,\ldots,v_{N_v}
+\right\}.
+\label{eq:isac_vehicle_set}
 \end{equation}
 
-The reward is directly derived from the joint ISAC utility
-$\Psi$, allowing the learning agent to seek operating points
-that simultaneously maintain high packet-reception reliability,
-low channel congestion, and accurate sensing. Experience replay
-and separate primary and target Q-networks are used to improve
-learning stability.
+Each vehicle is equipped with an in-band full-duplex transceiver and
+periodically transmits Cooperative Awareness Messages (CAMs). At the same
+time, the backscattered communication waveform is processed for radar
+sensing. Hence, a transmitting vehicle can communicate with neighboring
+vehicles while estimating their range and relative velocity from the
+reflected waveform.
 
-The proposed method was evaluated using an extended
-WiLabV2Xsim environment incorporating both NR-V2X
-communication and sensing functionality. Simulations considered
-different vehicle densities, packet sizes, MCS values, subcarrier
-spacings, and transmission powers. Results showed that the
-learning-based approach was able to outperform fixed
-resource-allocation configurations in both communication and
-sensing metrics.
+Let the vehicular density be denoted by $\rho$, representing the number of
+vehicles per unit road length or spatial region considered in the
+simulation. The density directly affects both communication interference and
+radar interference and therefore influences the communication and sensing
+performance simultaneously.
 
-In particular, the proposed strategy maintained higher PRR and
-lower CBR under increasing vehicular density while
-simultaneously reducing the CRLB of range and velocity
-estimation. This work therefore extended the earlier
-communication-centric resource-allocation framework toward a
-joint communication--sensing design, demonstrating the potential
-of learning-based ISAC resource management for future
-vehicular networks.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.92\linewidth]
+    {figures/Chapter 9 images/ISACPAPER.png}
+    \caption{DDQN-based dynamic resource- and power-allocation architecture
+    for the ISAC-aided NR-V2X network.}
+    \label{fig:isac_v2x_ddqn}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsubsection{OFDM-Based ISAC Transmit Signal}
+% ------------------------------------------------------------
+
+The communication waveform is an OFDM signal. For the $m$th OFDM symbol,
+the transmitted baseband waveform is represented as
+
+\begin{equation}
+s_m(t)
+=
+\sum_{n=0}^{N-1}
+\sqrt{P_{n,m}}\,
+x_{n,m}
+e^{j2\pi n\Delta f t}
+\operatorname{rect}
+\left(
+\frac{t-mT_{\mathrm{sym}}}
+{T_{\mathrm{sym}}}
+\right),
+\label{eq:isac_ofdm_tx}
+\end{equation}
+
+where $N$ denotes the number of subcarriers, $\Delta f$ is the
+subcarrier spacing, $T_{\mathrm{sym}}$ is the OFDM symbol duration,
+$P_{n,m}$ denotes the transmit power assigned to the $n$th subcarrier
+of the $m$th OFDM symbol, and $x_{n,m}$ represents the corresponding
+modulated data symbol.
+
+For $M$ OFDM symbols and $N$ subcarriers, the transmitted symbols can be
+written in matrix form as
+
+\begin{equation}
+\mathbf{X}
+=
+\left[
+x_{n,m}
+\right]
+\in
+\mathbb{C}^{N\times M}.
+\label{eq:isac_symbol_matrix}
+\end{equation}
+
+This signal performs a dual function: it carries vehicular communication
+data over the sidelink and acts as the probing waveform for sensing nearby
+vehicles.
+
+% ------------------------------------------------------------
+\subsubsection{Radar Echo and Target Model}
+% ------------------------------------------------------------
+
+Consider a neighboring vehicle modeled as a point target located at distance
+$d$ from the sensing vehicle and moving with relative velocity $v$. The
+propagation delay associated with the round-trip radar path is
+
+\begin{equation}
+\tau
+=
+\frac{2d}{c},
+\label{eq:isac_delay}
+\end{equation}
+
+where $c$ denotes the speed of light.
+
+The corresponding Doppler frequency is
+
+\begin{equation}
+f_D
+=
+\frac{2f_c v}{c},
+\label{eq:isac_doppler}
+\end{equation}
+
+where $f_c$ is the carrier frequency.
+
+The complex-baseband reflected signal can therefore be expressed as
+
+\begin{equation}
+r(t)
+=
+\sum_{m=0}^{M-1}
+h\,
+s_m(t-\tau)
+e^{j2\pi f_D mT_{\mathrm{sym}}}
++
+n(t),
+\label{eq:isac_echo_signal}
+\end{equation}
+
+where $h$ denotes the complex target channel coefficient and $n(t)$
+represents Additive White Gaussian Noise (AWGN).
+
+The target-dependent channel coefficient can be written as
+
+\begin{equation}
+h
+=
+|h|e^{j\angle h},
+\label{eq:isac_channel_coeff}
+\end{equation}
+
+with magnitude related to the ratio between received and transmitted power,
+
+\begin{equation}
+|h|
+=
+\sqrt{\frac{P_R}{P_T}}.
+\label{eq:isac_channel_gain}
+\end{equation}
+
+Using the monostatic radar equation, the received echo power is modeled as
+
+\begin{equation}
+P_R
+=
+P_T
+\frac{
+G^2
+\lambda^2
+\sigma
+}{
+(4\pi)^3d^4
+},
+\label{eq:isac_radar_equation}
+\end{equation}
+
+where $P_T$ denotes the transmitted power, $G$ denotes the antenna gain,
+$\lambda$ is the wavelength, and $\sigma$ denotes the radar cross section
+of the reflecting vehicle.
+
+Equation~\eqref{eq:isac_radar_equation} explicitly demonstrates the
+strong dependence of sensing performance on target range, since the echo
+power decreases approximately as $d^{-4}$.
+
+% ------------------------------------------------------------
+\subsubsection{Frequency-Domain Radar Observation}
+% ------------------------------------------------------------
+
+After cyclic-prefix removal and FFT processing, the received sample
+corresponding to the $n$th subcarrier and $m$th OFDM symbol can be written as
+
+\begin{equation}
+y_{n,m}
+=
+\sqrt{P_{n,m}}\,
+x_{n,m}\,
+T_{\mathrm{sym}}\,
+h\,
+e^{-j2\pi n\Delta f\tau}
+e^{j2\pi f_DmT_{\mathrm{sym}}}
++
+z_{n,m},
+\label{eq:isac_fft_observation}
+\end{equation}
+
+where $z_{n,m}$ denotes the frequency-domain noise sample.
+
+The complete received-symbol matrix is
+
+\begin{equation}
+\mathbf{Y}
+=
+\left[
+y_{n,m}
+\right]
+\in
+\mathbb{C}^{N\times M}.
+\label{eq:isac_received_matrix}
+\end{equation}
+
+Since the transmitted symbols are known at the sensing transmitter, their
+modulation can be removed by element-wise division, producing an estimate of
+the sensing channel-response matrix,
+
+\begin{equation}
+\mathbf{H}
+=
+\mathbf{Y}
+\oslash
+\mathbf{X},
+\label{eq:isac_channel_response}
+\end{equation}
+
+where $\oslash$ denotes element-wise division.
+
+The delay--Doppler response is subsequently obtained through a
+two-dimensional periodogram,
+
+\begin{equation}
+\mathcal{P}(n,m)
+=
+\left|
+\sum_{\ell=0}^{N-1}
+\sum_{q=0}^{M-1}
+H_{\ell,q}
+e^{-j2\pi qm/M}
+e^{j2\pi \ell n/N}
+\right|^2.
+\label{eq:isac_periodogram}
+\end{equation}
+
+The resulting two-dimensional representation forms a delay--Doppler map,
+whose local maxima correspond to potential radar targets.
+
+A Cell-Averaging Constant False Alarm Rate (CA-CFAR) detector is employed
+to identify target peaks using an adaptive detection threshold. Let
+$(\hat{\tau},\hat{f}_D)$ denote the delay and Doppler estimates obtained
+from the detected peak. The corresponding estimated range is
+
+\begin{equation}
+\hat{d}
+=
+\frac{c\hat{\tau}}{2},
+\label{eq:isac_range_estimate}
+\end{equation}
+
+and the estimated relative velocity is
+
+\begin{equation}
+\hat{v}
+=
+\frac{c\hat{f}_D}{2f_c}.
+\label{eq:isac_velocity_estimate}
+\end{equation}
+
+Therefore, the communication waveform provides not only V2X information
+exchange but also range and relative-speed information about surrounding
+vehicles.
+
+% ------------------------------------------------------------
+\subsubsection{Sensing Accuracy: CRLB for Range and Velocity}
+% ------------------------------------------------------------
+
+The sensing performance is characterized through the
+Cram\'er--Rao Lower Bound (CRLB), which specifies the minimum achievable
+variance of an unbiased estimator under the assumed observation model.
+
+For range estimation, the CRLB considered in the framework is
+
+\begin{equation}
+\mathrm{CRLB}_{d}
+=
+\frac{
+3c^2(P_n+I)
+}{
+8\pi^2
+P_R
+MN
+\left(N^2-1\right)
+\Delta f^2
+},
+\label{eq:isac_crlb_range}
+\end{equation}
+
+where $P_n$ denotes the noise power, $I$ denotes the aggregate interference,
+and $P_R$ denotes the radar echo power.
+
+Similarly, the CRLB for relative-speed estimation is
+
+\begin{equation}
+\mathrm{CRLB}_{v}
+=
+\frac{
+3c^2(P_n+I)
+}{
+8\pi^2
+P_R
+f_c^2
+MN
+\left(M^2-1\right)
+T_{\mathrm{sym}}^2
+}.
+\label{eq:isac_crlb_velocity}
+\end{equation}
+
+These expressions reveal the principal coupling between the physical-layer
+resource parameters and sensing accuracy. Increasing $P_T$ increases the
+received echo power $P_R$, which can reduce both sensing CRLBs. Similarly,
+the SCS $\Delta f$ directly affects the range-estimation bound, while the
+number of OFDM symbols and the OFDM symbol duration influence Doppler and
+velocity estimation.
+
+For reporting sensing accuracy, the corresponding root-CRLB quantities can
+be written as
+
+\begin{equation}
+\mathrm{RCRLB}_{d}
+=
+\sqrt{\mathrm{CRLB}_{d}},
+\label{eq:isac_root_crlb_range}
+\end{equation}
+
+and
+
+\begin{equation}
+\mathrm{RCRLB}_{v}
+=
+\sqrt{\mathrm{CRLB}_{v}}.
+\label{eq:isac_root_crlb_velocity}
+\end{equation}
+
+% ------------------------------------------------------------
+\subsubsection{NR-V2X Sidelink Resource Allocation}
+% ------------------------------------------------------------
+
+The communication component operates over the NR-V2X sidelink. Two
+resource-allocation modes are considered. In Mode~1, the cellular
+infrastructure assigns sidelink transmission resources, whereas in Mode~2
+vehicles autonomously select resources from the sidelink resource pool.
+
+The considered autonomous allocation follows the sensing-based
+semi-persistent resource-allocation procedure used in the underlying
+simulation framework. A transmitting vehicle reserves resources for several
+consecutive Transport Blocks (TBs), with the reservation periodicity
+controlled by the Resource Reservation Interval (RRI).
+
+Let $R_i(t)$ denote the sidelink resource selected by vehicle $v_i$ at
+time $t$. The corresponding reservation interval determines the future
+resource occupation according to
+
+\begin{equation}
+t_{i,\ell}
+=
+t_i^{(0)}
++
+\ell T_{\mathrm{RRI}},
+\qquad
+\ell
+=
+0,1,\ldots,C_i-1,
+\label{eq:isac_rri_reservation}
+\end{equation}
+
+where $C_i$ denotes the Reselection Counter associated with vehicle $v_i$.
+
+The counter evolves after each Transport Block transmission as
+
+\begin{equation}
+C_i(t+1)
+=
+C_i(t)-1,
+\label{eq:isac_rc_update}
+\end{equation}
+
+until it reaches zero.
+
+At reselection, the vehicle either retains or changes the current resource.
+If $P_{\mathrm{keep}}$ denotes the resource-retention probability, then
+
+\begin{equation}
+\Pr
+\left[
+R_i(t+1)=R_i(t)
+\right]
+=
+P_{\mathrm{keep}},
+\label{eq:isac_keep_probability}
+\end{equation}
+
+while
+
+\begin{equation}
+\Pr
+\left[
+R_i(t+1)\neq R_i(t)
+\right]
+=
+1-P_{\mathrm{keep}}.
+\label{eq:isac_reselection_probability}
+\end{equation}
+
+During resource reselection, candidate sidelink resources are identified
+within a selection window. Resources announced by neighboring vehicles
+through Sidelink Control Information (SCI) are removed when their measured
+Reference Signal Received Power (RSRP) exceeds the sensing threshold. The
+remaining candidate resources constitute an available-resource set
+
+\begin{equation}
+\mathcal{L}_1
+=
+\left\{
+r\in\mathcal{R}_{\mathrm{SW}}
+:
+\mathrm{RSRP}_{r}
+<
+\Gamma_{\mathrm{RSRP}}
+\right\},
+\label{eq:isac_candidate_set_l1}
+\end{equation}
+
+where $\mathcal{R}_{\mathrm{SW}}$ denotes the resources in the selection
+window and $\Gamma_{\mathrm{RSRP}}$ denotes the RSRP exclusion threshold.
+
+If the candidate set is too small, the RSRP threshold is increased and the
+resource-exclusion operation is repeated.
+
+A lower-interference subset can subsequently be represented as
+
+\begin{equation}
+\mathcal{L}_2
+\subseteq
+\mathcal{L}_1,
+\label{eq:isac_candidate_set_l2}
+\end{equation}
+
+where the resources in $\mathcal{L}_2$ correspond to candidate resources
+with lower measured Received Signal Strength Indicator (RSSI). The final
+resource is selected from the candidate set according to the decentralized
+selection mechanism.
+
+% ------------------------------------------------------------
+\subsubsection{Communication Performance Metrics}
+% ------------------------------------------------------------
+
+Communication reliability is characterized using the Packet Reception
+Ratio (PRR). For vehicle $v_i$, the PRR over an observation interval of
+$T$ packet-generation instances is defined as
+
+\begin{equation}
+\mathrm{PRR}_{v_i}
+=
+\frac{1}{T}
+\sum_{k=1}^{T}
+\frac{
+P_{\mathrm{received}}^{(i,k)}
+}{
+P_{\mathrm{total}}^{(i,k)}
+},
+\label{eq:isac_prr}
+\end{equation}
+
+where $P_{\mathrm{received}}^{(i,k)}$ denotes the number of successfully
+received packets associated with the $k$th observation and
+$P_{\mathrm{total}}^{(i,k)}$ denotes the number of intended neighboring
+receivers.
+
+The Channel Busy Ratio (CBR) is used as an indicator of sidelink
+congestion and is defined as
+
+\begin{equation}
+\mathrm{CBR}
+=
+\frac{
+T_{\mathrm{busy}}
+}{
+T_{\mathrm{total}}
+},
+\label{eq:isac_cbr}
+\end{equation}
+
+where $T_{\mathrm{busy}}$ denotes the duration for which the sidelink
+channel is sensed as occupied and $T_{\mathrm{total}}$ denotes the total
+observation interval.
+
+The communication objective therefore seeks a high PRR while simultaneously
+avoiding excessive CBR.
+
+% ------------------------------------------------------------
+\subsubsection{Joint Communication--Sensing Utility}
+% ------------------------------------------------------------
+
+The communication and sensing objectives are inherently coupled through
+the resource-allocation parameters. The MCS influences spectral efficiency
+and packet-decoding robustness, SCS affects the OFDM time--frequency
+structure and the sensing resolution, and transmission power influences
+both communication coverage and radar echo strength.
+
+To capture these conflicting objectives, the joint utility is defined as
+
+\begin{equation}
+\Psi
+=
+\delta_1
+\mathrm{PRR}
+-
+\delta_2
+\mathrm{CBR}
+-
+\delta_3
+\left(
+\mathrm{CRLB}_{d}
++
+\mathrm{CRLB}_{v}
+\right),
+\label{eq:isac_joint_utility}
+\end{equation}
+
+where $\delta_1$, $\delta_2$, and $\delta_3$ are weighting coefficients
+that determine the relative importance of communication reliability,
+channel congestion, and sensing accuracy.
+
+The corresponding resource- and power-allocation problem is formulated as
+
+\begin{equation}
+\underset{
+M_k,\Delta f,P_T
+}{
+\operatorname{maximize}}
+\quad
+\Psi,
+\label{eq:isac_optimization}
+\end{equation}
+
+subject to
+
+\begin{align}
+M_{k,\min}
+&\leq
+M_k
+\leq
+M_{k,\max},
+\label{eq:isac_constraint_mcs}
+\\
+\Delta f_{\min}
+&\leq
+\Delta f
+\leq
+\Delta f_{\max},
+\label{eq:isac_constraint_scs}
+\\
+P_{T,\min}
+&\leq
+P_T
+\leq
+P_{T,\max}.
+\label{eq:isac_constraint_power}
+\end{align}
+
+The feasible parameter ranges are constrained by the sidelink
+configuration adopted in the system.
+
+% ------------------------------------------------------------
+\subsubsection{Markov Decision Process Formulation}
+% ------------------------------------------------------------
+
+Because vehicular density, packet traffic, interference, and sensing
+conditions vary dynamically, the resource-allocation problem is modeled as
+a Markov Decision Process (MDP).
+
+The state at time $t$ is represented as
+
+\begin{equation}
+s_t
+=
+\left\{
+\mathcal{P}(t),
+\mathcal{C}(t),
+\mathcal{S}(t),
+\mathcal{T}(t)
+\right\},
+\label{eq:isac_mdp_state}
+\end{equation}
+
+where $\mathcal{P}(t)$ denotes packet-transmission information,
+$\mathcal{C}(t)$ denotes congestion information,
+$\mathcal{S}(t)$ denotes sensing-quality information, and
+$\mathcal{T}(t)$ contains timing-related information.
+
+The packet-related component can include quantities such as packet size and
+PRR, while the congestion component captures the CBR. The sensing component
+contains the range and speed CRLBs.
+
+The action selected by the learning agent is
+
+\begin{equation}
+a_t
+=
+\left[
+M_k(t),
+\Delta f(t),
+P_T(t)
+\right].
+\label{eq:isac_mdp_action}
+\end{equation}
+
+The considered discrete action dimensions are
+
+\begin{equation}
+M_k(t)
+\in
+\left\{
+1,2,\ldots,28
+\right\},
+\label{eq:isac_action_mcs}
+\end{equation}
+
+\begin{equation}
+\Delta f(t)
+\in
+\left\{
+15,30,60
+\right\}
+\ \mathrm{kHz},
+\label{eq:isac_action_scs}
+\end{equation}
+
+and
+
+\begin{equation}
+P_T(t)
+\in
+\left\{
+10,11,\ldots,23
+\right\}
+\ \mathrm{dBm}.
+\label{eq:isac_action_power}
+\end{equation}
+
+The reward is directly derived from the joint communication--sensing
+utility,
+
+\begin{equation}
+r_t
+=
+\Psi_t.
+\label{eq:isac_mdp_reward}
+\end{equation}
+
+Thus, the agent receives a larger reward when PRR increases and a smaller
+reward when CBR or the sensing CRLBs increase.
+
+% ------------------------------------------------------------
+\subsubsection{DDQN-Based Resource and Power Adaptation}
+% ------------------------------------------------------------
+
+A Double Deep Q-Network (DDQN) is employed to learn the resource-control
+policy. Let $Q(s,a;\boldsymbol{\theta})$ denote the primary Q-network with
+parameters $\boldsymbol{\theta}$, and let
+$Q'(s,a;\boldsymbol{\theta}')$ denote the target network.
+
+An $\epsilon$-greedy policy is employed during training,
+
+\begin{equation}
+a_t
+=
+\begin{cases}
+\text{random action},
+&
+\text{with probability } \epsilon,
+\\[1mm]
+\displaystyle
+\arg\max_{a}
+Q
+\left(
+s_t,a;\boldsymbol{\theta}
+\right),
+&
+\text{with probability }1-\epsilon.
+\end{cases}
+\label{eq:isac_epsilon_greedy}
+\end{equation}
+
+After executing action $a_t$, the agent observes the reward $r_t$ and
+next state $s_{t+1}$. The resulting experience
+
+\begin{equation}
+e_t
+=
+\left(
+s_t,a_t,r_t,s_{t+1}
+\right)
+\label{eq:isac_experience_tuple}
+\end{equation}
+
+is stored in an experience-replay buffer $\mathcal{D}$.
+
+For a sampled transition
+$(s_j,a_j,r_j,s_{j+1})$, the target value is computed as
+
+\begin{equation}
+y_j
+=
+\begin{cases}
+r_j,
+&
+s_{j+1}
+\text{ terminal},
+\\[1mm]
+r_j
++
+\gamma
+\displaystyle
+\max_{a'}
+Q'
+\left(
+s_{j+1},a';\boldsymbol{\theta}'
+\right),
+&
+\text{otherwise},
+\end{cases}
+\label{eq:isac_ddqn_target}
+\end{equation}
+
+where $\gamma$ denotes the discount factor.
+
+The primary Q-network is trained by minimizing the temporal-difference
+loss
+
+\begin{equation}
+\mathcal{L}
+\left(
+\boldsymbol{\theta}
+\right)
+=
+\left[
+y_j
+-
+Q
+\left(
+s_j,a_j;\boldsymbol{\theta}
+\right)
+\right]^2.
+\label{eq:isac_ddqn_loss}
+\end{equation}
+
+More generally, over a mini-batch $\mathcal{B}$, the loss can be written as
+
+\begin{equation}
+\mathcal{L}
+\left(
+\boldsymbol{\theta}
+\right)
+=
+\frac{1}{|\mathcal{B}|}
+\sum_{j\in\mathcal{B}}
+\left[
+y_j
+-
+Q
+\left(
+s_j,a_j;\boldsymbol{\theta}
+\right)
+\right]^2.
+\label{eq:isac_ddqn_batch_loss}
+\end{equation}
+
+The network parameters are updated through gradient descent,
+
+\begin{equation}
+\boldsymbol{\theta}
+\leftarrow
+\boldsymbol{\theta}
+-
+\alpha
+\nabla_{\boldsymbol{\theta}}
+\mathcal{L}
+\left(
+\boldsymbol{\theta}
+\right),
+\label{eq:isac_gradient_update}
+\end{equation}
+
+where $\alpha$ is the learning rate.
+
+The target network is updated using a soft parameter update,
+
+\begin{equation}
+\boldsymbol{\theta}'
+\leftarrow
+\tau_{\mathrm{DDQN}}
+\boldsymbol{\theta}
++
+\left(
+1-\tau_{\mathrm{DDQN}}
+\right)
+\boldsymbol{\theta}',
+\label{eq:isac_soft_update}
+\end{equation}
+
+where $\tau_{\mathrm{DDQN}}$ denotes the target-network update coefficient.
+
+The exploration probability is gradually reduced during training,
+
+\begin{equation}
+\epsilon_{t+1}
+=
+\max
+\left(
+\epsilon_{\min},
+\kappa_{\epsilon}\epsilon_t
+\right),
+\label{eq:isac_epsilon_decay}
+\end{equation}
+
+where $\kappa_{\epsilon}<1$ is the exploration-decay factor.
+
+% ------------------------------------------------------------
+\subsubsection{Coupling Between Communication and Sensing}
+% ------------------------------------------------------------
+
+The central feature of the proposed framework is the coupling between the
+communication and sensing objectives. In particular,
+
+\begin{equation}
+\mathrm{PRR}
+=
+f_{\mathrm{c}}
+\left(
+M_k,\Delta f,P_T,\rho,\ldots
+\right),
+\label{eq:isac_prr_dependency}
+\end{equation}
+
+\begin{equation}
+\mathrm{CBR}
+=
+f_{\mathrm{b}}
+\left(
+M_k,\Delta f,P_T,\rho,\ldots
+\right),
+\label{eq:isac_cbr_dependency}
+\end{equation}
+
+while
+
+\begin{equation}
+\mathrm{CRLB}_{d}
+=
+f_{\mathrm{r}}
+\left(
+P_T,\Delta f,
+P_n,I,d,N,M
+\right),
+\label{eq:isac_range_dependency}
+\end{equation}
+
+and
+
+\begin{equation}
+\mathrm{CRLB}_{v}
+=
+f_{\mathrm{v}}
+\left(
+P_T,
+T_{\mathrm{sym}},
+f_c,
+P_n,
+I,
+d,
+N,
+M
+\right).
+\label{eq:isac_velocity_dependency}
+\end{equation}
+
+Hence, changing a single radio parameter can simultaneously alter
+communication reliability, channel occupancy, and sensing accuracy. The
+resource-allocation problem therefore cannot generally be decomposed into
+independent communication and sensing optimizations.
+
+For example, increasing $P_T$ may improve communication coverage and
+increase radar echo power,
+
+\begin{equation}
+P_R
+\propto
+P_T,
+\label{eq:isac_power_echo_relation}
+\end{equation}
+
+which tends to reduce
+
+\begin{equation}
+\mathrm{CRLB}_{d},
+\,
+\mathrm{CRLB}_{v}
+\propto
+\frac{1}{P_R}.
+\label{eq:isac_crlb_power_relation}
+\end{equation}
+
+However, larger transmission power can also increase the interference
+experienced by neighboring vehicles and influence the channel occupancy
+conditions. Similarly, modifying $\Delta f$ changes the OFDM waveform,
+resource structure, and the range-estimation CRLB. The DDQN therefore seeks
+a policy that adapts the three control parameters jointly rather than
+optimizing them independently.
+
+
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/ISAC FIG1.png}
+        \caption{Average PRR versus episodes for the proposed method.}
+        \label{fig:isac_prr_episodes}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/ISAC FIG2.png}
+        \caption{PRR versus vehicular density $\rho$ for a scenario with
+        an average packet size of 300~Bytes.}
+        \label{fig:isac_prr_density}
+    \end{subfigure}
+
+    \caption{Performance evaluation of the proposed ISAC-enabled
+    resource-allocation scheme: (a) average PRR during training episodes,
+    and (b) PRR versus vehicular density for different communication
+    configurations.}
+    \label{fig:isac_prr_performance}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsubsection{Simulation-Based Evaluation}
+% ------------------------------------------------------------
+
+The framework was evaluated using an extended WiLabV2Xsim simulator
+incorporating both NR-V2X communication and sensing functionality. The
+simulation considered a road length of $1000$~m, a bandwidth of
+$10$~MHz, packet sizes between $100$ and $1000$~bytes, vehicle densities
+between $10$ and $100$~vehicles/km, transmission powers between
+$10$ and $23$~dBm, and MCS indices between $1$ and $28$. The resource
+keep probability was fixed to
+
+\begin{equation}
+P_{\mathrm{keep}}
+=
+0.4.
+\label{eq:isac_sim_pkeep}
+\end{equation}
+
+The reward weights were selected as
+
+\begin{equation}
+\left[
+\delta_1,
+\delta_2,
+\delta_3
+\right]
+=
+\left[
+0.9,
+0.6,
+0.4
+\right],
+\label{eq:isac_reward_weights}
+\end{equation}
+
+and the discount factor was
+
+\begin{equation}
+\gamma
+=
+0.9.
+\label{eq:isac_discount_factor}
+\end{equation}
+
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/ISAC FIG3.png}
+        \caption{PRR versus vehicular density $\rho$ for a scenario with
+        an average packet size of 700~Bytes.}
+        \label{fig:isac_prr_density_700}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/ISAC FIG4.png}
+        \caption{CBR versus vehicular density $\rho$ for a scenario with
+        an average packet size of 300~Bytes.}
+        \label{fig:isac_cbr_density_300}
+    \end{subfigure}
+
+    \caption{Communication performance as a function of vehicular density:
+    (a) packet reception ratio for an average packet size of 700~Bytes,
+    and (b) channel busy ratio for an average packet size of 300~Bytes.}
+    \label{fig:isac_prr_cbr_density}
+\end{figure}
+
+The numerical results showed that dynamically adapting MCS, SCS, and
+transmission power provided a better balance between communication and
+sensing performance than fixed resource configurations.
+
+At low vehicular density, the reported average PRR increased from
+$0.709$ for SB-SPS to $0.981$ for the proposed strategy. At high
+vehicular density, the corresponding PRR increased from $0.641$ to
+$0.921$. The average CBR decreased from $0.173$ to $0.119$ at low
+density and from $0.477$ to $0.309$ at high density.
+
+The reported sensing results also showed improvements. The position
+root-CRLB decreased from $0.054$~m to $0.041$~m at low density and
+from $0.140$~m to $0.101$~m at high density. Similarly, the velocity
+root-CRLB decreased from $0.078$~m/s to $0.061$~m/s at low density and
+from $0.186$~m/s to $0.141$~m/s at high density.
+
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/ISAC FIG5.png}
+        \caption{Average CRLB versus episodes for the proposed method.}
+        \label{fig:isac_crlb_episodes}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/ISAC FIG6.png}
+        \caption{CRLB versus true distance for a scenario with an
+        average packet size of 300~Bytes.}
+        \label{fig:isac_crlb_distance}
+    \end{subfigure}
+
+    \caption{Sensing performance of the proposed ISAC framework:
+    (a) average CRLB versus training episodes, and
+    (b) CRLB versus true target distance for different MCS and SCS
+    configurations.}
+    \label{fig:isac_crlb_performance}
+\end{figure}
+
+
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/ISAC FIG7.png}
+        \caption{Root CRLB (m) versus vehicular density $\rho$ for an
+        average packet size of 350~Bytes.}
+        \label{fig:isac_root_crlb_range}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/ISAC FIG8.png}
+        \caption{Root CRLB (m/s) versus vehicular density $\rho$ for an
+        average packet size of 350~Bytes.}
+        \label{fig:isac_root_crlb_velocity}
+    \end{subfigure}
+
+    \caption{Root CRLB performance versus vehicular density for an
+    average packet size of 350~Bytes:
+    (a) range-estimation Root CRLB in meters, and
+    (b) velocity-estimation Root CRLB in meters per second.}
+    \label{fig:isac_root_crlb_density}
+\end{figure}
+These results demonstrate the need for resource-allocation mechanisms that
+explicitly account for communication--sensing coupling. Rather than treating
+sensing as an independent functionality added to conventional V2X resource
+allocation, the proposed ISAC framework jointly adapts the underlying radio
+parameters according to both communication and radar-performance
+requirements.
+
+\begin{table}[!ht]
+\centering
+\caption{Comparison of performance metrics at low and high densities with percentage improvement.}
+\label{tab:isac_performance_comparison}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\textbf{Metric}
+& \textbf{SB-SPS (Low $\rho$)}
+& \textbf{Proposed Method (Low $\rho$)}
+& \textbf{Improvement (\%)}
+& \textbf{SB-SPS (High $\rho$)}
+& \textbf{Proposed Method (High $\rho$)}
+& \textbf{Improvement (\%)} \\
+\hline
+
+\textbf{Average PRR}
+& 0.709
+& 0.981
+& 38.3
+& 0.641
+& 0.921
+& 43.62 \\
+\hline
+
+\textbf{Average CBR}
+& 0.173
+& 0.119
+& 31.25
+& 0.477
+& 0.309
+& 35.2 \\
+\hline
+
+\textbf{CRLB Position (m)}
+& 0.054
+& 0.041
+& 23.6
+& 0.140
+& 0.101
+& 27.83 \\
+\hline
+
+\textbf{CRLB Velocity (m/s)}
+& 0.078
+& 0.061
+& 21.74
+& 0.186
+& 0.141
+& 24.3 \\
+\hline
+
+\end{tabular}%
+}
+\end{table}
+
+
+% ------------------------------------------------------------
+\subsection{RIS-Assisted Full-Duplex MAC with Predictive QoS for NR-V2X}
+\label{subsec:ris_fd_mac_nrv2x}
+% ------------------------------------------------------------
+
+The subsequent research extended NR-V2X resource management
+toward an intelligent MAC-layer framework that jointly incorporates
+Reconfigurable Intelligent Surfaces (RISs), full-duplex communication,
+machine-learning-based Quality-of-Service (QoS) prediction, and
+adaptive sidelink resource-retention decisions
+\cite{indulekha2025risfd}.
+
+The framework is designed for NR-V2X Mode~2 operation, in which
+vehicles autonomously select sidelink resources from a configured
+resource pool. In dense vehicular environments, autonomous sensing
+may fail to identify all interfering transmitters, particularly when
+vehicles are mutually blocked or hidden from one another. This can
+result in persistent resource collisions and reduced Packet Reception
+Ratio (PRR). RIS-assisted propagation and predictive MAC decisions
+are therefore incorporated to improve the reliability of distributed
+sidelink operation.
+
+% ------------------------------------------------------------
+% FIGURE PLACEHOLDER 1
+% ------------------------------------------------------------
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.92\linewidth]
+    {figures/Chapter 9 images/RIS V2X IMAGE.png}
+    \caption{RIS-assisted full-duplex NR-V2X architecture.}
+    \label{fig:ris_fd_v2x_architecture}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsubsection{RIS-Assisted V2V Channel Model}
+% ------------------------------------------------------------
+
+Consider a transmitting vehicle $v_i$ communicating with a receiving
+vehicle $v_j$. In addition to the direct V2V propagation path, one or
+more RIS panels can provide reflected propagation paths around
+obstructions.
+
+For the $k$th RIS containing $N_k$ reflecting elements, the corresponding
+phase-shift matrix is written as
+
+\begin{equation}
+\mathbf{\Phi}_{k}
+=
+\operatorname{diag}
+\left(
+e^{j\phi_{k,1}},
+e^{j\phi_{k,2}},
+\ldots,
+e^{j\phi_{k,N_k}}
+\right),
+\label{eq:ris_phase_matrix}
+\end{equation}
+
+where $\phi_{k,n}$ denotes the phase shift introduced by the $n$th
+element of RIS $k$.
+
+The resulting effective V2V channel between vehicles $i$ and $j$ can
+be represented as
+
+\begin{equation}
+h_{ij}^{\mathrm{eff}}
+=
+h_{ij}^{\mathrm{dir}}
++
+\sum_{k=1}^{K}
+\mathbf{h}_{R_kj}^{H}
+\mathbf{\Phi}_{k}
+\mathbf{h}_{iR_k},
+\label{eq:ris_effective_channel}
+\end{equation}
+
+where $h_{ij}^{\mathrm{dir}}$ denotes the direct V2V channel,
+$\mathbf{h}_{iR_k}$ denotes the channel between vehicle $i$ and RIS
+$k$, and $\mathbf{h}_{R_kj}$ represents the channel between RIS $k$
+and receiving vehicle $j$.
+
+The received signal can consequently be expressed as
+
+\begin{equation}
+y_j
+=
+\sqrt{P_i}\,
+h_{ij}^{\mathrm{eff}}x_i
++
+\sum_{\ell\neq i}
+\sqrt{P_{\ell}}\,
+h_{\ell j}^{\mathrm{eff}}x_{\ell}
++
+n_j,
+\label{eq:ris_received_signal}
+\end{equation}
+
+where $P_i$ is the transmission power of vehicle $i$, $x_i$ is the
+transmitted symbol, the summation represents co-channel sidelink
+interference, and $n_j$ denotes receiver noise.
+
+% ------------------------------------------------------------
+\subsubsection{Full-Duplex Operation and Residual Self-Interference}
+% ------------------------------------------------------------
+
+Vehicles are assumed to employ full-duplex transceivers so that
+transmission and reception can occur simultaneously over the sidelink.
+Although self-interference cancellation is applied, a residual
+self-interference component remains.
+
+Let $\beta_{\mathrm{SI}}\in[0,1]$ denote the fraction of residual
+self-interference after cancellation. The received SINR at vehicle
+$j$ can then be expressed as
+
+\begin{equation}
+\Gamma_{ij}
+=
+\frac{
+P_i
+\left|
+h_{ij}^{\mathrm{eff}}
+\right|^2
+}{
+\displaystyle
+\sum_{\ell\neq i}
+P_{\ell}
+\left|
+h_{\ell j}^{\mathrm{eff}}
+\right|^2
++
+\beta_{\mathrm{SI}}P_j
++
+\sigma_j^2
+},
+\label{eq:ris_fd_sinr}
+\end{equation}
+
+where $\sigma_j^2$ denotes receiver noise power.
+
+The residual self-interference term introduces an additional MAC-layer
+trade-off. Full-duplex operation improves simultaneous information
+exchange and resource awareness, but excessive residual interference
+can reduce decoding reliability. This information is therefore also
+considered when deciding whether RIS assistance should be activated.
+
+% ------------------------------------------------------------
+\subsubsection{Predictive QoS Estimation}
+% ------------------------------------------------------------
+
+Conventional autonomous resource selection reacts primarily to currently
+available sensing information. The proposed framework instead introduces
+a predictive layer that estimates the future communication quality before
+the resource-retention decision is made.
+
+Let the input feature vector at decision instant $t$ be
+
+\begin{equation}
+\mathbf{x}(t)
+=
+\left[
+\rho(t),
+d_{ij}(t),
+P_T(t),
+\mathrm{MCS}(t),
+\mathrm{CBR}(t),
+\mathrm{PRR}(t),
+\Gamma_{ij}(t),
+\ldots
+\right]^{T},
+\label{eq:ris_ml_features}
+\end{equation}
+
+where $\rho(t)$ denotes vehicle density and $d_{ij}(t)$ denotes the
+inter-vehicle distance.
+
+A supervised-learning model $\mathcal{F}_{\mathrm{ML}}(\cdot)$ maps the
+observed system parameters to predicted QoS metrics,
+
+\begin{equation}
+\left[
+\widehat{\mathrm{PRR}}(t+1),
+\widehat{\mathrm{CBR}}(t+1)
+\right]
+=
+\mathcal{F}_{\mathrm{ML}}
+\left(
+\mathbf{x}(t)
+\right).
+\label{eq:ris_qos_prediction}
+\end{equation}
+
+Four ensemble regressors were considered for this prediction task:
+Random Forest, eXtreme Gradient Boosting, CatBoost, and Gradient
+Boosting Regression. Among the evaluated alternatives, Random Forest
+was selected for integration into the MAC framework based on its
+prediction performance.
+
+% ------------------------------------------------------------
+% FIGURE PLACEHOLDER 2
+% ------------------------------------------------------------
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.92\linewidth]
+    {figures/Chapter 9 images/RIS MLFIG.png}
+    \caption{Machine-learning pipeline for predictive QoS estimation
+    in the RIS-assisted V2X framework.}
+    \label{fig:ris_v2x_ml_pipeline}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsubsection{QoS-Aware RIS Activation}
+% ------------------------------------------------------------
+
+RIS assistance is invoked only when the predicted operating conditions
+indicate that conventional direct V2V communication may be insufficient.
+A binary RIS-control variable is defined as
+
+\begin{equation}
+u_{\mathrm{RIS}}(t)
+\in
+\{0,1\},
+\label{eq:ris_activation_variable}
+\end{equation}
+
+where $u_{\mathrm{RIS}}(t)=1$ denotes RIS-assisted operation.
+
+A representative activation rule can be written as
+
+\begin{equation}
+u_{\mathrm{RIS}}(t)
+=
+\begin{cases}
+1,
+&
+\widehat{\mathrm{PRR}}(t+1)
+<
+\Gamma_{\mathrm{PRR}},
+\\
+1,
+&
+\widehat{\mathrm{CBR}}(t+1)
+>
+\Gamma_{\mathrm{CBR}},
+\\
+1,
+&
+I_{\mathrm{SI}}(t)
+>
+\Gamma_{\mathrm{SI}},
+\\
+0,
+&
+\text{otherwise},
+\end{cases}
+\label{eq:ris_activation_rule}
+\end{equation}
+
+where $\Gamma_{\mathrm{PRR}}$, $\Gamma_{\mathrm{CBR}}$, and
+$\Gamma_{\mathrm{SI}}$ denote reliability, congestion, and residual
+self-interference thresholds, respectively.
+
+Thus, RIS resources are not continuously activated; instead, they are
+invoked selectively when the predicted link or congestion state indicates
+a potential degradation in sidelink performance.
+
+% ------------------------------------------------------------
+\subsubsection{Adaptive Beacon-Resource Retention}
+% ------------------------------------------------------------
+
+The predictive QoS information is also used to modify the conventional
+semi-persistent resource-retention decision.
+
+Let $B_i(t)$ denote the Beacon Resource (BR) reserved by vehicle $i$.
+Under satisfactory predicted link conditions, the conventional resource
+keep probability $P_{\mathrm{keep}}$ is applied,
+
+\begin{equation}
+\Pr
+\left[
+B_i(t+1)=B_i(t)
+\right]
+=
+P_{\mathrm{keep}}.
+\label{eq:ris_standard_keep}
+\end{equation}
+
+When
+
+\begin{equation}
+\widehat{\mathrm{PRR}}(t+1)
+<
+\Gamma_{\mathrm{PRR}},
+\label{eq:ris_low_prr_condition}
+\end{equation}
+
+a Markovian reliability assessment is performed before retaining the
+current BR.
+
+% ------------------------------------------------------------
+\subsubsection{DTMC-Based Long-Term Reliability Assessment}
+% ------------------------------------------------------------
+
+The BR reliability is modeled through a two-state Discrete-Time Markov
+Chain (DTMC),
+
+\begin{equation}
+\mathcal{S}
+=
+\left\{
+S,F
+\right\},
+\label{eq:ris_dtmc_states}
+\end{equation}
+
+where $S$ represents successful packet reception and $F$ represents
+unsuccessful reception.
+
+The transition matrix is written as
+
+\begin{equation}
+\mathbf{P}
+=
+\begin{bmatrix}
+p_{SS} & p_{SF}
+\\
+p_{FS} & p_{FF}
+\end{bmatrix},
+\label{eq:ris_dtmc_matrix}
+\end{equation}
+
+with
+
+\begin{equation}
+p_{SS}+p_{SF}=1,
+\qquad
+p_{FS}+p_{FF}=1.
+\label{eq:ris_dtmc_row_sum}
+\end{equation}
+
+Let
+
+\begin{equation}
+\boldsymbol{\pi}
+=
+\left[
+\pi_S,
+\pi_F
+\right]
+\end{equation}
+
+denote the stationary distribution. It satisfies
+
+\begin{equation}
+\boldsymbol{\pi}
+=
+\boldsymbol{\pi}\mathbf{P},
+\qquad
+\pi_S+\pi_F=1.
+\label{eq:ris_stationary_equations}
+\end{equation}
+
+For the two-state chain, the stationary probability of reliable operation is
+
+\begin{equation}
+\pi_S
+=
+\frac{
+p_{FS}
+}{
+p_{FS}+p_{SF}
+}.
+\label{eq:ris_stationary_success}
+\end{equation}
+
+The predicted QoS and recent packet-reception history are used to update
+the transition probabilities and hence estimate the long-term reliability
+of the currently reserved BR.
+
+The resource-retention decision can then be represented as
+
+\begin{equation}
+a_{\mathrm{BR}}(t)
+=
+\begin{cases}
+\mathrm{retain},
+&
+\pi_S
+\geq
+\Gamma_{\mathrm{DTMC}},
+\\
+\mathrm{reselect},
+&
+\pi_S
+<
+\Gamma_{\mathrm{DTMC}},
+\end{cases}
+\label{eq:ris_dtmc_decision}
+\end{equation}
+
+where $\Gamma_{\mathrm{DTMC}}$ denotes the minimum acceptable
+long-term reliability.
+
+This mechanism prevents poor resources from being repeatedly retained
+solely because of the conventional keep probability.
+
+% ------------------------------------------------------------
+\subsubsection{Wireless Blind-Spot Probability}
+% ------------------------------------------------------------
+
+A further performance indicator considered in the framework is the
+Wireless Blind-Spot Probability (WBSP). A wireless blind spot occurs
+when two mutually hidden vehicles cannot decode or sense each other's
+resource reservations and consequently continue to select overlapping
+resources.
+
+Let $\mathcal{B}_{ij}$ denote the event that vehicles $i$ and $j$ are
+mutually hidden and let $\mathcal{C}_{ij}$ denote the event that they
+select conflicting resources. The WBSP can be represented as
+
+\begin{equation}
+P_{\mathrm{WBSP}}
+=
+\Pr
+\left(
+\mathcal{B}_{ij}
+\cap
+\mathcal{C}_{ij}
+\right).
+\label{eq:ris_wbsp}
+\end{equation}
+
+The RIS-assisted propagation path can reduce
+$P_{\mathrm{WBSP}}$ by improving link visibility between vehicles that
+would otherwise experience severe blockage.
+
+
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/RIS PLOT1.png}
+        \caption{WBSP versus wireless blind spot duration for a vehicle density
+        of 240 vehicles/km.}
+        \label{fig:ris_wbsp_240}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/RIS PLOT2.png}
+        \caption{WBSP versus wireless blind spot duration for a vehicle density
+        of 70 vehicles/km.}
+        \label{fig:ris_wbsp_70}
+    \end{subfigure}
+
+    \caption{Wireless blind spot probability (WBSP) as a function of wireless
+    blind spot duration under different vehicle densities:
+    (a) 240 vehicles/km and (b) 70 vehicles/km.}
+    \label{fig:ris_wbsp_duration}
+\end{figure}
+% ------------------------------------------------------------
+\subsubsection{Predictive RIS-Assisted MAC Procedure}
+% ------------------------------------------------------------
+
+The overall procedure combines sidelink sensing, QoS prediction,
+RIS activation, and DTMC-based resource-retention control.
+
+\begin{algorithm}[!t]
+\caption{Predictive RIS-Assisted Resource Retention for NR-V2X}
+\label{alg:ris_predictive_mac}
+\begin{algorithmic}[1]
+
+\Require Current sidelink observations, reserved BR $B_i(t)$,
+$P_{\mathrm{keep}}$, QoS thresholds, and DTMC parameters
+
+\State Perform sidelink sensing and construct the candidate-resource set
+
+\State Collect the current feature vector $\mathbf{x}(t)$
+
+\State Predict
+$\widehat{\mathrm{PRR}}(t+1)$ and
+$\widehat{\mathrm{CBR}}(t+1)$ using the trained ML model
+
+\If{
+$\widehat{\mathrm{PRR}}(t+1)<\Gamma_{\mathrm{PRR}}$
+\textbf{or}
+$\widehat{\mathrm{CBR}}(t+1)>\Gamma_{\mathrm{CBR}}$
+\textbf{or}
+$I_{\mathrm{SI}}(t)>\Gamma_{\mathrm{SI}}$
+}
+    \State Activate RIS assistance
+\Else
+    \State Continue using the direct V2V link
+\EndIf
+
+\If{
+$\widehat{\mathrm{PRR}}(t+1)
+\geq
+\Gamma_{\mathrm{PRR}}$
+}
+    \State Retain $B_i(t)$ with probability $P_{\mathrm{keep}}$
+\Else
+    \State Update the two-state DTMC transition probabilities
+    \State Compute stationary reliability $\pi_S$
+    \If{$\pi_S < \Gamma_{\mathrm{DTMC}}$}
+        \State Trigger immediate BR reselection
+    \Else
+        \State Retain the current BR
+    \EndIf
+\EndIf
+
+\State Update sidelink observations and repeat
+
+\end{algorithmic}
+\end{algorithm}
+
+% ------------------------------------------------------------
+\subsubsection{Performance Evaluation}
+% ------------------------------------------------------------
+
+\begin{figure}[!ht]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/RIS PLOT3.png}
+        \caption{PRR versus distance for a vehicle density of
+        240 vehicles/km.}
+        \label{fig:ris_prr_240}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {figures/Chapter 9 images/RIS PLOT4.png}
+        \caption{PRR versus distance for a vehicle density of
+        70 vehicles/km.}
+        \label{fig:ris_prr_70}
+    \end{subfigure}
+
+    \caption{Packet reception ratio (PRR) as a function of communication
+    distance for different vehicle densities:
+    (a) 240 vehicles/km and (b) 70 vehicles/km.}
+    \label{fig:ris_prr_distance}
+\end{figure}
+
+The predictive model was trained using data generated through an extended
+WiLabV2Xsim environment. The dataset captures the dependence of PRR and
+CBR on vehicular density, propagation conditions, resource-allocation
+settings, and communication distance.
+
+The proposed framework was compared with conventional sidelink
+resource-retention strategies, including legacy semi-persistent operation,
+adaptive-$P_{\mathrm{keep}}$ scheduling, and immediate resource
+reselection.
+
+The results showed that the joint use of RIS assistance, predictive QoS
+estimation, and Markovian resource-retention control improves packet
+reception over blocked and interference-limited links. The reduction in
+wireless blind-spot probability is particularly important in dense
+Mode~2 deployments, where local sensing alone cannot completely eliminate
+hidden-node resource conflicts.
+
+The framework therefore extends conventional resource adaptation toward a
+predictive cross-layer MAC design. Instead of changing only radio
+parameters, the proposed mechanism jointly exploits propagation control,
+full-duplex link awareness, predicted network conditions, and long-term
+resource reliability when determining sidelink resource-retention and
+reselection decisions.
+
+
+
 
 % ============================================================
 \section{Overview of Contributions}
