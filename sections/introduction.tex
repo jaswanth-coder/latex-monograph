@@ -19,6 +19,16 @@ To address these limitations, IEEE 802.11 uses CSMA/CA. Instead of detecting col
     \item \textbf{Random Backoff:} When the medium is busy, stations defer transmission and wait for a random backoff period.
 \end{itemize}
 
+\subsection{Analytical Foundations under Multi-Packet Reception (MPR)}
+Classical CSMA has traditionally been analyzed under the collision channel model, where any concurrent transmissions result in complete packet loss. However, modern WLANs (such as those employing MU-MIMO in IEEE 802.11ac/ax/be) support Multi-Packet Reception (MPR), allowing multiple concurrent transmissions to be successfully decoded.
+
+Balan and Venkatesh \cite{balan2015analysis} provided an exact throughput analysis for unslotted CSMA protocols under a $K$-MPR channel model, where up to $K$ packets can be successfully received simultaneously. 
+\begin{itemize}
+    \item For Non-Persistent CSMA (NP-CSMA), the temporal behavior and channel state timeline (idle and busy periods) are analyzed as detailed in the paper's \textbf{Figure 1} (titled \textit{"Illustrating the state of the channel against time of NP-CSMA"}), which captures the relation between transmission duration and propagation delay.
+    \item For 1-Persistent CSMA (1P-CSMA), where stations transmit immediately when the channel becomes idle, the channel busy periods are significantly more complex. Their state transitions and transmission timelines are illustrated in the paper's \textbf{Figure 5} (titled \textit{"Illustrating the channel and time: 1P-CSMA"}).
+    \item To model the 1-persistent protocol under MPR, they proposed a Markov chain over the transmission periods, which is detailed in the paper's \textbf{Figure 6} (modeling the state transition probabilities of the transmission periods).
+\end{itemize}
+
 \section{RTS/CTS Handshake & Hidden/Exposed Station Problems}
 To resolve the hidden station and exposed station problems:
 \begin{itemize}
@@ -38,4 +48,12 @@ To resolve the hidden station and exposed station problems:
 \begin{itemize}
     \item \textbf{Distributed Coordination Function (DCF):} The primary contention-based access method, relying on carrier sensing and random backoff.
     \item \textbf{Point Coordination Function (PCF):} A contention-free, centralized polling-based access method, managed by a Point Coordinator (typically the Access Point).
+\end{itemize}
+
+\subsection{Adaptive Backoff Mechanisms for MPR-Enabled DCF}
+To translate MPR gains to MAC-layer throughput in IEEE 802.11 DCF, the backoff process must adapt to active traffic. Balan and Venkatesh \cite{arun2017design} proposed an adaptive backoff protocol that modifies the backoff stage decrement step size based on current channel congestion.
+\begin{itemize}
+    \item The backoff stages and the contention window adaptation under multi-packet reception are modeled using a 3-D discrete-time Markov chain, shown in the paper's \textbf{Figure 1} (titled \textit{"3-D Markov chain model for the adaptive backoﬀ protocol"}).
+    \item The backoff stage transition behavior, where the counter decrements by a variable step size $d \ge 1$ depending on sensed slot outcomes, is represented by the Markov chain in the paper's \textbf{Figure 2} (titled \textit{"Markov chain model for the backoﬀ process of MPR DCF for uniform counter decrements by a value d >= 1"}).
+    \item Furthermore, the dynamics of the underlying shared channel are represented by a discrete-time Markov chain for the MPR channel state transitions, shown in the paper's \textbf{Figure 3} (titled \textit{"Markov Chain model for the MPR Channel"}).
 \end{itemize}

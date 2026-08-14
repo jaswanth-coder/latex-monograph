@@ -31,8 +31,25 @@ Introduced in 802.11ax (Wi-Fi 6), TWT allows APs and client stations to negotiat
     \item \textbf{BSS Coloring (BSR Coloring):} Identifies overlapping Basic Service Sets (OBSS) using colors in the PHY header, allowing stations to ignore traffic from neighboring networks and reduce collision deferrals.
 \end{itemize}
 
-\section{Next-Generation Enhancements: MLO & Multi-AP}
+\section{Next-Generation Enhancements: MLO \& Multi-AP}
+With the release of IEEE 802.11be (Wi-Fi 7), the wireless standard introduces architectural updates designed to achieve extremely high throughput (EHT) and ultra-low, deterministic latency. Among the most significant MAC and physical layer enhancements are Multi-Link Operation (MLO) and Coordinated Multi-AP transmission.
+
+\subsection{Multi-Link Operation (MLO)}
+Traditional Wi-Fi devices, even if dual-band or tri-band, can only establish a single active link with an Access Point (AP) at any given time, requiring a dynamic connection switch when switching bands. MLO solves this limitation by introducing the concept of a \textbf{Multi-Link Device (MLD)}. An MLD contains multiple physical PHY entities but exposes a single MAC interface to the upper network layers (represented by a logical Link Establishment and Management entity). 
+
+This architecture allows a client MLD to establish concurrent active links with an AP MLD across different frequency bands (e.g., 2.4~GHz, 5~GHz, and 6~GHz) or different channels within the same band. Link communication modes in MLO include:
 \begin{itemize}
-    \item \textbf{Multi-Link Operation (MLO):} Introduced in Wi-Fi 7, enabling stations to transmit and receive data across multiple frequency bands (2.4 GHz, 5 GHz, 6 GHz) concurrently.
-    \item \textbf{Multi-AP Coordination:} Coordinated spatial reuse, beamforming, and joint scheduling across multiple Access Points to manage interference in dense deployments.
+    \item \textbf{Simultaneous Transmission and Reception (STR):} The device can transmit on one link while receiving on another link simultaneously. This requires significant physical isolation between the transceivers to prevent self-interference.
+    \item \textbf{Non-Simultaneous Transmission and Reception (Non-STR / NSTR):} When transceivers are placed too close together, a transmission on one band (e.g., 5~GHz) leaks and blinds the receiver on a neighboring band (e.g., 6~GHz). In NSTR mode, channel access must be coordinated across links to prevent overlapping TX-RX states.
+\end{itemize}
+
+By dynamically aggregating links or routing packets along the link with the lowest current contention, MLO significantly increases peak throughput, improves link reliability, and reduces worst-case latency by avoiding congested channels.
+
+\subsection{Coordinated Multi-AP Operation}
+In dense enterprise environments, performance is heavily bottlenecked by Overlapping Basic Service Sets (OBSS), leading to high co-channel interference and inefficient contention. To address this, IEEE 802.11be defines explicit coordination protocols across neighboring Access Points (APs) sharing the same backbone network:
+\begin{itemize}
+    \item \textbf{Coordinated Spatial Reuse (C-SR):} APs exchange information regarding transmit powers and path losses. During an active transmission from a primary AP to its client, a coordinated secondary AP can transmit concurrently at a controlled, reduced power level, ensuring that it does not disrupt the primary AP's reception.
+    \item \textbf{Coordinated Beamforming (C-BF):} Multiple APs perform joint null-steering. A neighboring AP structures its beamforming vectors to place spatial nulls at the location of active clients of the main AP, preventing interference.
+    \item \textbf{Coordinated Orthogonal Frequency Division Multiple Access (C-OFDMA):} The available channel bandwidth is dynamically divided into Resource Units (RUs) and shared among neighboring APs. This allows concurrent orthogonal transmissions without spatial collisions.
+    \item \textbf{Joint Transmission (JT):} Multiple APs jointly transmit the same data payload to a single client device. This converts destructive interference into constructive multipath combining, maximizing signal-to-interference-plus-noise ratio (SINR).
 \end{itemize}
