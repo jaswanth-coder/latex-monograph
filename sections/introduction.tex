@@ -19,17 +19,42 @@ To address these limitations, IEEE 802.11 uses CSMA/CA. Instead of detecting col
     \item \textbf{Random Backoff:} When the medium is busy, stations defer transmission and wait for a random backoff period.
 \end{itemize}
 
-\subsection{Analytical Foundations under Multi-Packet Reception (MPR)}
-Classical CSMA has traditionally been analyzed under the collision channel model, where any concurrent transmissions result in complete packet loss. However, modern WLANs (such as those employing MU-MIMO in IEEE 802.11ac/ax/be) support Multi-Packet Reception (MPR), allowing multiple concurrent transmissions to be successfully decoded.
+\subsection{Analytical Foundations of CSMA under Multi-Packet Reception (MPR)}
+In traditional wireless network modeling, any overlapping transmissions are assumed to collide and fail completely. However, advancements in the physical layer—such as Multi-User MIMO (MU-MIMO) and Successive Interference Cancellation (SIC)—enable a receiver to decode multiple overlapping packets concurrently. This capability is known as Multi-Packet Reception (MPR).
 
-Balan and Venkatesh \cite{balan2015analysis} provided an exact throughput analysis for unslotted CSMA protocols under a $K$-MPR channel model, where up to $K$ packets can be successfully received simultaneously. 
-\begin{itemize}
-    \item For Non-Persistent CSMA (NP-CSMA), the temporal behavior and channel state timeline (idle and busy periods) are analyzed as detailed in the paper's \textbf{Figure 1} (titled \textit{"Illustrating the state of the channel against time of NP-CSMA"}), which captures the relation between transmission duration and propagation delay.
-    \item For 1-Persistent CSMA (1P-CSMA), where stations transmit immediately when the channel becomes idle, the channel busy periods are significantly more complex. Their state transitions and transmission timelines are illustrated in the paper's \textbf{Figure 5} (titled \textit{"Illustrating the channel and time: 1P-CSMA"}).
-    \item To model the 1-persistent protocol under MPR, they proposed a Markov chain over the transmission periods, which is detailed in the paper's \textbf{Figure 6} (modeling the state transition probabilities of the transmission periods).
-\end{itemize}
+Balan and Venkatesh \cite{balan2015analysis} developed an exact throughput analysis for unslotted carrier sense multiple access protocols under a $K$-MPR channel model. In this model, up to $K$ overlapping packets can be successfully received. If the number of concurrent transmissions exceeds $K$, all packets in the slot fail.
 
-\section{RTS/CTS Handshake & Hidden/Exposed Station Problems}
+For an unslotted Non-Persistent CSMA (NP-CSMA) protocol, the average duration of the idle time is $1/\Lambda$, where $\Lambda$ is the Poisson arrival rate of new and rescheduled packets. The channel timeline alternates between idle and busy periods. A busy period is initiated by the first packet arrival at some time $t$. Any subsequent packets that arrive within the carrier sensing delay $a$ (representing the signal propagation delay) will also be transmitted immediately because the busy channel state has not yet been sensed by those nodes. The interval $[t, t+a]$ is the vulnerable interval.
+
+Let $Y$ be the random variable denoting the duration between the start of the first transmission ($t$) and the last arrival in the vulnerable interval $[t, t+a]$. The cumulative distribution function (CDF) of $Y$ is given by:
+\begin{equation}
+    F_Y(y) = e^{-\Lambda(a - y)}, \quad 0 \le y \le a
+\end{equation}
+The mean value of $Y$ is derived as:
+\begin{equation}
+    \bar{Y} = a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})
+\end{equation}
+Consequently, the average duration of a busy period $\bar{B}$ (including the transmission time of 1 unit and the propagation delay $a$ until the channel is sensed idle again) is:
+\begin{equation}
+    \bar{B} = 1 + \bar{Y} + a = 1 + 2a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})
+\end{equation}
+Under the $K$-MPR channel model, a transmission is successful if and only if the total number of packets transmitted during the busy period is less than or equal to $K$. If $i$ additional packets arrive in the vulnerable interval, the total number of packets transmitted in the busy period is $i+1$. Thus, the expected number of successful packets transmitted in a renewal cycle (idle + busy period) is:
+\begin{equation}
+    \bar{U} = \sum_{i=0}^{K-1} (i + 1) \frac{(\Lambda a)^i e^{-\Lambda a}}{i!}
+\end{equation}
+Using the renewal reward theorem, the normalized system throughput $S$ of NP-CSMA under MPR is:
+\begin{equation}
+    S = \frac{\bar{U}}{\bar{C}} = \frac{\sum_{i=0}^{K-1} (i + 1) \frac{(\Lambda a)^i e^{-\Lambda a}}{i!}}{\frac{1}{\Lambda} + 1 + 2a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})} = \frac{\Lambda e^{-\Lambda a} \sum_{i=0}^{K-1} \frac{(i+1)(\Lambda a)^i}{i!}}{1 + (2a + 1)\Lambda - (1 - e^{-a\Lambda})}
+\end{equation}
+
+% [INSERT FIGURE 1 FROM BALAN 2015 - Illustrating the state of the channel against time of NP-CSMA]
+
+In 1-Persistent CSMA (1P-CSMA), nodes that find the channel busy do not reschedule; instead, they wait and transmit immediately as soon as the channel becomes idle. The busy periods are significantly longer and more complex than in NP-CSMA. Balan and Venkatesh modeled the 1P-CSMA busy periods using a Markov chain, where the states represent the number of packets accumulated during a transmission period that will contend in the subsequent transmission period.
+
+% [INSERT FIGURE 5 FROM BALAN 2015 - Illustrating the channel and time: 1P-CSMA]
+% [INSERT FIGURE 6 FROM BALAN 2015 - Transition probability Markov chain]
+
+\section{RTS/CTS Handshake \& Hidden/Exposed Station Problems}
 To resolve the hidden station and exposed station problems:
 \begin{itemize}
     \item \textbf{RTS/CTS Mechanism:} The transmitter sends a Request to Send (RTS) frame. The receiver replies with a Clear to Send (CTS) frame. Any station hearing the CTS defers its transmission, mitigating the hidden station problem.
@@ -44,16 +69,77 @@ To resolve the hidden station and exposed station problems:
     \item \textbf{Exponential Backoff:} If an ACK is not received, the station assumes a collision occurred, doubles its Contention Window (CW), and schedules a retransmission.
 \end{itemize}
 
-\section{Distributed and Point Coordination Functions (DCF & PCF)}
+\section{Distributed and Point Coordination Functions (DCF \& PCF)}
 \begin{itemize}
     \item \textbf{Distributed Coordination Function (DCF):} The primary contention-based access method, relying on carrier sensing and random backoff.
     \item \textbf{Point Coordination Function (PCF):} A contention-free, centralized polling-based access method, managed by a Point Coordinator (typically the Access Point).
 \end{itemize}
 
-\subsection{Adaptive Backoff Mechanisms for MPR-Enabled DCF}
-To translate MPR gains to MAC-layer throughput in IEEE 802.11 DCF, the backoff process must adapt to active traffic. Balan and Venkatesh \cite{arun2017design} proposed an adaptive backoff protocol that modifies the backoff stage decrement step size based on current channel congestion.
+\subsection{Adaptive Backoff DCF Protocol under MPR}
+To translate MPR gains from the physical layer to the MAC layer, Balan and Venkatesh \cite{arun2017design} proposed an adaptive backoff protocol that modifies the backoff stage decrement step size based on channel utilization.
+
+Unlike the conventional IEEE 802.11 DCF, where the backoff counter freezes whenever the channel is busy (any active transmission), the adaptive MPR-DCF protocol only freezes the counter when the number of concurrent transmissions exceeds a threshold $K_t$ (where $K_t \le K$). If there are $i$ ongoing transmissions and $i \le K_t$, the backoff counter continues to decrement by a variable step size $d(i)$:
+\begin{equation}
+    d(i) = \begin{cases}
+        K - i, & \text{if } i \le K_t \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+This approach allows the node to access the channel more aggressively when the channel is under-utilized, and slow down when the channel is nearing its MPR capacity. A consequence of this design is that transmissions from different nodes are not frame-synchronous; new transmissions can be initiated during ongoing transmissions.
+
+The protocol is analyzed using a 3-D discrete-time Markov chain, where the state of a station is represented by $\{s(t), b(t), c(t)\}$, representing the backoff stage, backoff counter, and channel status, respectively:
+
+% [INSERT FIGURE 1 FROM BALAN 2017 - 3-D Markov chain model for the adaptive backoﬀ protocol]
+
+To solve the model, the 3-D Markov chain is split into two coupled chains:
+\begin{enumerate}
+    \item A Markov chain for the backoff process of the node with generalized counter decrements $d(i)$:
+    % [INSERT FIGURE 2 FROM BALAN 2017 - Markov chain model for the backoﬀ process of MPR DCF for uniform counter decrements by a value d >= 1]
+    \item A discrete-time Markov chain to model the MPR channel state transitions:
+    % [INSERT FIGURE 3 FROM BALAN 2017 - Markov Chain model for the MPR Channel]
+\end{enumerate}
+
+\section{Full-Duplex Evolution of IEEE 802.11 MAC: SM-FD MAC}
+Full-Duplex (FD) communication—where a node transmits and receives simultaneously on the same frequency band—can potentially double the capacity of Half-Duplex (HD) channels. Gupta and Venkatesh \cite{gupta2022design} proposed a Synchronized Mode Full-Duplex (SM-FD) MAC protocol that adapts the IEEE 802.11 standard to support both FD-capable and legacy HD-capable nodes without modifying the standard packet header structure.
+
+\subsection{Link Configurations and Address 4 Piggybacking}
+SM-FD MAC supports three communication modes, illustrated in:
+% [INSERT FIGURE 1 FROM GUPTA 2022 - Full duplex communication in WLAN]
+\begin{enumerate}
+    \item \textbf{Symmetrical FD Link ($N_a \leftrightarrow \text{AP}$):} An FD-enabled Access Point and an FD-enabled node transmit to each other simultaneously.
+    \item \textbf{Asymmetrical FD Link ($N_a \rightarrow \text{AP} \rightarrow N_b$):} An FD-enabled AP receives a packet from node $N_a$ while simultaneously transmitting a different packet to node $N_b$. This mode supports networks containing legacy HD-only nodes ($N_b$).
+    \item \textbf{Half-Duplex Link:} Standard HD transmission when no concurrent packets are available.
+\end{enumerate}
+
+To establish slot synchronization and minimize RTS/CTS overhead, the protocol defines two node states: \textit{Free nodes} (which contend using random access) and \textit{Slot Allocated (SA) nodes}. During a successful data packet transmission, the SA node piggybacks its next randomly selected backoff slot to the AP by writing it into the unused \textbf{Address 4} field of the 802.11 MAC header. The AP stores this backoff slot, allowing future transmissions to be scheduled. This maintains slot synchronization, eliminating the need for RTS/CTS contention on subsequent packet exchanges.
+
+\subsection{Capture Effect and Packet Alignment}
+In an asymmetrical link ($N_a \rightarrow \text{AP} \rightarrow N_b$), the transmission from the AP to node $N_b$ (downlink) overlaps with the transmission from node $N_a$ to the AP (uplink). If $N_b$ is a legacy HD node, the uplink transmission from $N_a$ acts as co-channel interference, causing a collision.
+
+To enable the HD node $N_b$ to decode the AP's downlink packet in the presence of this interference, the SM-FD MAC protocol forces the AP to align its transmission so that the downlink packet starts at least a \textbf{preamble duration} ahead of the uplink packet from $N_a$:
+% [INSERT FIGURE 3 FROM GUPTA 2022 - An example of the proposed FD MAC protocol operation]
+This packet alignment allows the receiver at $N_b$ to lock onto the AP's preamble first. Based on the capture effect, $N_b$ can successfully decode the stronger downlink packet despite the subsequent interference from $N_a$.
+
+\subsection{Frame Control Field Modifications}
+To maintain backward compatibility with legacy devices, SM-FD MAC utilizes reserved bit patterns in the standard 802.11 Frame Control field (Type and Sub-type bits) to signal FD control and data frames without changing the frame length:
 \begin{itemize}
-    \item The backoff stages and the contention window adaptation under multi-packet reception are modeled using a 3-D discrete-time Markov chain, shown in the paper's \textbf{Figure 1} (titled \textit{"3-D Markov chain model for the adaptive backoﬀ protocol"}).
-    \item The backoff stage transition behavior, where the counter decrements by a variable step size $d \ge 1$ depending on sensed slot outcomes, is represented by the Markov chain in the paper's \textbf{Figure 2} (titled \textit{"Markov chain model for the backoﬀ process of MPR DCF for uniform counter decrements by a value d >= 1"}).
-    \item Furthermore, the dynamics of the underlying shared channel are represented by a discrete-time Markov chain for the MPR channel state transitions, shown in the paper's \textbf{Figure 3} (titled \textit{"Markov Chain model for the MPR Channel"}).
+    \item \textbf{Type 01 (Control):} Subtype `0000` is mapped to HD-RTS, `0001` is mapped to FD-RTS, and `0010` is mapped to FD-CTS.
+    \item \textbf{Type 10 (Data):} Subtype `0001` is mapped to FD-Data.
 \end{itemize}
+Legacy devices interpret these reserved frames as unknown or ignore them, while SM-FD-enabled nodes process them to coordinate channel access.
+
+\subsection{Collision Scenarios and Reset Behavior}
+Although SA nodes are synchronized, collisions can still occur if a Free node selects the same slot to transmit an RTS, or if multiple SA nodes happen to choose the same future backoff slot. Collisions can happen in the following scenarios:
+\begin{itemize}
+    \item Two or more Free nodes transmit an RTS in the same slot.
+    \item One Free node transmits an RTS and at least one SA node transmits a scheduled data packet.
+    \item Two or more SA nodes transmit scheduled data packets in the same slot.
+\end{itemize}
+% [INSERT FIGURE 4 FROM GUPTA 2022 - Flow Diagram of Data packet transmitted by node using SM-FD MAC protocol]
+
+When a collision occurs, the affected nodes do not receive an ACK. Upon timeout, both the Free nodes and the SA nodes involved in the collision revert to the Free state, reset their slot allocations, and must re-contend for the channel through the random backoff process.
+
+The protocol's transition states are modeled using three coupled discrete-time Markov chains representing the backoff slot of the SA node, the number of SA nodes in the system, and the overall status of the transceivers:
+% [INSERT FIGURE 5 FROM GUPTA 2022 - Markov chain for the backoff slot of SA node]
+% [INSERT FIGURE 6 FROM GUPTA 2022 - Markov chain: state denoting the number of SA node]
+% [INSERT FIGURE 7 FROM GUPTA 2022 - Markov chain for Tnode status]

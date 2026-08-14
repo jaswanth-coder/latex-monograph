@@ -130,12 +130,14 @@ load dynamics.pdf`
 - RTS/CTS Handshake & Hidden/Exposed Station Problems
 - Basic Access, Acknowledgements, and Backoff
 - Distributed and Point Coordination Functions (DCF & PCF)
+- Analytical Modeling of CSMA under Multi-Packet Reception (MPR)
+- Adaptive Backoff DCF Protocol under MPR
+- Full-Duplex Evolution of IEEE 802.11 MAC: SM-FD MAC
 
 #### Mapped Papers:
-- **Analysis of Quiet Period Scheduling in QP-CSMA-CA Cognitive Radio MAC Protocol (2)** (File: `Analysis of Quiet Period Scheduling in QP-CSMA-CA
-Cognitive Radio MAC Protocol (2).pdf`)
-- **Analysis of Quiet Period Scheduling in QP-CSMA-CA Cognitive Radio MAC Protocol** (File: `Analysis of Quiet Period Scheduling in QP-CSMA-CA
-Cognitive Radio MAC Protocol.pdf`)
+- **Design and analysis of IEEE 802.11 based Full Duplex WLAN MAC protocol** (File: `Design and analysis of IEEE 802.11 based Full Duplex WLAN MAC protocol.pdf`)
+- **Design and performance analysis of a MAC protocol for wireless LANs supporting multipacket reception** (File: `Design and performance analysis of a MAC protocol for wireless LANs
+supporting multipacket reception.pdf`)
 - **IET Communications - 2015 - Indira Balan - Analysis of carrier sense multiple access protocols for channels supporting** (File: `IET Communications - 2015 - Indira Balan - Analysis of carrier sense multiple access protocols for channels supporting.pdf`)
 
 --------------------------------------------------
@@ -162,7 +164,6 @@ Cognitive Radio MAC Protocol.pdf`)
 - Recent Advances in WLAN Research
 
 #### Mapped Papers:
-- **Design and analysis of IEEE 802.11 based Full Duplex WLAN MAC protocol** (File: `Design and analysis of IEEE 802.11 based Full Duplex WLAN MAC protocol.pdf`)
 - **Design and Performance Analysis of Cognitive WLAN MAC Protocol** (File: `Design_and_Performance_Analysis_of_Cognitive_WLAN_MAC_Protocol.pdf`)
 - **Design and Performance Analysis of Multichannel MAC Protocol for Cognitive WLAN** (File: `Design_and_Performance_Analysis_of_Multichannel_MAC_Protocol_for_Cognitive_WLAN.pdf`)
 - **IET Networks - 2014 - Hemanth - Performance analysis of contention‐based access periods and service periods of 802 11ad** (File: `IET Networks - 2014 - Hemanth - Performance analysis of contention‐based access periods and service periods of 802 11ad.pdf`)
@@ -183,6 +184,7 @@ Networks: Design and Analysis.pdf`)
 in 5G NR Networks.pdf`)
 - **Performance Analysis of Connection Establishment Procedure Under Beamforming in 5G NR Networks** (File: `Performance_Analysis_of_Connection_Establishment_Procedure_Under_Beamforming_in_5G_NR_Networks.pdf`)
 - **Performance Analysis of Random Access Mechanism in 5G Millimeter Wave Networks Effect of Blockage Shadowing and Mobility** (File: `Performance_Analysis_of_Random_Access_Mechanism_in_5G_Millimeter_Wave_Networks_Effect_of_Blockage_Shadowing_and_Mobility.pdf`)
+- **Transactions on Emerging Telecommunications Technologies - 2023 - Vaddi - Modeling medium dense cellular network and** (File: `Transactions on Emerging Telecommunications Technologies - 2023 - Vaddi - Modeling medium dense cellular network and.pdf`)
 
 --------------------------------------------------
 
@@ -211,6 +213,10 @@ Networks Based on Phasic Policy Gradient Reinforcement Learning.pdf`)
 #### Mapped Papers:
 - **An analytical framework for cooperative cognitive radio network for spectrum leasingsharing** (File: `An analytical framework for cooperative cognitive radio network for
 spectrum leasingsharing.pdf`)
+- **Analysis of Quiet Period Scheduling in QP-CSMA-CA Cognitive Radio MAC Protocol (2)** (File: `Analysis of Quiet Period Scheduling in QP-CSMA-CA
+Cognitive Radio MAC Protocol (2).pdf`)
+- **Analysis of Quiet Period Scheduling in QP-CSMA-CA Cognitive Radio MAC Protocol** (File: `Analysis of Quiet Period Scheduling in QP-CSMA-CA
+Cognitive Radio MAC Protocol.pdf`)
 - **Channel Selection Algorithm for Cognitive Radio Networks with Heavy-Tailed Idle Times** (File: `Channel_Selection_Algorithm_for_Cognitive_Radio_Networks_with_Heavy-Tailed_Idle_Times.pdf`)
 - **Optimal Channel Sensing Strategy for Cognitive Radio Networks With Heavy-Tailed Idle Times** (File: `Optimal_Channel_Sensing_Strategy_for_Cognitive_Radio_Networks_With_Heavy-Tailed_Idle_Times.pdf`)
 
@@ -267,8 +273,6 @@ Design and analysis.pdf`)
 
 #### Mapped Papers:
 - **C-FD MAC: Constellation based Full-Duplex MAC protocol** (File: `C-FD MAC: Constellation based Full-Duplex MAC protocol.pdf`)
-- **Design and performance analysis of a MAC protocol for wireless LANs supporting multipacket reception** (File: `Design and performance analysis of a MAC protocol for wireless LANs
-supporting multipacket reception.pdf`)
 - **Design and performance evaluation of successive interference cancellation based Slotted Aloha MAC protocol** (File: `Design and performance evaluation of successive interference
 cancellation based Slotted Aloha MAC protocol.pdf`)
 - **Order Statistics Based Analysis of Pure ALOHA in Channels with Multipacket Reception** (File: `Order_Statistics_Based_Analysis_of_Pure_ALOHA_in_Channels_with_Multipacket_Reception.pdf`)
@@ -320,5 +324,3 @@ load dynamics.pdf`)
 
 --------------------------------------------------
 
-### Unmapped Papers
-- **Transactions on Emerging Telecommunications Technologies - 2023 - Vaddi - Modeling medium dense cellular network and** (File: `Transactions on Emerging Telecommunications Technologies - 2023 - Vaddi - Modeling medium dense cellular network and.pdf`)
