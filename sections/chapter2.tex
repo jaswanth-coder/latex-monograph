@@ -68,10 +68,20 @@ Gulasekaran and Sankaran \cite{gulasekaran2021wifi6} classify TWT agreements int
         \item \textit{Announced vs. Unannounced:} In announced mode, the STA wakes up and must transmit a trigger frame (PS-Poll or U-APSD) to solicit buffered downlink data; in unannounced mode, the AP immediately transmits downlink data to the STA at the start of the SP without waiting for a trigger.
         \item \textit{Trigger-Enabled vs. Non-Trigger-Enabled:} In trigger-enabled mode, the AP schedules all transmissions within the TWT SP using trigger frames; in non-trigger-enabled mode, the STA can transmit autonomously using standard contention.
     \end{enumerate}
-    % [PLACEHOLDER: Figure 3.14 from Susinder Book - Implicit TWT operation using individual TWT agreement]
+    \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.14.png}
+    \caption{Implicit TWT operation using individual TWT agreement}
+    \label{fig:susinder_book_fig3.14}
+\end{figure}
     
     \item \textbf{Broadcast TWT Agreement:} The AP schedules a TWT SP for a group of STAs and advertises the parameters in beacons. Key parameters include the \textit{Next Target Beacon} (transmission time of the next beacon carrying TWT info) and the \textit{Listen Interval}. This mode reduces negotiation overhead and is typically trigger-enabled to prevent intra-group contention.
-    % [PLACEHOLDER: Figure 3.15 from Susinder Book - TWT operation using broadcast TWT]
+    \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.15.png}
+    \caption{TWT operation using broadcast TWT}
+    \label{fig:susinder_book_fig3.15}
+\end{figure}
 \end{itemize}
 
 \section{High Throughput PHY-MAC Integrations}
@@ -83,10 +93,20 @@ To support multi-gigabit speeds and dense deployments, Wi-Fi 6 integrates PHY an
 
 \subsection{OFDMA Resource Unit Allocation}
 Under IEEE 802.11ax, the channel bandwidth is divided into fixed-position RUs of varying sizes: 26-tone, 52-tone, 106-tone, 242-tone, 484-tone, and 996-tone RUs. The smallest unit is the 26-tone RU, which occupies approximately 2~MHz of bandwidth. Tone allocations and pilot densities are detailed in:
-% [PLACEHOLDER: Table 3.6 from Susinder Book - Data and Pilot Subcarriers for Different RUs]
+\begin{table}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.6.png}
+    \caption{Data and Pilot Subcarriers for Different RUs}
+    \label{tab:susinder_book_tab3.6}
+\end{table}
 
 In trigger-based uplink transmissions, the AP controls the transmit power of participating STAs by calculating path loss from the trigger frame's transmit power and specifying a target RSSI. This power control ensures that uplink signals arrive at the AP receiver within its dynamic range, avoiding adjacent subcarrier interference.
-% [PLACEHOLDER: Figure 3.8 from Susinder Book - Uplink MU operation timeline using Trigger Frame]
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.8.png}
+    \caption{Uplink MU operation timeline using Trigger Frame}
+    \label{fig:susinder_book_fig3.8}
+\end{figure}
 
 \subsection{BSS Coloring and Color Collision Resolution}
 In dense deployments, Overlapping Basic Service Sets (OBSS) cause high contention overhead because STAs defer to transmissions from neighboring networks. Wi-Fi 6 addresses this by assigning a 6-bit identifier (value 1 to 63) called the \textbf{BSS Color} to each BSS. The BSS color is advertised by the AP in beacons and marked in the HE-SIG-A field of the PHY header of all transmitted PPDUs. This allows STAs to classify any incoming packet as intra-BSS (matching color) or inter-BSS (different color) at the PHY layer before decoding the MAC header.
@@ -105,7 +125,12 @@ With BSS coloring, Wi-Fi 6 STAs can execute two types of Spatial Reuse (SR) to t
         OBSS\_PD \le OBSS\_PD_{min} + (T_{pref} - T_{psr})
     \end{equation}
     where $T_{psr}$ is the station's transmit power during the spatial reuse TXOP, and $T_{pref}$ is 21~dBm for client STAs (or APs with $<3$ spatial streams) and 25~dBm for APs with $\ge 3$ spatial streams. Under dynamic OBSS PD, the threshold is set to $\min(OBSS\_PD_{max}, RP_{inter-BSS})$, and the transmit power $T_{psr}$ is dynamically adjusted to stay below $OBSS\_PD_{min} - RP_{inter-BSS} + T_{pref}$, where $RP_{inter-BSS}$ is the received power of the overlapping packet.
-    % [PLACEHOLDER: Figure 3.17 from Susinder Book - OBSS PD and Tx power during SR TxOP]
+    \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.17.png}
+    \caption{OBSS PD and Tx power during SR TxOP}
+    \label{fig:susinder_book_fig3.17}
+\end{figure}
     
     To prevent collisions during spatial reuse, STAs maintain a **Dual NAV**: an \textit{intra-BSS NAV} (updated on intra-BSS frames) and an \textit{inter-BSS NAV} (updated on inter-BSS frames that do not qualify for spatial reuse). The medium is considered busy if either NAV is non-zero.
     
@@ -134,12 +159,22 @@ MLO operates in two link-management modes:
 At the physical level, MLO supports two channel access modes:
 \begin{enumerate}
     \item \textbf{Asynchronous Multi-Link Channel Access:} Affiliated transceivers transmit and receive independently. When operating in widely separated bands (e.g., 2.4~GHz and 5~GHz), this mode is highly efficient. However, if the links are close in frequency (e.g., adjacent channels in the 5~GHz or 6~GHz bands), transmit signal leakage causes In-Device Coexistence (IDC) interference, blinding the neighboring receiver.
-    % [PLACEHOLDER: Figure 9 from Khorov 2020 - Asynchronous vs. synchronous multi-link operation]
+    \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_khorov_2020_9.png}
+    \caption{Asynchronous vs. synchronous multi-link operation}
+    \label{fig:khorov_2020_fig9}
+\end{figure}
     \item \textbf{Synchronous Multi-Link Channel Access:} Transmissions on all links are synchronized to start at the same time, preventing overlapping TX-RX states and mitigating IDC interference.
 \end{enumerate}
 
 To save energy, MLDs can designate an \textit{Anchor Link} for carrying beacons and management frames. When traffic is light, the auxiliary links are placed into a deep sleep state and can be woken up by the AP transmitting a wakeup frame on the anchor link. For Real-Time Applications (RTA), MLO supports three transmission modes: \textit{Duplicate Mode} (transmitting copies of a packet across multiple links to maximize reliability), \textit{Joint Mode} (distributing packets across links to minimize latency), and \textit{Conditional Packet Duplication} (replicating a packet to secondary links only if it fails to transmit on the primary link within a specific delay budget).
-% [PLACEHOLDER: Figure 10 from Khorov 2020 - Duplicate Mode and Joint Mode in Wi-Fi 7 MLO]
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_khorov_2020_10.png}
+    \caption{Duplicate Mode and Joint Mode in Wi-Fi 7 MLO}
+    \label{fig:khorov_2020_fig10}
+\end{figure}
 
 \subsection{Coordinated Multi-AP Operation}
 To mitigate severe OBSS interference in dense deployments, Wi-Fi 7 introduces coordinated protocols across neighboring Access Points sharing a backend controller \cite{khorov2020current}. The coordination is managed by a designated Master AP coordinating multiple Slave APs:
@@ -148,11 +183,21 @@ To mitigate severe OBSS interference in dense deployments, Wi-Fi 7 introduces co
     \item \textbf{Coordinated OFDMA (Co-OFDMA):} The Master AP coordinates subcarrier allocations across neighbor APs, assigning orthogonal RUs to adjacent cells to prevent spectral collisions.
     \item \textbf{Coordinated Beamforming (CBF) / Null Steering:} An AP structures its beamforming precoding matrix to place spatial nulls at the coordinates of clients associated with neighboring APs, eliminating inter-cell interference.
     \item \textbf{Joint Transmission (JTX):} Multiple APs function as a distributed MU-MIMO system. In the downlink, APs transmit the same payload concurrently to a single client. In the uplink, joint reception is performed using either \textit{Joint Frame Reception} (jointly processing signal time samples over a high-speed backhaul) or \textit{Distributed Successive Interference Cancellation (SIC)} (where one AP decodes its client's packet and shares it with a neighbor AP to subtract its interfering signal).
-    % [PLACEHOLDER: Figure 16 from Khorov 2020 - Coordinated Multi-AP: Joint Transmission, Co-OFDMA, and Coordinated Null Steering]
+    \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_khorov_2020_16.png}
+    \caption{Coordinated Multi-AP: Joint Transmission, Co-OFDMA, and Coordinated Null Steering}
+    \label{fig:khorov_2020_fig16}
+\end{figure}
 \end{itemize}
 
 Multi-AP JTX relies on a synchronized sounding protocol. The Master AP transmits a multi-AP trigger frame that schedules simultaneous Null Data Packet (NDP) transmissions from all Slave APs using subcarrier interleaving or P-matrices. Associated STAs measure the composite channel and return compressed beamforming reports.
-% [PLACEHOLDER: Figure 17 from Khorov 2020 - Multi-AP Sounding Protocol for JTX]
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_khorov_2020_17.png}
+    \caption{Multi-AP Sounding Protocol for JTX}
+    \label{fig:khorov_2020_fig17}
+\end{figure}
 
 To simplify roaming, coordinated APs can form a \textbf{Virtual BSS}, sharing a single BSSID and association context. This enables clients to transition between physical APs without executing re-association or re-keying protocols.
 
@@ -165,7 +210,12 @@ While previous Wi-Fi generations focused on maximizing peak throughput under ide
 \end{itemize}
 
 To achieve these reliability targets, Wi-Fi 8 introduces key enhancements across the physical and MAC layers. The candidate features and their mapping to target KPIs are summarized in:
-% [PLACEHOLDER: Table 4 from Karamysheva 2025 - Wi-Fi 8 candidate features mapped to KPIs]
+\begin{table}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_karamysheva_2025_4.png}
+    \caption{Wi-Fi 8 candidate features mapped to KPIs}
+    \label{tab:karamysheva_2025_tab4}
+\end{table}
 
 \subsection{Physical Layer (PHY) UHR Features}
 \begin{itemize}
