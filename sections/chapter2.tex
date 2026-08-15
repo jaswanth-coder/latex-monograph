@@ -1,55 +1,192 @@
 \chapter{Advanced Features and QoS in IEEE 802.11}
 \label{sec:chapter2}
 
-This chapter explores the evolution of QoS, frame optimization, and physical-MAC layer enhancements in the modern iterations of the IEEE 802.11 standard (ranging from 802.11e to 802.11be/Wi-Fi 7).
+This chapter explores the evolution of Quality of Service (QoS), frame optimization, power saving, and physical-MAC layer integrations across the modern iterations of the IEEE 802.11 standard, spanning IEEE 802.11e (EDCA), IEEE 802.11ax (Wi-Fi 6), IEEE 802.11be (Wi-Fi 7), and the upcoming IEEE 802.11bn (Wi-Fi 8) standards.
 
-\section{EDCF, Inter-Frame Spaces, and Access Categories}
-\begin{itemize}
-    \item \textbf{Enhanced Distributed Channel Access (EDCA/EDCF):} Introduced in 802.11e to provide quality of service. It defines four Access Categories (AC): Background (AC\_BK), Best Effort (AC\_BE), Video (AC\_VI), and Voice (AC\_VO).
-    \item \textbf{Short Inter-Frame Space (SIFS):} The shortest spacing between frames, used for high-priority transmissions like ACKs and CTS.
-    \item \textbf{Service Differentiation & QoS:} Different ACs have different Arbitrary Inter-Frame Spaces (AIFS) and Contention Window (CW) limits, giving higher priority traffic faster access to the medium.
-\end{itemize}
+\section{EDCA, Inter-Frame Spaces, and Access Categories}
+To support differentiated Quality of Service in wireless networks, IEEE 802.11e introduced the Enhanced Distributed Channel Access (EDCA) mechanism, replacing the legacy DCF. EDCA defines four Access Categories (ACs) corresponding to different priority levels: Background (AC\_BK), Best Effort (AC\_BE), Video (AC\_VI), and Voice (AC\_VO).
+
+Each AC is assigned a specific set of channel access parameters, including the Arbitrary Inter-Frame Space Number (AIFSN), minimum Contention Window ($CW_{min}$), and maximum Contention Window ($CW_{max}$). The Arbitrary Inter-Frame Space (AIFS) for a given AC is defined as:
+\begin{equation}
+    AIFS[AC] = AIFSN[AC] \times \text{SlotTime} + \text{SIFS}
+\end{equation}
+By assigning smaller AIFSN and Contention Window bounds to high-priority ACs (Voice and Video), EDCA ensures that urgent traffic has a statistical advantage when contending for the shared medium.
+
+\subsection{Multi-User EDCA (MU-EDCA)}
+In IEEE 802.11ax (Wi-Fi 6) uplink multi-user (UL MU) operations, the Access Point (AP) contends for the medium to transmit trigger frames or multi-user Request-To-Send (MU RTS) frames. The transmission opportunity (TXOP) secured by the AP is then utilized by associated stations (STAs) to transmit uplink data using Trigger-Based Physical Layer Protocol Data Units (TB PPDUs). Consequently, the AP must contend for airtime on behalf of both downlink traffic and uplink multi-user traffic. As the number of active STAs increases, the probability of the AP successfully acquiring a TXOP drops significantly under standard EDCA.
+
+To address this contention imbalance, Gulasekaran and Sankaran \cite{gulasekaran2021wifi6} detail the introduction of the \textbf{MU-EDCA parameter set}. Advertised in beacons and probe response frames, the MU-EDCA parameter set includes separate contention variables (AIFSN, $CW_{min}$, $CW_{max}$) and a dedicated timer parameter (\textit{MU EDCA Timer}) for each AC. The MU-EDCA parameters are configured to be less aggressive (e.g., larger contention windows and AIFSN values) compared to standard EDCA parameters.
+
+Under the MU-EDCA protocol, any associated Wi-Fi 6 STA that transmits QoS data in a TB PPDU is required to immediately transition to using the MU-EDCA parameters for channel contention. The STA maintains these parameters for a duration of:
+\begin{equation}
+    T_{active} = \text{MU EDCA Timer} \times 8 \times \text{TU}
+\end{equation}
+where $1 \text{ TU} = 1024~\mu\text{s}$. If the timer expires without the STA transmitting another TB PPDU, the STA reverts to the regular EDCA parameters. This mechanism temporarily reduces uplink single-user (SU) contention from recently served STAs, allowing the AP to easily win contention, transmit trigger frames, and schedule multi-user uplink transmissions efficiently.
 
 \section{MAC-Level Frame Aggregation and Block ACK}
-To reduce protocol overhead, modern standards combine multiple frames before transmission:
+To mitigate protocol overhead (preambles, headers, inter-frame spacings, and acknowledgments), modern IEEE 802.11 standards implement frame aggregation at the MAC layer:
 \begin{itemize}
-    \item \textbf{A-MSDU (Aggregate MAC Service Data Unit):} Groups multiple MSDUs into a single MPDU.
-    \item \textbf{A-MPDU (Aggregate MAC Protocol Data Unit):} Groups multiple MPDUs into a single Physical Layer Convergence Procedure (PLCP) Service Data Unit (PSDU).
-    \item \textbf{Block Acknowledgment (Block ACK):} Allows a receiver to acknowledge multiple MPDUs in an A-MPDU using a single control frame, saving significant overhead.
+    \item \textbf{A-MSDU (Aggregate MAC Service Data Unit):} Groups multiple Ethernet-type payloads (MSDUs) sharing the same destination and priority into a single MAC Protocol Data Unit (MPDU) with a single MAC header.
+    \item \textbf{A-MPDU (Aggregate MAC Protocol Data Unit):} Groups multiple MPDUs, separated by MPDU delimiters, into a single Physical Layer Convergence Procedure (PLCP) Service Data Unit (PSDU).
 \end{itemize}
+
+\subsection{Multi-TID A-MPDU and A-MPDU Aggregation Limits}
+Prior to IEEE 802.11ax, frame aggregation was restricted to MPDUs belonging to the same Traffic Identifier (TID). In Wi-Fi 6, the standard introduced \textbf{Multi-TID A-MPDU aggregation} \cite{gulasekaran2021wifi6}, allowing MPDUs from different TIDs to be aggregated into a single A-MPDU. To maintain QoS prioritization, a multi-TID A-MPDU can only contain MPDUs from TIDs that have a priority equal to or higher than the primary AC used to win the TXOP.
+
+To support this aggregation, Wi-Fi 6 extends the negotiated Block ACK (BA) session buffer size and bitmap lengths (supporting 32, 64, 128, and 256 bits). The maximum A-MPDU aggregation limit is also increased up to 4 Megabytes by combining the maximum A-MPDU length exponent and exponent extension fields in the HE capabilities element.
+
+\subsection{Duration-Based RTS-CTS Protection}
+In earlier Wi-Fi generations, the AP had no direct control over when client STAs applied RTS-CTS protection. Since client devices used vendor-specific thresholds, the network could not optimize collision protection. Wi-Fi 6 resolves this by introducing \textbf{Duration-Based RTS-CTS control} \cite{gulasekaran2021wifi6}.
+
+The AP advertises a \textit{TxOP Duration RTS Threshold} (ranging from 1 to 1023) in the HE Operation Element. If the subfield value is less than 1023, all associated Wi-Fi 6 STAs must use RTS-CTS protection for any unicast transmission that occupies the medium for a duration exceeding:
+\begin{equation}
+    T_{threshold} = 32 \times \text{TxOP Duration RTS Threshold}~\mu\text{s}
+\end{equation}
+This allows the AP to dynamically adjust protection thresholds based on the network's collision history and active client count.
 
 \section{Transmission Opportunity (TXOP)}
-A TXOP is a bounded time interval during which a station can transmit as many frames as possible (using frame burst and SIFS) after winning contention, preventing channel re-contention for every single frame.
+A Transmission Opportunity (TXOP) is a bounded time interval during which a station that has won channel contention is permitted to transmit a sequence of frames separated by SIFS. The maximum TXOP duration is determined by the AC parameters advertised by the AP. By allowing frame bursting without re-contending for each frame, TXOP significantly improves channel efficiency for high-throughput streams.
 
 \section{Power Saving: Target Wake Time (TWT)}
-Introduced in 802.11ax (Wi-Fi 6), TWT allows APs and client stations to negotiate specific times to wake up and exchange data. This drastically improves battery life and reduces contention in high-density environments.
+First introduced in IEEE 802.11ah for low-power IoT networks and standardized for mainstream WLANs in IEEE 802.11ax, Target Wake Time (TWT) allows an AP and associated STAs to establish wake schedules. Instead of forcing STAs to wake up for every beacon transmission to read the Traffic Indication Map (TIM), TWT enables STAs to sleep for extended periods, waking up only during scheduled TWT Service Periods (SPs).
+
+\subsection{TWT Agreement Setup}
+A TWT session is initiated by a TWT requester (STA) via a TWT Request message. The requester specifies one of three TWT setup commands:
+\begin{enumerate}
+    \item \textbf{Request:} Requests the AP to define all TWT parameters.
+    \item \textbf{Suggest:} Proposes a list of desired TWT parameters, allowing the AP to suggest alternatives.
+    \item \textbf{Demand:} Demands specific TWT parameters without accepting AP-negotiated alterations.
+\end{enumerate}
+The TWT responder (AP) responds with one of four commands: \textbf{Accept} (using requested parameters), \textbf{Reject} (denying the agreement), \textbf{Alternate} (proposing alternative parameters), or \textbf{Dictate} (enforcing parameters).
+
+\subsection{Types of TWT Agreements}
+Gulasekaran and Sankaran \cite{gulasekaran2021wifi6} classify TWT agreements into two main types:
+\begin{itemize}
+    \item \textbf{Individual TWT Agreement:} Negotiated between the AP and a single STA. It defines the \textit{TWT Wake Start Time}, the \textit{TWT Wake Interval} (periodic interval between SPs), and the \textit{Minimum TWT Wake Duration}. Modes of operation include:
+    \begin{enumerate}
+        \item \textit{Implicit vs. Explicit:} In implicit mode, the STA calculates future SP start times based on the Wake Interval; in explicit mode, the AP explicitly schedules the next wake time in a directed frame.
+        \item \textit{Announced vs. Unannounced:} In announced mode, the STA wakes up and must transmit a trigger frame (PS-Poll or U-APSD) to solicit buffered downlink data; in unannounced mode, the AP immediately transmits downlink data to the STA at the start of the SP without waiting for a trigger.
+        \item \textit{Trigger-Enabled vs. Non-Trigger-Enabled:} In trigger-enabled mode, the AP schedules all transmissions within the TWT SP using trigger frames; in non-trigger-enabled mode, the STA can transmit autonomously using standard contention.
+    \end{enumerate}
+    % [PLACEHOLDER: Figure 3.14 from Susinder Book - Implicit TWT operation using individual TWT agreement]
+    
+    \item \textbf{Broadcast TWT Agreement:} The AP schedules a TWT SP for a group of STAs and advertises the parameters in beacons. Key parameters include the \textit{Next Target Beacon} (transmission time of the next beacon carrying TWT info) and the \textit{Listen Interval}. This mode reduces negotiation overhead and is typically trigger-enabled to prevent intra-group contention.
+    % [PLACEHOLDER: Figure 3.15 from Susinder Book - TWT operation using broadcast TWT]
+\end{itemize}
 
 \section{High Throughput PHY-MAC Integrations}
+To support multi-gigabit speeds and dense deployments, Wi-Fi 6 integrates PHY and MAC layers through spatial multiplexing and spectral subdivision:
 \begin{itemize}
-    \item \textbf{MU-MIMO (Multi-User Multiple Input Multiple Output):} Allows the AP to transmit to or receive from multiple users simultaneously over different spatial streams.
-    \item \textbf{OFDMA (Orthogonal Frequency Division Multiple Access):} Divides the channel bandwidth into smaller sub-channels (Resource Units), enabling simultaneous transmission from different stations.
-    \item \textbf{BSS Coloring (BSR Coloring):} Identifies overlapping Basic Service Sets (OBSS) using colors in the PHY header, allowing stations to ignore traffic from neighboring networks and reduce collision deferrals.
+    \item \textbf{MU-MIMO:} Supports simultaneous transmission to or from multiple users over distinct spatial streams.
+    \item \textbf{MU-OFDMA:} Subdivides the channel bandwidth into orthogonal subchannels called Resource Units (RUs).
 \end{itemize}
+
+\subsection{OFDMA Resource Unit Allocation}
+Under IEEE 802.11ax, the channel bandwidth is divided into fixed-position RUs of varying sizes: 26-tone, 52-tone, 106-tone, 242-tone, 484-tone, and 996-tone RUs. The smallest unit is the 26-tone RU, which occupies approximately 2~MHz of bandwidth. Tone allocations and pilot densities are detailed in:
+% [PLACEHOLDER: Table 3.6 from Susinder Book - Data and Pilot Subcarriers for Different RUs]
+
+In trigger-based uplink transmissions, the AP controls the transmit power of participating STAs by calculating path loss from the trigger frame's transmit power and specifying a target RSSI. This power control ensures that uplink signals arrive at the AP receiver within its dynamic range, avoiding adjacent subcarrier interference.
+% [PLACEHOLDER: Figure 3.8 from Susinder Book - Uplink MU operation timeline using Trigger Frame]
+
+\subsection{BSS Coloring and Color Collision Resolution}
+In dense deployments, Overlapping Basic Service Sets (OBSS) cause high contention overhead because STAs defer to transmissions from neighboring networks. Wi-Fi 6 addresses this by assigning a 6-bit identifier (value 1 to 63) called the \textbf{BSS Color} to each BSS. The BSS color is advertised by the AP in beacons and marked in the HE-SIG-A field of the PHY header of all transmitted PPDUs. This allows STAs to classify any incoming packet as intra-BSS (matching color) or inter-BSS (different color) at the PHY layer before decoding the MAC header.
+
+Color assignments can be distributed (APs pick colors randomly or collaboratively by detecting neighbors) or centralized (controller-managed). In random distributed deployments, color collisions (two neighboring APs sharing the same color) can occur. For four co-channel APs within hearing range, Gulasekaran and Sankaran \cite{gulasekaran2021wifi6} calculate the collision probability as:
+\begin{equation}
+    P_{collision} = 1 - \frac{63 \times 62 \times 61 \times 60}{63^4} \approx 9.24\%
+\end{equation}
+A color collision is detected when an incoming PPDU matches the BSS color but has MAC addresses mismatching the associated BSSID. The STA reports this to the AP via a BSS Color Collision Event Report. The AP resolves the collision by advertising a BSS Color Change Announcement element containing the new color and a countdown value representing the number of Target Beacon Transmission Times (TBTTs) remaining. During the countdown, the AP temporarily sets the BSS Color Disabled subfield in the HE Operation element to 1 to disable coloring-based channel access.
+
+\subsection{Spatial Reuse (SR) Mechanisms}
+With BSS coloring, Wi-Fi 6 STAs can execute two types of Spatial Reuse (SR) to transmit concurrently over ongoing OBSS transmissions:
+\begin{enumerate}
+    \item \textbf{OBSS PD-Based Spatial Reuse:} If a station detects an inter-BSS PPDU, it can override the standard $-82$~dBm carrier sense threshold and treat the channel as idle if the received signal power is below a chosen OBSS Packet Detect ($OBSS\_PD$) threshold. The threshold is constrained between $OBSS\_PD_{min} = -82$~dBm and $OBSS\_PD_{max} = -62$~dBm, and must satisfy the transmit power constraint:
+    \begin{equation}
+        OBSS\_PD \le OBSS\_PD_{min} + (T_{pref} - T_{psr})
+    \end{equation}
+    where $T_{psr}$ is the station's transmit power during the spatial reuse TXOP, and $T_{pref}$ is 21~dBm for client STAs (or APs with $<3$ spatial streams) and 25~dBm for APs with $\ge 3$ spatial streams. Under dynamic OBSS PD, the threshold is set to $\min(OBSS\_PD_{max}, RP_{inter-BSS})$, and the transmit power $T_{psr}$ is dynamically adjusted to stay below $OBSS\_PD_{min} - RP_{inter-BSS} + T_{pref}$, where $RP_{inter-BSS}$ is the received power of the overlapping packet.
+    % [PLACEHOLDER: Figure 3.17 from Susinder Book - OBSS PD and Tx power during SR TxOP]
+    
+    To prevent collisions during spatial reuse, STAs maintain a **Dual NAV**: an \textit{intra-BSS NAV} (updated on intra-BSS frames) and an \textit{inter-BSS NAV} (updated on inter-BSS frames that do not qualify for spatial reuse). The medium is considered busy if either NAV is non-zero.
+    
+    \item \textbf{Parameterized Spatial Reuse (PSR):} Applicable to uplink TB PPDUs. The AP specifies a parameter $PSR_{input}$ in the trigger frame's common info field:
+    \begin{equation}
+        PSR_{input} = T_{trigger} + I_{AP}
+    \end{equation}
+    where $T_{trigger}$ is the transmit power of the trigger frame and $I_{AP}$ is the maximum interference power the AP can tolerate. Any neighboring device receiving the trigger frame at a power level $RP_{trigger}$ can transmit concurrently during the uplink TB PPDU if its transmit power is restricted to:
+    \begin{equation}
+        T_{psr} \le PSR_{input} - RP_{trigger}
+    \end{equation}
+\end{enumerate}
 
 \section{Next-Generation Enhancements: MLO \& Multi-AP}
-With the release of IEEE 802.11be (Wi-Fi 7), the wireless standard introduces architectural updates designed to achieve extremely high throughput (EHT) and ultra-low, deterministic latency. Among the most significant MAC and physical layer enhancements are Multi-Link Operation (MLO) and Coordinated Multi-AP transmission.
+Standardized in IEEE 802.11be (Wi-Fi 7), the standard shifts its objective toward Extremely High Throughput (EHT) and low, deterministic latency. This section details the operation of Multi-Link Operation (MLO) and Coordinated Multi-AP systems.
 
 \subsection{Multi-Link Operation (MLO)}
-Traditional Wi-Fi devices, even if dual-band or tri-band, can only establish a single active link with an Access Point (AP) at any given time, requiring a dynamic connection switch when switching bands. MLO solves this limitation by introducing the concept of a \textbf{Multi-Link Device (MLD)}. An MLD contains multiple physical PHY entities but exposes a single MAC interface to the upper network layers (represented by a logical Link Establishment and Management entity). 
+Traditional Wi-Fi devices operate on a single band at a time, requiring slow channel switching to change links. Wi-Fi 7 introduces the concept of a \textbf{Multi-Link Device (MLD)} \cite{khorov2020current}. An MLD consists of multiple affiliated physical Wi-Fi devices (each with its own physical radio interface), but exposes a single logical interface to the Logical Link Control (LLC) layer, utilizing a single MAC address and a unified sequence number space. This simplifies packet aggregation, duplication detection, and dynamic retransmissions across links.
 
-This architecture allows a client MLD to establish concurrent active links with an AP MLD across different frequency bands (e.g., 2.4~GHz, 5~GHz, and 6~GHz) or different channels within the same band. Link communication modes in MLO include:
+MLO operates in two link-management modes:
 \begin{itemize}
-    \item \textbf{Simultaneous Transmission and Reception (STR):} The device can transmit on one link while receiving on another link simultaneously. This requires significant physical isolation between the transceivers to prevent self-interference.
-    \item \textbf{Non-Simultaneous Transmission and Reception (Non-STR / NSTR):} When transceivers are placed too close together, a transmission on one band (e.g., 5~GHz) leaks and blinds the receiver on a neighboring band (e.g., 6~GHz). In NSTR mode, channel access must be coordinated across links to prevent overlapping TX-RX states.
+    \item \textbf{Restricted Link Switch Mode:} Data flows and acknowledgments are statically bound to individual links. Management frames (such as security keys and power save negotiations) apply only to the link on which they are transmitted.
+    \item \textbf{Dynamic Link Switch Mode:} Flows can be dynamically scheduled across multiple links for load balancing, congestion avoidance, and latency reduction.
 \end{itemize}
 
-By dynamically aggregating links or routing packets along the link with the lowest current contention, MLO significantly increases peak throughput, improves link reliability, and reduces worst-case latency by avoiding congested channels.
+At the physical level, MLO supports two channel access modes:
+\begin{enumerate}
+    \item \textbf{Asynchronous Multi-Link Channel Access:} Affiliated transceivers transmit and receive independently. When operating in widely separated bands (e.g., 2.4~GHz and 5~GHz), this mode is highly efficient. However, if the links are close in frequency (e.g., adjacent channels in the 5~GHz or 6~GHz bands), transmit signal leakage causes In-Device Coexistence (IDC) interference, blinding the neighboring receiver.
+    % [PLACEHOLDER: Figure 9 from Khorov 2020 - Asynchronous vs. synchronous multi-link operation]
+    \item \textbf{Synchronous Multi-Link Channel Access:} Transmissions on all links are synchronized to start at the same time, preventing overlapping TX-RX states and mitigating IDC interference.
+\end{enumerate}
+
+To save energy, MLDs can designate an \textit{Anchor Link} for carrying beacons and management frames. When traffic is light, the auxiliary links are placed into a deep sleep state and can be woken up by the AP transmitting a wakeup frame on the anchor link. For Real-Time Applications (RTA), MLO supports three transmission modes: \textit{Duplicate Mode} (transmitting copies of a packet across multiple links to maximize reliability), \textit{Joint Mode} (distributing packets across links to minimize latency), and \textit{Conditional Packet Duplication} (replicating a packet to secondary links only if it fails to transmit on the primary link within a specific delay budget).
+% [PLACEHOLDER: Figure 10 from Khorov 2020 - Duplicate Mode and Joint Mode in Wi-Fi 7 MLO]
 
 \subsection{Coordinated Multi-AP Operation}
-In dense enterprise environments, performance is heavily bottlenecked by Overlapping Basic Service Sets (OBSS), leading to high co-channel interference and inefficient contention. To address this, IEEE 802.11be defines explicit coordination protocols across neighboring Access Points (APs) sharing the same backbone network:
+To mitigate severe OBSS interference in dense deployments, Wi-Fi 7 introduces coordinated protocols across neighboring Access Points sharing a backend controller \cite{khorov2020current}. The coordination is managed by a designated Master AP coordinating multiple Slave APs:
 \begin{itemize}
-    \item \textbf{Coordinated Spatial Reuse (C-SR):} APs exchange information regarding transmit powers and path losses. During an active transmission from a primary AP to its client, a coordinated secondary AP can transmit concurrently at a controlled, reduced power level, ensuring that it does not disrupt the primary AP's reception.
-    \item \textbf{Coordinated Beamforming (C-BF):} Multiple APs perform joint null-steering. A neighboring AP structures its beamforming vectors to place spatial nulls at the location of active clients of the main AP, preventing interference.
-    \item \textbf{Coordinated Orthogonal Frequency Division Multiple Access (C-OFDMA):} The available channel bandwidth is dynamically divided into Resource Units (RUs) and shared among neighboring APs. This allows concurrent orthogonal transmissions without spatial collisions.
-    \item \textbf{Joint Transmission (JT):} Multiple APs jointly transmit the same data payload to a single client device. This converts destructive interference into constructive multipath combining, maximizing signal-to-interference-plus-noise ratio (SINR).
+    \item \textbf{Coordinated Spatial Reuse (CSR):} Neighboring APs collaboratively adjust their transmit powers during concurrent transmissions to maintain sufficient SINR at all active clients, extending the uncoordinated 802.11ax SR.
+    \item \textbf{Coordinated OFDMA (Co-OFDMA):} The Master AP coordinates subcarrier allocations across neighbor APs, assigning orthogonal RUs to adjacent cells to prevent spectral collisions.
+    \item \textbf{Coordinated Beamforming (CBF) / Null Steering:} An AP structures its beamforming precoding matrix to place spatial nulls at the coordinates of clients associated with neighboring APs, eliminating inter-cell interference.
+    \item \textbf{Joint Transmission (JTX):} Multiple APs function as a distributed MU-MIMO system. In the downlink, APs transmit the same payload concurrently to a single client. In the uplink, joint reception is performed using either \textit{Joint Frame Reception} (jointly processing signal time samples over a high-speed backhaul) or \textit{Distributed Successive Interference Cancellation (SIC)} (where one AP decodes its client's packet and shares it with a neighbor AP to subtract its interfering signal).
+    % [PLACEHOLDER: Figure 16 from Khorov 2020 - Coordinated Multi-AP: Joint Transmission, Co-OFDMA, and Coordinated Null Steering]
 \end{itemize}
+
+Multi-AP JTX relies on a synchronized sounding protocol. The Master AP transmits a multi-AP trigger frame that schedules simultaneous Null Data Packet (NDP) transmissions from all Slave APs using subcarrier interleaving or P-matrices. Associated STAs measure the composite channel and return compressed beamforming reports.
+% [PLACEHOLDER: Figure 17 from Khorov 2020 - Multi-AP Sounding Protocol for JTX]
+
+To simplify roaming, coordinated APs can form a \textbf{Virtual BSS}, sharing a single BSSID and association context. This enables clients to transition between physical APs without executing re-association or re-keying protocols.
+
+\section{Future Evolution: Wi-Fi 8 (IEEE 802.11bn) and Ultra High Reliability}
+While previous Wi-Fi generations focused on maximizing peak throughput under ideal conditions, the upcoming IEEE 802.11bn standard (Wi-Fi 8) is designed around \textbf{Ultra High Reliability (UHR)} \cite{karamysheva2025tutorial, ning2026survey}. Wi-Fi 8 aims to guarantee Quality of Service in worst-case conditions (e.g., highly congested industrial networks and mobile client scenarios). The target KPIs established by the TGbn task group in comparison with Wi-Fi 7 include:
+\begin{itemize}
+    \item A 25\% increase in throughput at low-to-mid SINR ranges (rate-vs-range improvement).
+    \item A 25\% reduction in the 95th percentile of latency.
+    \item A 25\% reduction in MAC-layer packet losses (MPDU loss ratio), especially during cell transitions.
+\end{itemize}
+
+To achieve these reliability targets, Wi-Fi 8 introduces key enhancements across the physical and MAC layers. The candidate features and their mapping to target KPIs are summarized in:
+% [PLACEHOLDER: Table 4 from Karamysheva 2025 - Wi-Fi 8 candidate features mapped to KPIs]
+
+\subsection{Physical Layer (PHY) UHR Features}
+\begin{itemize}
+    \item \textbf{Distributed-Tone Resource Units (d-RUs):} To comply with regulatory Power Spectral Density (PSD) limits, conventional systems restrict total transmit power when bandwidth is narrow. Wi-Fi 8 introduces d-RUs, which distribute the subcarriers of a small RU across the entire channel bandwidth. By spreading the tones, the transmission bypasses the PSD density constraint, allowing the STA to increase its total transmit power and improve the uplink SINR at the AP.
+    \item \textbf{Interference Mitigation (IM) Pilots:} Adds dedicated pilots to help receivers model, track, and digitally subtract co-channel interference.
+    \item \textbf{Unequal Modulation (UEQM):} Applies different Modulation and Coding Schemes (MCS) across spatial streams. If some spatial streams experience poor channel states due to asymmetric fading or obstacles, they use robust modulation (e.g., QPSK) while the remaining streams use high-order modulation (e.g., 1024-QAM).
+    \item \textbf{Enhanced Long Range (ELR) PPDU:} Quadruplicates payload data and utilizes a specialized preamble structure to extend coverage for edge clients.
+    \item \textbf{LDPC Codeword Doubling:} Doubles the maximum codeword length of the Low-Density Parity-Check coder to improve error-correction coding gain.
+\end{itemize}
+
+\subsection{Medium Access Control (MAC) UHR Features}
+\begin{itemize}
+    \item \textbf{Prioritized EDCA (P-EDCA):} Introduces channel access prioritization for time-critical traffic. An STA with urgent data can transmit a \textit{Defer Signal} that temporarily blocks all non-prioritized STAs from contending for the channel, cutting the tail latency.
+    \item \textbf{Non-Primary Channel Access (NPCA):} Allows MLDs to initiate channel access and transmit on a secondary 20~MHz channel when the primary 20~MHz channel is busy, circumventing the primary-channel bottleneck.
+    \item \textbf{Preemption:} Enables an AP to transmit a preemption frame that interrupts an ongoing lower-priority transmission, allowing immediate transmission of urgent, latency-sensitive packets.
+    \item \textbf{Dynamic Subband Operation (DSO) and Bandwidth Expansion (DBE):} DSO allows the AP to allocate resource units in secondary channels to narrow-band STAs. DBE allows the AP to dynamically expand its operational BSS bandwidth when neighboring channels become free.
+    \item \textbf{Periodic and Dynamic Unavailability Operations (PUO & DUO):} Enables STAs to report periodic (PUO) or dynamic (DUO) time intervals when they are unavailable due to internal transceiver interference (In-Device Coexistence). Neighbor devices halt transmissions during these reported windows, preventing packet loss.
+    \item \textbf{Dynamic Power Save and Scheduled AP Power Save:} Enables APs and STAs to switch to a low-capability standby state. APs can enter sleep states during scheduled PUO intervals while maintaining synchronization with legacy clients.
+\end{itemize}
+
+\subsection{Seamless Roaming and Seamless Mobility Domains}
+To prevent the packet losses and high latency spikes associated with cell transitions, Wi-Fi 8 defines a \textbf{Seamless Mobility Domain (SMD)} \cite{karamysheva2025tutorial}. An SMD coordinates a cluster of independent AP MLDs, creating a shared database of client connection states (handshake states, session keys, sequence numbers, and buffer states).
+
+When a client MLD roams within an SMD, the context is transferred proactively to the target AP MLD. The client MLD can perform a step-by-step per-link transition (e.g., keeping its 5~GHz link active with the source AP while migrating its 6~GHz link to the target AP), guaranteeing zero-downtime, lossless cell transitions.

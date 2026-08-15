@@ -120,6 +120,14 @@ cancellation-slotted aloha.pdf`
 load dynamics.pdf`
 49. **amped bistable system driven by colored noise: A digital simulation study**
    - File: `amped bistable system driven by colored noise: A digital simulation study.pdf`
+50. **WI-FI 6: Protocol and Network**
+   - File: `WIFI 7 and 8/Susinder R. Gulasckaran, Sundar G. Sankaran - WI-FI 6_ Protocol and Network (2021, Artech House) - libgen.li.pdf`
+51. **Current Status and Directions of IEEE 802.11be, the Future Wi-Fi 7**
+   - File: `WIFI 7 and 8/Current_Status_and_Directions_of_IEEE_802.11be_the_Future_Wi-Fi_7.pdf`
+52. **A Tutorial on Wi-Fi 8: The Journey to Ultra High Reliability**
+   - File: `WIFI 7 and 8/A Tutorial on Wi-Fi 8: The Journey\nto Ultra High Reliability.pdf`
+53. **A Survey on IEEE 802.11bn Wi-Fi 8: Advantages of Ultra High Reliability for Next-Generation Wireless LANs**
+   - File: `WIFI 7 and 8/A_Survey_on_IEEE_802.11bn_Wi-Fi_8_Advantages_of_Ultra_High_Reliability_for_Next-Generation_Wireless_LANs.pdf`
 
 ## 2. Chapter and Section Mapping
 
@@ -144,17 +152,22 @@ supporting multipacket reception.pdf`)
 
 ### Chapter 2: Advanced Features and QoS in IEEE 802.11
 #### Relevant Sections:
-- EDCF, Inter-Frame Spaces, and Access Categories
+- EDCF, Inter-Frame Spaces, and Access Categories (including MU-EDCA)
 - MAC-Level Frame Aggregation and Block ACK
 - Transmission Opportunity (TXOP)
 - Power Saving: Target Wake Time (TWT)
 - High Throughput PHY-MAC Integrations
 - Next-Generation Enhancements: MLO & Multi-AP
+- Future Evolution: Wi-Fi 8 (IEEE 802.11bn) and Ultra High Reliability (UHR)
 
 #### Mapped Papers:
 - **Candidate Selection Algorithms for Hybrid IP SDN Networks With Multi-Link Failures** (File: `Candidate_Selection_Algorithms_for_Hybrid_IP_SDN_Networks_With_Multi-Link_Failures.pdf`)
 - **Fluid-Limit Model for Dynamic MU-OFDMA Resource Allocation of Wi-Fi6 Networks** (File: `Fluid-Limit_Model_for_Dynamic_MU-OFDMA_Resource_Allocation_of_Wi-Fi6_Networks.pdf`)
 - **Performance Analysis and Energy Efficiency of MU- OFDMA amp MIMO Based Hybrid MAC Protocol of IEEE 802.11ax WLANs** (File: `Performance_Analysis_and_Energy_Efficiency_of_MU-_OFDMA_amp_MIMO_Based_Hybrid_MAC_Protocol_of_IEEE_802.11ax_WLANs.pdf`)
+- **WI-FI 6: Protocol and Network** (File: `WIFI 7 and 8/Susinder R. Gulasckaran, Sundar G. Sankaran - WI-FI 6_ Protocol and Network (2021, Artech House) - libgen.li.pdf`)
+- **Current Status and Directions of IEEE 802.11be, the Future Wi-Fi 7** (File: `WIFI 7 and 8/Current_Status_and_Directions_of_IEEE_802.11be_the_Future_Wi-Fi_7.pdf`)
+- **A Tutorial on Wi-Fi 8: The Journey to Ultra High Reliability** (File: `WIFI 7 and 8/A Tutorial on Wi-Fi 8: The Journey\nto Ultra High Reliability.pdf`)
+- **A Survey on IEEE 802.11bn Wi-Fi 8: Advantages of Ultra High Reliability for Next-Generation Wireless LANs** (File: `WIFI 7 and 8/A_Survey_on_IEEE_802.11bn_Wi-Fi_8_Advantages_of_Ultra_High_Reliability_for_Next-Generation_Wireless_LANs.pdf`)
 
 --------------------------------------------------
 
