@@ -1,5 +1,522 @@
-\chapter{IEEE 802.11 Standard Medium Access Protocol for WLAN}
-\label{sec:introduction}
+\chapter{Mathematical foundations}
+In this chapter we review some of the essential mathematical prelimenieries that are required to carry out the performance analysis of the wireless networks. For more details readers can refer to \cite{EE6150 notes}.
+
+\section{Stochastic Processes}
+A stochastic process is a mathematical structure defined as indexed family of random variables.
+Stochastic processes are widely used as mathematical models of systems and phenomena that
+appear to vary in a random manner.The index of a SP is also referred as its parameter. In most cases it may denote time
+
+Inherently we assume that the random variables have the same state space and are real val-
+ued functions defined over the same σ-algebra constructed from a event space. Physically it
+means the RVs correspond to the same random experiment ( physical phenomenon ) but con-
+ducted ( observed ) at say different time or space points ( that constitute the index set ). f we repeat the Bernoulli trial again, its outcome can be used to define another random
+variable, say X2. Arranging all of them together X1, X2, X3,... and giving index, {1, 2, 3, ...}
+we get a stochastic process
+
+We know that a random variable can have discrete or continuous state space. To be specific a discrete valued RV takes values from a finite or countable infinite set. We also saw that the index or parameter of a SP can be discrete or continuous. It follows that we can categorize the SPs into four categories based on the nature of the state space of its RVs and the nature of its parameter. The following table illustrates the classification of the SPs.
+ 
+\begin{center}
+ \begin{tabular}{||p{3cm}|p{5cm}|p{5cm}||} 
+ \hline
+ \textbf{Index / state space} & \textbf{Discrete} & \textbf{Continuous} \\ [0.5ex] 
+ \hline\hline
+ \textbf{Discrete} & Discrete parameter, Discrete state stochastic process & Discrete parameter,  continuous state stochastic process  \\ 
+ \hline
+ \textbf{Continuous} & Discrete state, Continuous parameter stochastic process & Continuous state, Continuous parameter stochastic process  \\
+ \hline
+
+ 
+\end{tabular}
+\end{center}
+An example of  Discrete parameter, Discrete state stochastic process is a sequence of Bernoulli trials such as sequence of coin tossing denoted as
+{Xn : n = 1, 2, 3}, with X = 1 for success and X =0 for a failure.
+An example of  continuous  parameter, Discrete state stochastic process   is  the number of customers who have entered into a market till time t
+{A(t) | t ≥ 0}
+At any given time t, the random variable A(t), denote the number of customer arrived till time
+t. A(t) is an discrete quantity. It can take only non negative and integer values.
+
+An example of discrete parameter continious state stochastic processes is the time inter-
+val between the arrival of successive customers, {t1, t2, t3, .....} or {tn|n = 1, 2, 3, ..}, where tn
+is the time interval between nth customer and previous customer. Here index is discrete and the
+state space of the RV, time is continuous.
+
+Continuous state and continuous time stochastic process is the Brownian motion, the motion of a pollen grain suspended in water. 
+
+\section{Discrete Time Markov Chains : Basics and properties}
+In this section we will discuss the Discrete Time Markov Chains abbreviated henceforth as DTMC. To reiterate the parameter of the DTMC is time and it is discrete in nature taking finite or countably infinite values. The state space of DTMC is also discrete, hence the adjective "chain". Further it obeys the Markov property. To understand the Markov property in the context of DTMC, let us take an example of DTMC.
+Consider a sequence of Bernoulli trials of a fair coin. The probability of getting a Head (H) is 0.5 and that of getting a Tail(T) is 0.5. For example a realization of the  sequence of trials may look like \{H,H,T,T,H,H,T...\}.To define a discrete RV, let us associate the real numbers "1" or "0"  with the occurrence of the events Head and Tail respectively. 
+Let us  denote the  Random variables corresponding to successive trials as as ${X_1, X_2, X_3 ...}$.
+Let $S_n$ define the cumulative profit until and including the $n^{th}$ trial.  For any n,  $S_n$ is a random variable and it is given by 
+\begin{equation}
+    S_n = X_1 + X_2 + ... +X_n
+\end{equation}.
+\begin{center}
+$\{S_n|n=1,2,3...\}$ 
+\end{center}
+is a DTMC as follows. If we are in a given state, at any given time, for predicting, we are concerned with the values at the instant and not the values which were previously there.
+\begin{equation*}
+    P(S_8=4|S_3=3,S_2=2,...)=P(S_8=4|S_3=3)
+\end{equation*}
+
+Let us consider a Discrete Time Markov chain with infinite number of states $\left{X_n;\;n=1,2,3,\dots\right}$ such that
+
+\begin{equation*}
+    P(X_{n+1}=j|X_n=i,X_{n-1}=k,X_{n-2}=l,\dots)=P(X_{n+1}=j|X_n=i)=p_{ij}
+\end{equation*}
+Given the history of states traversed till time $n$, i.e., $X_n,\;X_{n-1},\;X_{n-2}\;\dots$, the next state $X_{n+1}$ depends only on the most recent state $X_n$.\textbf{Time Homogeneous Process:} If the state transition $(X_{n+1}=j|X_n=i)$ is independent of $n$ and depends only on the time difference, then the Markov chain is said to be a time homogeneous markov chain.
+\subsection{Transition Probability Matrix (TPM): } $\mathbb{P}=[p_{ij}]_{s\times s}, \; 1\leq i,j \leq s$, is the one step transition probability matrix when there are $s$ number of states in the Markov chain. TPM can be defined for a discrete time Markov chain irrespective of the number of states in the Markov chain being finite or infinite.
+  
+  \begin{equation*}
+      \mathbb{P}=\begin{bmatrix}
+      p_{11}&p_{12}&p_{13}&\dots & p_{1s}\\
+      p_{21}&p_{22}&p_{23}&\dots & p_{2s}\\
+      \vdots&\vdots&\vdots&\dots&\vdots\\
+      p_{s1}&p_{s2}&p_{s3}&\dots&p_{ss}
+      \end{bmatrix}
+  \end{equation*}
+
+  \subsection{State Occupancy Probability}
+  State occupancy probability is defined as the probability that a particular state occupied at $n^{th}$ time instance. Probability that a state $j$  is occupies at $n^{th}$ time instance is denoted as $\pi_{j}^{n}$ as is defined as follows.
+  \begin{equation*}
+      \pi_j^n=P(X_n=j)
+  \end{equation*}
+  
+  \textbf{Note:} Occupancy probability is different from the transition probability. 
+  
+  State occupancy vector is the collection of occupancy probabilities of all states in the markov chain and is given as follows 
+  \begin{equation*}
+      \overline{\pi}^n=[\pi^n_1\; \pi^n_2\; \pi^n_3\; \dots\; \pi^n_s]
+  \end{equation*}
+  
+  State occupancy vector follows all properties of a probability mass function (PMF) as listed below.
+  
+  \begin{enumerate}
+      \item $\pi^n_j\geq 0$ $\forall j$
+      \item $\sum_j \pi^n_j =1$
+  \end{enumerate}
+  
+  First condition tells that the probability of any state being occupied at a given instance is non-negative. Second condition shows the stochastic property i.e., at any given time any one of the state should be occupied.  State occupancy probability at $n+1^{th}$ instance can be calculated from state occupancy vector at $n^{th}$ instance and the transition probability matrix $\mathbb{P}$ as follows.
+  \begin{equation*}
+  \begin{align}
+       \pi_j^{n+1}=P(X_{n+1}=j)&=\sum_iP(X_n=i)P(X_{n+1}=j|X_n=i)\\
+       &=\sum_i \pi^n_i p_{ij} \qquad\qquad \forall j
+       \end{align}
+  \end{equation*}
+  
+  From the above equation, the state occupancy vector at $n+1^{th}$ instance is determined as follows,
+  
+  \begin{equation*}
+      \overline{\pi}^{n+1}=\overline{\pi}^n \mathbb{P}
+  \end{equation*}
+
+ INCLUDE FIG 3.3
+
+ Consider a three-state Markov chain with transition probability matrix 
+P=
+\begin{bmatrix}
+0.5 & 0.4 & 0.1\\
+0.3 & 0.4 & 0.3\\
+0.2 & 0.3 & 0.5\\
+\end{bmatrix}
+The long run proportions $\pi_{i}$ thus satisfy
+\begin{equation*}
+\begin{align*}
+    $\pi_{1}=0.5 \pi_{1}+0.3 \pi_{2}+0.2 \pi_{3}$\\
+    $\pi_{2}=0.4 \pi_{1}+0.4 \pi_{2}+0.3 \pi_{3}$\\
+    $\pi_{3}=0.1 \pi_{1}+0.3 \pi_{2}+0.5 \pi_{3}$\\
+    $\pi_{1}+\pi_{2}+\pi_{3}=1$
+    \end{align*}
+\end{equation*}
+Hence,
+$\pi_{1}=\frac{21}{62}, \pi_{2}=\frac{23}{62}, 
+\pi_{3}=\frac{18}{62}$
+
+\section{Markov Decision Processes }
+
+
+In this section we study about the Markov Decision Processes, abbreviated as MDP. MDP provides a mathematical framework for modeling decision making in situations where outcomes are partly random and partly under the control of a decision maker.
+Some Applications : 
+\begin {enumerate}
+\item when to replace/inspect machines/components based on age, condition.
+\item how much to produce based on demand.
+\item self-driving cars
+\item When and how much stocks to be purchased.
+\end{enumerate}
+ Let us have a discrete time stochastic processes with finite steps given as $\{X_n|n=1,2,3...\}$, where $\{X_n\}$ for $n=1,2,3...$ are random variables defined at time 1,2,3....
+
+Assuming $\{X_n|n=1,2,3...\}$ to be a DTMC, we know  the following equation, 
+\begin{equation*}
+    P(X_{n+1}=x_{n+1}|X_{n}=x_{n},X_{n-1}=x_{n-1},X_{n-2}=x_{n-2},X_{n-3}=x_{n-3}...)=P(X_{n+1}=x_{n+1}|X_{n}=x_{n})
+\end{equation*}
+ 
+State is linked to an external process, and this external process performs an action($a$).
+Action Space($A$) is the set of all actions performed by the external agency on the system, $a \in A$.
+In other words in every step we are supposed to take an action. The action performed depends upon the state of the DTMC at that time. There are only a finite number of actions that are allowed to be taken and they form the action space $A$.
+
+ When an action is performed the DTMC  moves from state $x_n$ to $x_{n+1}$ depending on the action. This is can be written in the equation form as follows, 
+\begin{equation*}
+    P(X_{n+1}=j|X_{n}=i, A_n=a_n)=p_{ij}(a)
+\end{equation*}
+The transition from state $i$ to $j$ happens depending upon the current state($i$) as well as the action($a$). In MDPs, given the current state($i$) alone, the transition for the next state cannot happen, without the knowledge of the action taken. In every state, we need to perform an action. The sequence of actions performed are RVs $\{A_1,A_2,A_3...\}$, whose realizations are $\{a_1, a_2,... \}$. In a normal DTMC the transition probability $P_{ij}$ depends only of the former and the later state $i$ and $j$. In MDP $P_{ij}$ are functions of the action $a$ taken. Thus the TPM itself is a function of time and we have one TPM for each action.
+
+Example 1: Let us consider we have three urns with some blue, red and yellow coloured balls. We have to randomly select any one ball from any one of the urns, note its colour and put it back. 
+
+The total number of red balls that has been accumulated (let it be $n_r$)is the state. Action is deciding which urn to choose. $n_r$ depends upon the action, i.e. the urn we choose.
+
+Example 2: Let us assume, that you are a Marketing Manager. You have three states of sales condition,
+\begin{center}
+\begin{tikzpicture}
+\node {Sales}
+    child {node {Good}}
+    child {node {Medium}}
+    child {node {Poor}};
+\end{tikzpicture}
+\end{center}
+The Sales condition, Good, Medium and Poor are the states. As a Marketing Manager your action is to do something such that the sale improves and more than that the profit improves. Suppose some product costs \$c, you may give 10\% discount on the product and observe.  This offer may decide the sales condition. Actions might include "Giving an Discount", "spend on advertisement",changing the price of the commodity, "increase/decrease the inventory forecasting the sales" etc. Suppose giving an offer increases the sale might mover the state to a "good" position. The next action which you may take is that you to increase the cost of the product from \$c to \$c$+\delta$. What you observe is that as the cost increases the sale reduces, but the net profit may increase or decrease. 
+
+Let us now define the term \textbf{Policy},it is a way of specifying what action should be taken when in a given state. It is represented as $\beta_i(a)$, where action $a$ is taken when in state $i$. 
+
+The first policy we can think of is  a deterministic policy. If the action taken $a$ is fixed for all states then the MDP is just a DTMC with transition probabilities as $P_{ij}(a)$. 
+
+Next we consider the case wherein in every state the action taken fixed whenever the state is visited, but the action taken can vary from state to state. Let $a_{i}$  be the action taken in state $i$. Transition Probability Matrix(TPM), of the MDP will be such that its ith row will  be the $i$th row of the TPM corresponding to the action $a_{i}$.
+Deterministic Action Policy always gives an ordinary DTMC. 
+
+Now we consider  Random Policy in which different actions can be chosen in a given state  and they are specified using a probability distribution. That is the probability of taking action $a$ in state $i$ is,
+\begin{equation*}
+    P(A_n=a|X_n=i)=\beta_i(a)
+\end{equation*}
+
+For the policy to be a valid policy the following two conditions must be satisfied.
+\begin{itemize}
+    \item $\beta_i(a) \geq 0$, as they are probabilities
+    \item $\sum_{a\in A}\beta_i(a)=1$, in a given state $i$ under finite set of actions, one or the other action has to be taken up. 
+\end{itemize}
+
+$P_{ij}(a) \rightarrow$ probability that you go from state $i$ to state $j$ under a given action $a$.
+
+Over a long period, the states visited or the actions taken have settled down. THe probability of going from state $i$ to state $j$ is then,
+\begin{equation*}
+    P(X_n+1=j|X_n=i)=\sum_a \beta_i(a)P_{ij}(a)
+    \end{equation*}
+    \begin{equation*}
+    \Pi_{i,a}=P(X_n=i, A_n=a)
+\end{equation*}
+The following conditions must hold, $\Pi_{i,a}$
+\begin{itemize}
+    \item $\Pi_{i,a} \geq 0$, probability of being in state $i$ and performing action $a$.
+    \item $\sum_i \sum_a \Pi_{i,a}=1$, $\Pi_{i,a}$ is not a vector, it is a matrix.
+    
+\textbf{Question: For a valid probability distribution, is this condition sufficient?}
+
+$\sum_i \sum_a \Pi_{i,a}$ means that the state $i$ is doing an action $a$ and then moves to state $j$.
+\item $P(X_n=j)=\Pi_j=\sum_a\Pi_{j,a}=\sum_i \sum_a \Pi_{i,a}P_{i,j}(a)$
+\end{itemize}
+
+Suppose for a given Markov Decision Process, some policy is taken. Suppose we find its limiting probabilities $\Pi_{i,a}$, which obeys the above stated three conditions.  Then, what is the policy which leads once we know the $\Pi_{i,a}$ ?
+
+\begin{align*}
+    \beta_i(a)&=P(A_n=a|X_n=i)\\
+    &=\frac{P(A_n=a,X_n=i)}{P(X_n=i)}\\
+    &=\frac{\Pi_{i,a}}{\sum_a\Pi_{i,a}}
+\end{align*}
+$\therefore$, If we have, a vector with n states and n actions, $[\Pi_{0,1} \Pi_{0,2} \dots \Pi_{0,M} \Pi_{1,M} \dots \Pi_{n,n}]$
+For a given MDP, many such vectors can be found. We are not simply deciding on the policy, but the target is to also achieve optimization and for that a reward is associated with every action. The reward associated in performing a particular action $a$ from a given state $i$ is given as $R(i,a)$.
+
+\begin{align*}
+    \text{Total Reward in n time steps}=\sum_{i=1}^nR(i,a)
+\end{align*}
+Suppose the policy $\beta$ is used then,
+\begin{align*}
+    \text{Average Reward per unit time}=\overline{R}=\lim_{x \to +\infty}\frac{\sum_{i=1}^nR_\beta(x_i,a_i)}{n}
+\end{align*}
+The reward $R_\beta(x_i,a_i)$ is a function of the policy used. Another way of getting the average reward per unit time is to find the expectation of the reward function, i.e., $\mathbb{E}[R_\beta]$ for a given policy $\beta$.
+
+\begin{align*}
+    \mathbb{E}[R_\beta]=\sum_i \sum_a \Pi_{i,a}R_\beta(i,a)
+\end{align*}
+For a given discrete time stochastic process, you chose the policy which maximizes the reward. 
+\begin{align*}
+    \textbf{Optimization Strategy}=maximize(\sum_i \sum_a \Pi_{i,a}R_\beta(i,a))
+\end{align*}
+By choosing the $\Pi_{i,a}$ values from the policies, subjected to the previously mentioned three conditions. We have to maximize, $E[R_{\beta}]$. It is a linear programming problem.
+
+From the definition of Markov Property, we know, actions depend on the current state. Let us consider a maintenance problem, where "0" indicates the machine is in very good state, "1" indicates that the machine has slight problem, "2" indicates that the machine has some serious problem but it can still work and finally, "3" indicates that the machine cannot work and the only solution is to replace it. The three possible actions are to do nothing, perform overhaul, and replace. The profit is experienced from manufacturing and selling. Loss is experienced when under going overhauling and replacing, as there is no manufacturing.     
+
+Let us model the problem. When in state 0, machine is in good state, action is to "do nothing" and experience no loss. In state 1, manufacturing can go on, loss is 1000, as minor defects hamper the production. In state 2 overhauling is needed, and loss is 4000. In state 3, the machine cannot work and no production causes loss of 2000 and overhauling cost is 4000, so the total loss while in state 3 is 6000. In states 1, 2 and 3 you can manufacture with different capacities and get a profit of 
+3000, 2000, and 1000 respectively.
+%We can have a Markov Chain for the state transition diagram with two arcs based on the different actions taken. For this problem the policy is a deterministic policy. 
+
+Towards an LP formulation: 
+
+\begin{align*}
+    \textbf{Optimization Strategy}=maximize(\sum_i \sum_a \Pi_{i,a}R_\beta(i,a))
+\end{align*}
+subjected to 
+
+\begin{itemize}
+    \item $\beta_i(a) \geq 0$, 
+    \item $\sum_{a\in A}\beta_i(a)=1$, 
+    
+    \item $\Pi_j=\sum_a\Pi_{j,a}$
+\end{itemize}
+
+MDP can be solved using dynamic programming.
+
+\section{Exponential Distribution}
+In this section, we will discuss about Continuous Time Markov Chain. First we will discuss the  i) Exponential distribution and ii) Poisson Stochastic Process are crucial for developing the formalism of CTMC.
+
+\textbf{Exponential Distribution:} A continuous valued random variable is said to be exponentially distributed with parameters $\lambda$ ( $\lambda \geq 0$) if its probability density function (PDF ) takes the form 
+
+\begin{align*}
+    f_X(x)=\begin{cases} 
+    \lambda e^{-\lambda x}, & x \geq 0\\
+0, & x < 0
+\end{cases}
+\end{align*}
+Recall the defenition of the PDF;  $\{P(x \leq X \leq x+dx)\}=f_X(x)dx$.
+Cumulative Distribution Function(CDF) is defined as $F_X(x)=P(X \leq x)=\int_{-\infty}^x f(x)dx$.
+Let us find the CDF for a random variable X, which is exponentially distributed with parameter $\lambda$.
+\begin{align*}
+    F_X(x)=\begin{cases} 
+    1- e^{-\lambda x}, & x \geq 0\\
+0, & x < 0
+\end{cases}
+\end{align*}
+
+Complementary Cumulative Distribution Function(CCDF) is defined as  $1-F_X(x)$. CCDF for an exponentially distributed random variable is given as,
+\begin{align*}
+    1-F_X(x)=\begin{cases} 
+    e^{-\lambda x}, & x \geq 0\\
+0, & x < 0
+\end{cases}
+\end{align*}
+The expected values of the exponentially distributed RV with parameter $\lambda$ can be easily derived to be 1 / $\lambda$.
+
+\textbf{Memoryless Property in Exponentially Distributed Random Variables}
+
+Suppose that the amount of time one spends at a bus stop is exponentially distributed with mean five minutes, that is $\frac{1}{\lambda}$. What is the probability that a person will spend more than 3 minutes at the bus stop, given that he is already waited at the bus stop for 4 minutes? 
+
+We want to know the nature of the remaining time. 
+\begin{align*}
+    P(X>s+t|X>s)&=\frac{P(X>s+t,X>s)}{P(X>s)}\\
+    &=\frac{P(X>s+t)}{P(X>s)}\\
+    &=\frac{e^{-\lambda(t+s)}}{e^{-\lambda t}}\\
+    &=e^{-\lambda s}\\
+    &=P(X>t)
+\end{align*}
+
+In other words, the distribution of the remaining time  is same as the original distribution, that is the process does not remember that it has been waiting for time t.This property is called the memoryless property.
+
+\subsection*{Poisson Stochastic Process}
+A discrete state continuous time counting process $\{N(t),t \geq 0\}$ is said to be a Poisson process if it satisfies the following properties:
+\begin{enumerate}
+    \item $N(0)=0$
+    \item The process $N(t)$ has independent increments.
+      \item The process $N(t)$ has stationary increments.
+\end{enumerate}
+The pmf of a Poisson process is given as,
+\begin{equation}
+    \mathcal{P}(N(t)=n)=\frac{e^{-\lambda t}{(\lambda t)}^n}{n!}
+    \label{eq:pmf}
+\end{equation}
+which models the number of arrivals in an interval $(0,t)$ and $\lambda$ is the Poisson rate. If we fix the value of the time variable $t$, then the values taken by $N(t)$ process is a random variable whose range is $\{0,1,2,3\dots\}$. The probability that the process takes a given value say $n$ is given by its pmf as shown in \eqref{eq:pmf}. 
+
+The above given pmf satisfies the property $\sum_{n=0}^\infty \frac{e^{-\lambda t}{(\lambda t)}^n}{n!}$ =1 and thus it can be considered as a valid pmf.
+\subsection*{Poisson Process: Properties}
+The key properties possessed by a Poisson process that we studied in the previous lecture are :
+\begin{enumerate}
+    \item The sum of two Poisson processes is again a Poisson process with the rate parameter of the compound process as the sum of the rates of the individual processes.
+    \item A Poisson process with rate parameter $\lambda$ can be split into individual queues with probabilities $p$ and $(1-p)$, then the arrivals at each of these queues can also be modeled using a Poisson process with rates $\lambda p$ and $\lambda(1-p)$
+\end{enumerate}
+
+\section{Queueing Theory : Basics}
+A queueing system is one in which customers, typically from a large pool come and wait to get service from a service station, having one or more servers.
+\section{Important Terminologies}
+\begin{itemize}
+    \item Arrival Process \newline Arrival process of a customer maybe deterministic(for example constant bit rate traffic) or random. If the arrival is Poisson arrival process, the population size can be finite or infinite. And all arrivals are independent. 
+    \item Arrivals \newline Arrivals can be single arrival or bulk arrival 
+    \item Service \newline 1 per customer or bulk(server can be a   bus and customers can wait in a queue)
+    \item Balking \newline Customers on arrival may take a decision whether to join the queue or not. This is called Balking. 
+    \item Reneging \newline Customer joins the queue but if he is not serviced by a deadline, he comes out of the queue. 
+    \item Priority \newline VVIP separate track. These customers are handled differently. 
+    \item In orbit \newline Example: Phone call arrives $\longrightarrow$ busy $\longrightarrow$ Attempts again after some time. Such customers are said to be in orbit.
+    \item Waiting Space \newline How much room is there.
+    \item Service discipline can be random or First Come First Serve or Queues with priorities.
+    
+    \item Vacation : When the queue is empty the server may go on vacation. Can take random vacation time. First customer after vacation may have different service time ( Ex:Reboot computer, open file etc )
+    
+    \item Balking:
+    An arriving customer may decide not to join the queue.
+    
+    \item, Reneging : A customer in queue may leave without getting service if the waiting time exceeds a deadline 
+\end{itemize}
+Ler S denote the time taken by a customer in getting the service.
+\subsubsection*{Notation}
+\begin{itemize}
+    \item  Expected waiting time in queue $\longrightarrow W$
+    \item Expected time spent in the queue $\longrightarrow T = (W + S)$ 
+    \item Total Number of customers in the queuing system $\longrightarrow N$
+    \item Total Number of customers in the queue $\longrightarrow N_{Q}$
+\end{itemize}
+
+It can be shown  that $\lambda$, N and T are all related by the Little's Theorem that reads as
+\begin{equation*}
+    N = \lambda T
+\end{equation*}
+
+average queue length \textit{N} can be written as $\dfrac{\rho}{1-\rho}$\\
+
+\textbf{Average time spent by the customer in queue system (Average Waiting Time in queue + Service Time)}\\
+
+By little's formula\\
+\begin{equation}
+    N = \lambda T
+\end{equation}
+
+\subsection{M/M/1 Queue}
+Using a markov chain based analysis the following performance metrics of the M/M/1 queue can be derived.
+\begin{equation}
+    T = \dfrac{N}{\lambda} = \dfrac{\rho}{\lambda(1-\rho)} = \dfrac{1}{\mu (1-\rho)}
+\end{equation}
+\\
+
+\textbf{Average Waiting Time in queue}
+\\
+
+Total waiting time in queuing system can be given as 
+\begin{equation}
+    T = W + \dfrac{1}{\mu}
+\end{equation}
+
+Where $W$ is the average waiting time in queue, and $\dfrac{1}{\mu}$ is the average time spent in service.\\
+
+Therefore, 
+\begin{equation}
+    W = T - \dfrac{1}{\mu} = \dfrac{1}{\mu(1-\rho)}-\dfrac{1}{\mu}
+\end{equation}
+
+\begin{equation}
+    W = \dfrac{1}{\mu}\Bigg[\dfrac{1}{1-\rho}-1 \Bigg] = \dfrac{1}{\mu}\Bigg[\dfrac{\rho}{1-\rho}\Bigg] 
+\end{equation}
+\begin{equation}
+    W = \dfrac{\lambda}{(1-\rho)\mu^2}
+\end{equation}\\
+
+\textbf{Average number of customer waiting in the queue }\\
+Average number of customer waiting in the queue excluding the one, if any getting the service is,
+\begin{equation}
+    N_Q = \lambda W = \dfrac{\lambda^2}{\mu^2(1-\rho)} = \dfrac{\rho^2}{1-\rho}
+\end{equation}\\
+$M/M/m$ queuing system is a First In First Out (FIFO) queuing model where the arrivals into the system follow a Poisson process (having rate, say, $\lambda$), and with $m (1\leq m \leq \infty)$ parallel service channels having IID exponential service time distribution, each with rate, say, $\mu$. The buffer size/ waiting positions are considered to be infinite. 
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{MM1-MMc.png}
+    \caption{$M/M/m$ queuing system}
+    \label{fig:my_label}
+\end{figure*}
+
+If there are $n$ customers in the system such that $n < m$, then $n$ servers are busy. Then the expected time for the first served unit is the minimum of $n$ IID exponential RVs and hence the rate is $n\mu$. If $n \geq m$, then all $m$ severs are busy and the service rate of the system will be $m\mu$.For a M/M/m queue The formula for  calculating the probability of a customer to wait in the queue is called \textbf{Erlang's C formula}.
+
+The setting of $M/M/m/m$ queue is same as that of $M/M/m$ queue except that the buffer space/ the number of waiting positions in the queue is bounded. Here, since the system can hold a total of $m$ customers and there are $m$ servers, any arrival occurring when all the $m$ servers are busy will leave the system without waiting for service. This is called a $m$-\textit{channel loss system} and was first investigated by Erlang. $M/M/\infty$ queuing system is a queuing model where the customers arrivals follow a Poisson process with rate say, $\lambda$ and with infinite parallel servers having IID exponential service time distributions each with rate, say $\mu$. Since there are infinite servers, the arriving customers need not wait for their service and hence no queue is formed.
+\subsection{M/G/1 Queue}
+Consider a queue characterized by a Poisson arrival process. The service time may not always be exponential. For example, searching a database. It may even be deterministic. The assumption that service time is exponential is not always true. We now generalize M/M/1 queue for arbitrary characterization of service time. The service time (G) is still a random variable but with general distribution. 
+
+PDF: $f_{X}(x)$
+The PDF of service time may not be known. As long as we know $\overline{X},\overline{X^{2}}$, it is enough. Here $\overline{X}$ is the mean service time and $\overline{X^{2}}$ is the second moment of service time. $\mu$ is the service rate.
+
+The so called Pollaczek-Khinchin Formula for the average waiting time of a customer in $M/G/1$ queue can be derived to be,
+\begin{equation*}
+    W = \frac{\lambda \overline{X^{2}}}{2(1-\rho)}
+\end{equation*}
+\begin{equation*}
+    N_{Q} = \lambda W = \frac{\lambda^{2}\overline{X^{2}}}{2(1-\rho)}
+\end{equation*}
+
+
+We use little's theorem to find N.
+\begin{equation*}
+\begin{split}
+        T &= W + \overline{X} \\
+        &= \frac{\lambda \overline{X^{2}}}{2(1-\rho)} + \overline{X} \\
+        N &= \lambda T = \frac{\lambda^{2} \overline{X^{2}}}{2(1-\rho)}\lambda\overline{X} \\
+\end{split}
+\end{equation*}
+\newline
+For a M/M/1 queue $\overline{X^{2}} = 2/\mu^{2}$, and so  $W = \rho/ \mu(1-\rho)$.
+
+For a M/D/1 queue,$\overline{X^{2}} = 1/\mu^{2}$, and $W = \rho/ 2\mu(1-\rho)$.
+
+\subsection{Renewal Theory}
+
+It  a generic counting process it may be valid to assume that  the inter-arrival times between successive events are independent and identically distributed. However the inter-arrival times may not necessarily be exponentially distributed, it may have general distribution. 
+Let $X_i$ be the inter-arrival time between two events.
+
+$X_1,X_2,...$ need not be exponentially distributed. IN this case we have a counting process for which the times between successive events are independent and identically distributed with an arbitrary distribution. Such a counting process is called a renewal process. 
+Let $N(t)$ denote the number of renewals that occur in time $t$. Let $\mu$ denote the rate at which renewals occur, then
+with probability 1, $\frac{N(t)}{t} \to \frac{1}{\mu}$ as $t \to \infty$.
+\subsection{Renewal Reward Process}
+A large number of probability models are special cases of the following model. Consider a renewal process $\{N(t), t \geq 0\}$ having inter arrival times $\{X_{n},n \geq 1\}$, and suppose that each time a renewal occurs we receive a reward. We denote by $R_{n}$ the reward earned at the time of nth renewal. We shall assume that $R_{n}, n \geq 1$, are independent and identically distributed. However $R_{n}$ may depend on $X_{n}$, the length of the nth renewal arrival. 
+\[R(t) = \sum_{n=1}^{N(t)}R_{n}\]
+then R(t) represents the total reward earned by the time t. Let 
+\[E[R] = E[R_{n}], E[X] = E[X_{n}]\] 
+\textbf{Proposition}: If $E[R] < \infty \;\; and \;\; E[X] < \infty$, then 
+\begin{enumerate}[(a)]
+    \item with probability 1, $      \lim_{t\to\infty} \frac{R(t)}{t} = \frac{E[R]}{E[X]}$
+    \item  $\lim_{t\to\infty} \frac{E[R(t)]}{t} = \frac{E[R]}{E[X]}$
+\end{enumerate}
+\textbf{Proof.} We give the proof for (a). To prove this, 
+\begin{equation*}
+    \frac{R(t)}{t} = \frac{\sum_{n=1}^{N(t)}R_{n}}{t} = \left(\frac{\sum_{n=1}^{N(t)}R_{n}}{N(t)}\right)\left(\frac{N(t)}{t}\right)
+\end{equation*}
+By strong law of large numbers we obtain 
+\[\frac{\sum_{n=1}^{N(t)}R_{n}}{N(t)} \to E[R] \;\; as \;\; t\to \infty\] 
+and by proposition 
+\begin{equation*}
+    \frac{N(t)}{t} \to \frac{1}{E[X]} \;\; as \;\; t \to \infty
+\end{equation*} 
+If we say that a cycle is completed every time a renewal occurs, then the above proposition states that the long run average reward per unit time is equal to the expected reward earned during a cycle divided by the expected length of a cycle. \newline
+Although we have supposed that the reward is earned at the time of a renewal, the result remains valid when the reward is earned gradually throughout the renewal cycle. 
+\subsection{Example: Throughput of CSMA/CD }
+Carrier sense multiple access with collision detection ( CSMA/CD )  is a popular medium access protocol for wireless networks. Consider a network with large number of nodes contending for the channel. Time is virtually slotted into mini slots. To avoid collision nodes keep sensing the channel and will transmit only at the end of an idle mini slot. Each node has a capability to sense channel as well as detect the collision of its packet. Each node will sense the mini slot and if the channel is found to be 
+idle, it will transmit at the beginning of the next mini slot with probability "p". The duration for transmission of a packet is integral multiple of the length of mini slots. 
+Let $\sigma$, denote the length of the mini slot.
+The transmission duration of a packet is a  RV denoted as $L$ in units of $\sigma$.
+
+Following things can happen when nodes attempt transmission .
+\begin{itemize}
+\item If no node transmit in that slot, the slot becomes idle, and all nodes sense an idle slot and make an attempt at the beginning of the next mini slot with probability "p".
+
+\item If two or more nodes transmit, a collision occurs. Nodes involved in the collision can detect collision and stop transmission within that mini slot itself. This slot will be followed by one Idle slot for nodes to sense idleness before attempting transmission again.
+\item If exactly one node transmit, then after an idle slot following the end of the transmission another attempt can begin.
+\end{itemize}
+
+We can model CSMA/CD as a renewal reward process to calculate the throughput. Throughput is defined as the expected number of packets successfully transmitted per unit time.
+
+We can say that at the end of every idle mini slot, nodes can attempt transmission and these are the renewal points. The duration between successive renewals is 
+\begin{itemize}
+    \item $\sigma$ if no node transmits ( Idle case )
+    \item $ 2 \sigma$ if more than one node transmit ( collision case )
+    \item $E[L] + \sigma $ if exactly one node transmits ( success case ).
+\end{itemize}
+
+Let $P_{s}$ and $P_{c}$ be the probability of a successful transmission and collision to take place respectively.
+
+Then expected duration of a renewal cycle is 
+\begin{equation}
+    \sigma ( 1- P_{s} + P_{c}  )   +  2 \sigma P_{c} + ( E[L] + \sigma )  P_{s}
+\end{equation}
+The  reward is the number of packets transmitted successfully in a renewal cycle. Expected reward is
+
+1 * $P_{s}$ + 0 * ( 1- $P_{s}$) = $P_{s}$.
+ Therefore throughput $S$ is \begin{equation}
+    S = \frac{P_{s}}{\sigma ( 1- P_{s} + P_{c}  )   +  2 \sigma P_{c} + ( E[L] + \sigma )  P_{s}}
+\end{equation}
+
+
+\chapter{Medium Access Control Protocol for WLAN}
+
+
+
 
 This chapter introduces the fundamental concepts of Medium Access Control (MAC) protocols in wireless local area networks (WLANs). We discuss the design decisions of the IEEE 802.11 standard, including the comparison between collision detection and collision avoidance, the mechanics of handshaking, and the core coordination functions.
 
@@ -19,6 +536,126 @@ To address these limitations, IEEE 802.11 uses CSMA/CA. Instead of detecting col
     \item \textbf{Random Backoff:} When the medium is busy, stations defer transmission and wait for a random backoff period.
 \end{itemize}
 
+IEEE 802.11 ( Sitaram )
+
+The IEEE 802.11 WLAN  defines two architectures namely Basic Service Set (BSS) and Independent Basic Service Set (IBSS).  In BSS all wireless nodes are connected to an  access point (A.P.) and communicate only through that A.P. In (IBSS) nodes communicate  directly with each other in an adhoc manner i.e without an A.P.
+
+IEEE 802.11 MAC defines two different mechanisms for frame transmission namely  Distributed Coordination Function (DCF) and Point Coordination Function (PCF).   DCF uses  Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA) mechanism with slotted Binary Exponential Back-off (BEB) algorithm. PCF provides controlled channel access through polling. 
+
+
+Today's WLAN carry many forms of media such as video, voice, data and signaling.   Information services on the Internet come in varying forms, such as web browsing, e-mail, VOIP based telephony and multimedia on demand. This means that  different applications have different service features and desired QoS. Multimedia applications such as VOIP, and video-on demand have stringent QOS requirements and are sensitive to delay and jitter in their traffic. In contrast web-browsing are bursty in nature and do not require QOS service guarantee on delay and jitter. While multimedia traffic can tolerate packet loss, applications like FTP needs to be very reliable.
+
+ 
+
+  The IEEE 802.11 DCF operates in two modes. First mechanism is the basic access mechanism and the second mechanism is by using RTS/CTS frames. Figure \ref{acsqos1} illustrates the basic access mechanism. In basic access mechanism a station with a new frame to transmit, continuously monitors the channel activity.  If the channel is sensed to be idle for a period equal to at least  Distributed Inter Frame  Space (DIFS) time interval the station transmits. On the other hand if the channel is sensed busy, the station continuously monitors the channel activity, until the channel becomes idle for at least DIFS time. At this point the station generates a random number of slots, the random number being uniformly distributed between (0,CW-1), where "CW" denotes the contention window size. 
+
+The initial value of CW is set as W$_0$, a value  predefined by the standard. A back-off timer keeps track of the number of slots to wait for frame transmission. The back-off count value  is decremented by "1" in  every slot as long as the channel is idle. The counter is frozen whenever the  channel is sensed busy. The countdown is reactivated when channel is again sensed idle for more than DIFS time interval.  When the back-off timer count reaches zero the station attempts a transmission. If the transmitting station starts receiving ACK (acknowledgement) for a transmitted frame within SIFS time interval (defined by standards), the transmitting station assumes it as a successful frame transmission. Lack of an acknowledgement within SIFS time interval for a transmitted frame is assumed to indicate  an unsuccessful frame transmission.  Since  SIFS time interval is less than DIFS time interval, ACK do not encounter collision. For each unsuccessful frame transmission CW is doubled until it becomes a predefined maximum value CW$_{max}$. There after CW remains constant at CW$_{max}$. According to the standards \cite{IEEEhowto:kopka},  a frame can have a finite number of retrials with CW$_{max}$.  If collision occurs after finite retrials, the frame is dropped.  
+
+
+RTS/CTS mechanism is a four way hand shaking mechanism.  Figure \ref{acsqos2} illustrates the RTS/CTS mechanism wherein the source station sends a short frame called RTS before data transmission. Then the destination station responds with CTS at the end of  the RTS frame after a period of time equal to SIFS, if RTS is received correctly. On the reception of CTS the sender sends the data frame to the destination within a time duration of SIFS.    The successful reception of data frame is followed by an ACK frame after a period of time equal to SIFS. Successful exchange of RTS/CTS ensures that channel has been reserved for transmission for particular pair of sender and receiver.
+
+The  RTS and CTS frames  carry the length of the data frame to be transmitted. All other stations hearing RTS or CTS frame update their  Network Allocation Vector (NAV) containing the information of the period of time in which the channel will remain busy. Therefore other stations delay their transmission and thereby avoid interference.  RTS/CTS mechanism is useful only when longer data frames are transmitted since for smaller data frame  the overhead caused by using RTS/CTS would degrade the performance.
+
+ In the IEEE 802.11 standard, there is no traffic differentiation. In view of this an enhanced Channel access mechanism has been introduced in  the IEEE 802.11e standard to satisfy the QoS requirements of different traffic. The EDCA mechanism has also been implemented in ieee 802.11p vehicular Networks \cite{5712769} to maintain traffic priorities.
+ 
+%\subsection{Overview of IEEE 802.11e MAC Protocol}
+
+
+ 
+ The IEEE 802.11e standard defines a new coordination function called the Hybrid Coordination Function (HCF) to support QoS. The contention based channel access mechanism of HCF is called as the Enhanced Distributed Channel Access  (EDCA). The centrally  controlled, contention free channel access mechanism of HCF is called the HCF controlled channel access (HCCA). The HCF combines the features of both EDCA and HCCA. We concentrate only on EDCA because HCCA is not widely used. The EDCA  supports QoS by assigning different priorities for the incoming traffic.
+
+\begin{figure}[!thb]
+\centering
+\begin{center}
+\leavevmode
+\includegraphics[width=3.5in,height=2.25in,angle=0,trim=0mm 0mm 0mm 0mm, clip]{qos1}
+\caption{Four different ACs of an IEEE 802.11e EDCA station}
+\label{acsqos}
+\end{center}
+\end{figure}
+
+Fig.\ref{acsqos} shows EDCA mechanism. As shown in Fig.\ref{acsqos},  each EDCA station maintains four queues for the four different Access Categories (ACs). Each frame with a particular kind of traffic is mapped to a particular  AC. The service differentiation is realised by using  different set of parameters for each AC.  Parameters used for service differentiation are,\newline
+
+\begin{enumerate}
+
+\item AIFS (Arbitration Inter Frame Spacing): This is the time period  for which medium has to be sensed idle before transmitting or initiation of backoff.
+
+\item CW$_{max}$ and CW$_{min}$ :  These are the maximum and minimum values of contention window sizes.
+
+\item TXOP (Transmission opportunity): The maximum duration of the frame transmission after channel is accessed.  
+
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|c|c|c|c|c|r|}
+        \hline
+$ $ & $AC$    &   $CWmin$  & $CWmax$   & AIFSN   & TXOP \\
+        \hline 0   & AC0 & 7  & 15 & 2 & 3.264ms   \\
+       \hline
+1   & AC1 & 15 & 31 & 2 & 6.016ms\\
+        \hline
+2   & AC2 &31  & 1023 & 3 & 0 \\
+       \hline
+3   & AC3 &31  &1023  & 7  & 0\\
+        \hline
+\end{tabular}
+\label{table11}
+\caption{Parameters used for service differentiation \\ (IEEE 802.11e standard \cite{IEEEhowto:kopka})}
+\end{table}
+
+As shown in the table I, the high priority AC (i.e AC$_0$) has smaller  values of AIFS, CW$_{min}$, CW$_{max}$, and larger value of TXOP compared to low priority AC (i.e AC$_3$). There are two types of collisions that are present in EDCA. They are internal collisions (also called as virtual collisions) and external collisions. Virtual collision occurs because two or more ACs  within a station attempt to transmit in the same slot ( i.e , decrease their back-off counter to zero simultaneously). When virtual collision occurs transmission opportunity is given to the highest priority AC and the lower ACs behave as if an external collision has occurred and follows the back-off rules.  The scheduler resolves the internal collisions by assigning transmission opportunity to the highest AC involved in collision.  
+
+IEEE 802.11ad ( Hemanth )
+
+The huge unlicensed  bandwidths available at 60 GHz band  prompted the designers of wireless systems to venture into and design wireless systems operating at 60 GHz. 
+The frequency space at 60 GHz offers the advantage of huge  bandwidths, but brings along greater technical challenges.
+Due to the availability of large unlicensed bands at 60 GHz, larger bandwidths can be used for communication at 60 GHz which will support larger data rates.
+ Data rates of 1 Gbps can be achieved at 60 GHz as compared to a maximum of 300 Mbps obtained by legacy Wi-Fi networks operating at 2.4/5 GHz \cite{eval}. This would imply that HD video that is transmitted over Wi-Fi with data compression, can  now be  transmitted in uncompressed form at 60 GHz, thereby maintaining higher video quality \cite{sai}.
+
+
+However, the oxygen absorption spectrum peaks at 60GHz which means that systems operating at 60 GHz will face an additional attenuation due to oxygen absorption. The wave length corresponding to 60 GHz boils down to few mm, which restricts the passage of signal through most of the physical obstructions. 
+The maximum range of  typical 60 GHz systems  are less than 30 ft. Also in indoor scenarios, the communication would be limited to single room. In nutshell  it can be said that in the 60 GHz systems, network range is sacrificed for the increased data rates.
+
+The envisaged applications that the IEEE 802.11ad standard would support varies  from Quality of Service (QoS) sensitive applications like wireless display, gaming etc. to best effort applications like wireless file transfer, web browsing etc. \cite{eval}. Thus the propagation challenges along with the  diverse set of requirements make the MAC layer design of 802.11ad to be non trivial.  In order to overcome some of these challenges, a hybrid MAC protocol based on contention based access and scheduled access has been  proposed in IEEE 802.11ad \cite{802.11ad}.  Due to explicit channel allocations to the nodes (called SPs), better support for QoS and directional communication is provided. Besides, SPs help in improved power management.
+
+\section{Brief Introduction of IEEE 802.11ad }\label{802.11ad}
+
+
+In this section a brief introduction  to the IEEE 802.11ad standard is provided \cite{802.11ad}. Further details can be found in the standard document \cite{802.11ad}.
+The IEEE 802.11ad networks use an architecture called  Personal Basic Service Set (PBSS).
+Similar to the Independent Basic Service Set (IBSS) of the legacy IEEE 802.11 \cite{802.11}, the PBSS is an architecture in which directional multi gigabit (DMG) stations (STAs)  communicate  in an adhoc manner (i.e. directly with each other).
+(Hereafter we will  use the terms nodes and  DMG STAs interchangeably ).
+In contrast to the IBSS, in the PBSS one node assumes the role of the PBSS Central Point (PCP) /Access Point (AP). The PCP/AP
+provides the basic timing and synchronization for the PBSS %through  Beacon and Announce frames 
+as well as allocation of  Data Transmission Interval (DTI)  \cite{802.11ad}.
+
+The access times are divided into Beacon Intervals (BIs). The PCP/AP coordinates the channel access through the beacon frames. The PCP/AP generates the schedule and communicates it to the nodes using the beacon and announce frames.
+The  BI is divided into two sub intervals namely, Beacon Header Interval (BHI) and Data Transmission Interval (DTI). 
+The BHI  consists of three access periods namely, BTI, A-BFT and ATI.
+Fig. \ref{beacon} shows an example beacon interval structure. %structure of access periods within a BI.
+BTI is the access period during which beacon frames are transmitted.
+A-BFT is the access period during which beam-forming training is performed.
+ATI is a request response based management access period between PCP/AP and the other nodes.
+
+The Announcement Time Interval
+(ATI)  of the BI is used to reserve the slots for SP. 
+This reservation process in ATI is depicted in Fig. \ref{beacon}. 
+The PCP/AP initiates the frame transmission in ATI.  During the ATI, the PCP/AP polls all the nodes or a subset of nodes. 
+All the nodes associated with the PCP/AP which are in need of SP, send a  Service Period Request (SPR) as a reply to the poll sent by a PCP/AP.
+Based on these requests and QoS requirements, the PCP/AP allocates %zero, single or multiple 
+ SPs to the different nodes in the subsequent frames.  The PCP/AP keeps count of all the SP requests received from the individual nodes.  The amount of outstanding request is reduced as the  SP is allocated to each node.
+%There is an inherent assumption of admission control, i.e. during {association period} of the protocol, the PCP/AP accepts 
+%nodes only to the extant that it can satisfy the QoS requirements.
+
+
+
+ The DTI
+ is divided into CBAP and SPs. The access during CBAP is based on contention mechanism and access during the SPs is scheduled and the ownership of the channel is assigned to specific STA for each SP.
+
+Ref. \cite{} have modeled the  service periods of the  IEEE 802.11ad hybrid MAC as  special case of  Periodically Gated  Queueing System (PGQS) with Bernoulli scheduling. 
+Using these results they derive the average  delay and the delay variations (jitter) of packets belonging to SP of IEEE 802.11ad.  It is shown that as the arrival rates increases, the delay increases linearly till the critical arrival rate  and beyond that  becomes unbounded. 
+  
 \subsection{Analytical Foundations of CSMA under Multi-Packet Reception (MPR)}
 In traditional wireless network modeling, any overlapping transmissions are assumed to collide and fail completely. However, advancements in the physical layer—such as Multi-User MIMO (MU-MIMO) and Successive Interference Cancellation (SIC)—enable a receiver to decode multiple overlapping packets concurrently. This capability is known as Multi-Packet Reception (MPR).
 
