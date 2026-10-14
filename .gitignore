@@ -1,0 +1,16 @@
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.toc
+*-blx.bib
+sections/*.aux
+main.pdf
+papers/*.pdf
+papers/*/*.pdf
+WIFI 7 and 8/

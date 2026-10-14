@@ -1,0 +1,156 @@
+\chapter{Sensor Area Networks and Age of Information}
+\label{sec:chapter_aoi}
+
+In many sensing, monitoring, and automated control systems, such as industrial Internet of Things (IIoT), environmental sensor networks, and autonomous vehicular swarms, data packets carry status updates from remote sensors to central controllers or monitoring stations. In such real-time cyber-physical applications, the traditional performance metrics of throughput and packet transmission delay do not completely capture the freshness of the status information available at the destination. A transmission strategy that minimizes queueing delay or maximizes throughput may not necessarily ensure that the destination possesses the most up-to-date status information. To quantify the freshness of status updates, the \emph{Age of Information} (AoI) metric was introduced.
+
+This chapter presents the mathematical foundations, queueing disciplines, and theoretical modeling frameworks for analyzing Age of Information in sensor area networks. Particular emphasis is placed on stochastic hybrid systems (SHS) for AoI evaluation, out-of-order delivery challenges in parallel server architectures, and proactive obsolete packet management strategies.
+
+% ============================================================
+\section{Age of Information Fundamentals}
+\label{sec:aoi_fundamentals}
+% ============================================================
+
+\subsection{Definition of Age of Information}
+Consider a status update system where a sensor node samples a physical process and generates update packets that are transmitted across a wireless channel to a monitoring station. Let $t_i$ denote the generation timestamp of the $i$-th packet, and let $t'_i$ denote the departure (delivery) timestamp of this packet at the monitor, such that $t'_i \ge t_i$.
+
+At any time $t$, let $U(t)$ denote the generation time of the freshest packet received at the destination by time $t$:
+\begin{equation}
+    U(t) = \max \{ t_i : t'_i \le t \}.
+\end{equation}
+The instantaneous Age of Information $\Delta(t)$ at the destination is defined as the random process:
+\begin{equation}
+    \Delta(t) = t - U(t).
+\end{equation}
+In the absence of new packet deliveries, $\Delta(t)$ increases linearly with time with a unit slope, i.e., $d\Delta(t)/dt = 1$. When a new status update packet $i$ arrives at time $t'_i$, the age process resets instantaneously to the system time (delay) of that newly delivered packet:
+\begin{equation}
+    \Delta(t'^+_i) = t'_i - t_i = T_i,
+\end{equation}
+where $T_i$ is the total time spent by packet $i$ in the system (queuing plus service/transmission time). If an out-of-order packet arrives at the destination with an older generation timestamp than $U(t)$, it carries stale information and does not reset the age process.
+
+\subsection{Average Age and Peak Age of Information}
+Over an observation interval $(0, \mathcal{T})$, the time-average Age of Information $\bar{\Delta}$ is defined as:
+\begin{equation}
+    \bar{\Delta} = \lim_{\mathcal{T} \to \infty} \frac{1}{\mathcal{T}} \int_0^{\mathcal{T}} \Delta(t) \, dt.
+\end{equation}
+Graphically, $\bar{\Delta}$ corresponds to the average area under the saw-tooth trajectory of $\Delta(t)$ over time, which can be evaluated by decomposing the area into trapezoids bounded by successive renewal deliveries.
+
+Another key freshness metric is the \emph{Peak Age of Information} (PAoI). Let $P_k$ denote the instantaneous peak age achieved immediately before the delivery of the $k$-th informative update at time $t'_k$:
+\begin{equation}
+    P_k = \Delta(t'^-_k) = t'_k - t_{k-1}.
+\end{equation}
+The average Peak AoI is the expected value of these peaks:
+\begin{equation}
+    \bar{\Delta}_{\text{peak}} = \lim_{K \to \infty} \frac{1}{K} \sum_{k=1}^K P_k.
+\end{equation}
+While average AoI provides a long-term time-average assessment of freshness, Peak AoI characterizes the worst-case staleness experienced right before fresh updates arrive, making it particularly critical for delay-sensitive control applications.
+
+\subsection{AoI versus Traditional Delay}
+It is important to contrast AoI with traditional packet delay:
+\begin{itemize}
+    \item \textbf{Delay:} Measures the latency experienced by an individual packet from its generation time to its reception time ($T_i = t'_i - t_i$). Reducing delay does not prevent stale packets from lingering in buffers if sampling intervals are large.
+    \item \textbf{Age of Information:} Measures the timeliness of knowledge at the destination. If updates are transmitted too frequently, network congestion increases queuing delay, inflating AoI. Conversely, if updates are transmitted too rarely, delays are small, but the age grows large due to idle inter-update intervals. Hence, minimizing AoI requires balancing sampling frequency and queue congestion.
+\end{itemize}
+
+% ============================================================
+\section{Queueing Disciplines and Packet Management}
+\label{sec:aoi_queueing_disciplines}
+% ============================================================
+
+In sensor area networks, packet management policies in the node transmission buffer have a profound impact on the resulting Age of Information.
+
+\subsection{First-Come-First-Serve (FCFS) Baseline}
+Under the standard FCFS discipline, packets are served in the order of their arrival. In an $M/M/1$ FCFS queue with arrival rate $\lambda$ and service rate $\mu$, the average AoI was derived by Kaul et al. as:
+\begin{equation}
+    \bar{\Delta}_{M/M/1} = \frac{1}{\mu} \left( 1 + \frac{1}{\rho} + \frac{\rho^2}{1 - \rho} \right),
+\end{equation}
+where $\rho = \lambda/\mu$ is the server utilization. At high traffic loads ($\rho \to 1$), packets spend substantial time waiting in the queue, causing the average AoI to blow up to infinity ($\bar{\Delta} \to \infty$). Thus, pure FCFS buffering is ill-suited for time-critical sensor networks under heavy load.
+
+\subsection{Last-Come-First-Serve (LCFS) and Preemption}
+To ensure that only the freshest status update is transmitted, modern sensor network protocols adopt Last-Come-First-Serve (LCFS) disciplines:
+\begin{enumerate}
+    \item \textbf{LCFS without Preemption ($M/M/1/2$):} When a new update arrives, it displaces any waiting update in the single waiting slot, ensuring that when the server becomes free, it picks up the latest arrived packet.
+    \item \textbf{LCFS with Preemption in Service ($M/M/1/1^*$ or LCFS-PR):} If a new packet arrives while the server is busy, it immediately preempts the packet currently undergoing transmission, discarding the older packet. For an $M/M/1$ LCFS system with preemption, the average AoI is:
+    \begin{equation}
+        \bar{\Delta}_{\text{LCFS-PR}} = \frac{1}{\mu} \left( 1 + \frac{1}{\rho} \right),
+    \end{equation}
+    which monotonically decreases as the arrival rate $\lambda \to \infty$, stabilizing at $1/\mu$.
+\end{enumerate}
+
+% ============================================================
+\section{Stochastic Hybrid Systems (SHS) for AoI Analysis}
+\label{sec:shs_framework}
+% ============================================================
+
+When analyzing networks with packet losses, parallel servers, or out-of-order receptions, geometric decomposition of the AoI saw-tooth curve becomes algebraically intractable. The \emph{Stochastic Hybrid Systems} (SHS) framework provides a powerful analytical tool to compute the exact stationary moments of AoI.
+
+In the SHS framework, the system is modeled by a continuous-time Markov chain $q(t) \in \mathcal{Q} = \{0, 1, \dots, M\}$ representing discrete network states (e.g., server occupancy and packet freshness statuses), coupled with a continuous state vector:
+\begin{equation}
+    \mathbf{x}(t) = [x_0(t), x_1(t), \dots, x_n(t)]^T \in \mathbb{R}^{n+1},
+\end{equation}
+where $x_0(t) = \Delta(t)$ tracks the current age at the destination, and $x_j(t)$ tracks the age of packets currently present at server or node $j$.
+
+Between discrete transitions, the continuous states drift linearly with unit slope:
+\begin{equation}
+    \dot{\mathbf{x}}(t) = \mathbf{1} = [1, 1, \dots, 1]^T.
+\end{equation}
+Discrete transitions occur according to Poisson transition rates $\lambda^{(l)}$ for transition $l \in \mathcal{L}$. When transition $l$ occurs, the discrete state jumps from $q_l$ to $q'_l$, and the continuous state vector is reset according to a linear transition mapping matrix $\mathbf{A}_l$:
+\begin{equation}
+    \mathbf{x}(t^+) = \mathbf{A}_l \, \mathbf{x}(t^-).
+\end{equation}
+Let $\pi_q$ denote the steady-state probability of discrete state $q$, and define the conditional moment vector:
+\begin{equation}
+    \mathbf{v}_q = \lim_{t \to \infty} \mathbb{E}[\mathbf{x}(t) \mathbb{I}_{\{q(t) = q\}}].
+\end{equation}
+By applying Dynkin's formula, the steady-state conditional moment vectors satisfy the system of linear algebraic equations:
+\begin{equation}
+    \sum_{l \in \mathcal{L}_{q}} \lambda^{(l)} \mathbf{v}_q - \sum_{l \in \mathcal{L}: q'_l = q} \lambda^{(l)} \mathbf{A}_l \mathbf{v}_{q_l} = \pi_q \mathbf{1},
+\end{equation}
+where $\mathcal{L}_q$ is the set of transitions outgoing from state $q$. Solving this linear system yields $\mathbf{v}_q$, and the overall average Age of Information is directly obtained from the first component of the sum:
+\begin{equation}
+    \bar{\Delta} = \sum_{q \in \mathcal{Q}} v_{q, 0}.
+\end{equation}
+
+% ============================================================
+\section{Proactive Obsolete Packet Management (POPMAN)}
+\label{sec:popman_mechanisms}
+% ============================================================
+
+\subsection{The Out-of-Order Delivery Dilemma in Parallel Server Systems}
+In multi-path sensor architectures and multi-channel IoT networks, sensor nodes communicate with receivers over parallel transmission channels or heterogeneous servers with distinct service rates ($\mu_1, \mu_2$). Although parallel servers enhance transmission capacity, they introduce the problem of \emph{out-of-order packet delivery}.
+
+Specifically, if a status update packet $P_1$ is assigned to a slower server $\mu_1$ and a newer packet $P_2$ (generated at $t_2 > t_1$) is subsequently assigned to a faster server $\mu_2$, server $\mu_2$ may complete transmission before server $\mu_1$. When packet $P_1$ eventually completes service, its generation timestamp is older than the current knowledge at the monitor ($t_1 < U(t)$). Consequently, packet $P_1$ is deemed \emph{obsolete} upon delivery:
+\begin{equation}
+    t_1 < t_2 \implies \Delta(t) \text{ is not updated by } P_1.
+\end{equation}
+In conventional systems, the slower server squanders valuable energy, channel bandwidth, and computational resources completing the transmission of a packet that provides zero freshness benefit.
+
+\subsection{The POPMAN Principle}
+To eliminate the wastage of channel and computational resources, Reddy and Venkatesh proposed \textbf{Proactive Obsolete Packet Management (POPMAN)}. Under POPMAN:
+\begin{itemize}
+    \item Inter-server signaling or centralized scheduling tracks packet generation timestamps across parallel paths.
+    \item Whenever a fresh packet completes transmission on any server, or when a newer packet enters a server that will overtake an ongoing transmission, the obsolete packet currently in service or buffer at the slower server is proactively identified and discarded.
+    \item The vacated server immediately becomes available to serve newly incoming fresh status updates.
+\end{itemize}
+
+Applying the SHS framework to parallel heterogeneous servers with POPMAN reveals substantial performance improvements over conventional parallel systems:
+\begin{itemize}
+    \item Under high packet arrival rates, POPMAN eliminates packet reordering at the destination, ensuring that every received packet is informative.
+    \item In work-conservative parallel queueing systems ($FCFS\text{-}WC$), POPMAN reduces average AoI by over $43.75\%$ compared to a single-server FCFS queue, outperforming conventional parallel FCFS systems by discarding stale updates early.
+    \item For multi-hop sensor networks where status updates traverse intermediate relay nodes, the effective packet departure rate $\lambda$ at any node is inversely proportional to its average AoI:
+    \begin{equation}
+        \lambda \approx c \cdot \frac{1}{\bar{\Delta}},
+    \end{equation}
+    where $c \in [1.0, 1.05]$ is a network proportionality constant.
+\end{itemize}
+
+% ============================================================
+\section{Multi-Hop, Multi-Source, and Priority Sensor Networks}
+\label{sec:multihop_multisource_priority}
+% ============================================================
+
+In complex industrial and environmental monitoring deployments, sensor networks exhibit multi-source, multi-hop topologies with heterogeneous QoS requirements:
+\begin{enumerate}
+    \item \textbf{Multi-Source Sensing with Priority:} Sensors monitoring critical alarm parameters (e.g., temperature spikes, fire alarms) require higher freshness priority than routine environmental sensors. By combining non-preemptive or preemptive priority disciplines with POPMAN, high-priority updates experience negligible wait states without starving regular status streams.
+    \item \textbf{Multi-Hop Relaying:} In distributed multi-hop sensor fields, age accumulates additively along intermediate hops. Applying POPMAN at intermediate relay clusters prevents stale packets from traversing downstream links, preserving bandwidth across backhaul sensor nodes.
+\end{enumerate}
+Through the joint application of LCFS buffering, SHS modeling, and proactive obsolete packet management, sensor networks achieve bounded and optimal Age of Information, ensuring real-time responsiveness in mission-critical applications.

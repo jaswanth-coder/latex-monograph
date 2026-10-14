@@ -1,40 +1,99 @@
-\chapter{Game Theory and Machine Learning Applications}
+\chapter{Game Theory Applications}
 \label{sec:chapter11}
 
-This chapter reviews theoretical and algorithmic optimization models for wireless MAC protocols, specifically game theory and machine learning models.
+In modern wireless networks, autonomous network entities---such as mobile user equipments (UEs), wireless local area network (WLAN) stations, and small cell base stations---frequently compete for shared, scarce radio resources. Centralized coordination of massive numbers of distributed nodes incurs severe signaling overhead, latency penalties, and scalability bottlenecks. Consequently, decentralized and distributed decision-making frameworks are essential.
 
-\section{Application of Game theory to scheduling}
+Game theory provides a rigorous mathematical framework for modeling and analyzing strategic interactions among independent, rational decision-makers. In these formulations, each node acts as a player seeking to maximize its individual performance objective (utility function), taking into account the anticipated actions of competing nodes. A classical problem in networking is to design efficient techniques for fair allocation of scarce resources (such as spectrum, power, and computing capacity) among contenders. In particular, the use of game theory in addressing resource allocation issues in wireless networks (e.g., congestion control, power control, medium access control, routing, and mobile edge computing) has grown significantly.
 
-A classical problem that has captured the attention of scientists and engineers from the networking community for decades is to design efficient techniques for fair allocation of scarce resources (like, spectrum, power, computing resource, and so on) among different contenders. 
-%\cite{ResourceAllocation}. 
-%The contenders can either be homogeneous or heterogeneous in nature. Similarly, both centralized as well as distributed algorithms can be applied in solving these problems.
-%Such problems attempting efficient distribution of resources are interesting both from theoretical as well as application viewpoints. 
-In particular, the use of game theory in addressing various resource allocation issues in wireless network (like congestion control, power control, medium access control, routing, edge computing, and so on) has increased many-folds over the past few years. 
-However, recently the non-conventional game-theoretic models (like Minority Game) have attracted the attention of the networking community to overcome the limitations of conventional game models, that includes, 
-%the following limitations of conventional game models resulted in increased focus on non-conventional game 
-%he rationale behind choosing MG-based framework in our design is to address the following limitations of conventional game models while modelling large-scale networks: 
-%The following limitations of applying conventional game models in designing game-based solutions for large-scale networks led us to choose MG as the underlying framework for our design:
-%While designing game-based solutions for large-scale networks, several limitations in applying conventional game models have been identified. Limitations include \cite{Semasinghe16}:
-%\begin{enumerate}
-%[label=(\roman*)]
-    (a) excessive signaling overhead related to data exchange between players,
-    (b) high energy consumption due to computational complexity, 
-    (c) assumption of complete rationality of players,
-    (d) theoretical complexity in characterizing equilibrium set, and so on.
-%\cite{SurveyGame2}
-%\cite{GT_Book35}. 
-%\section{Aim of our Research}
-%\noindent
-%In this thesis, we have concentrated upon three key networking problems for Next-Generation wireless network - (i) content distribution in Device-to-Device (D2D) communication, (ii) mobile Data Offloading via IEEE 802.11 WiFi network, and (iii) lightweight energy-efficient Medium Access Control (MAC) protocol design.
-%for Internet-of-Things (IoT) applications. 
-%In this research work, we have focused on design and analysis of distributed algorithms for the above mentioned resource allocation problems using Minority Game (MG) theoretic framework. 
+Recently, non-conventional game-theoretic models (such as Minority Games) have attracted significant attention to overcome several practical limitations of conventional game models in large-scale networks, including:
+\begin{enumerate}
+    \item[(a)] excessive signaling overhead related to data exchange between players,
+    \item[(b)] high energy consumption due to computational complexity,
+    \item[(c)] idealized assumptions of complete rationality among distributed players, and
+    \item[(d)] theoretical complexity in characterizing large equilibrium sets.
+\end{enumerate}
 
-\section{Overview of Contributions}
-Contributions from researchers under the Mobile Computing Lab include:
+This chapter explores game-theoretic modeling in wireless communications, focusing on non-cooperative games, the minority game framework for mobile data offloading, and distributed contention control.
+
+% ============================================================
+\section{Game-Theoretic Modeling in Wireless Networks}
+\label{sec:gt_modeling}
+% ============================================================
+
+\subsection{Strategic Form Games and Nash Equilibrium}
+A strategic (normal) form game is formally defined by the triplet $\mathcal{G} = (\mathcal{N}, \{\mathcal{S}_i\}_{i \in \mathcal{N}}, \{u_i\}_{i \in \mathcal{N}})$, where:
 \begin{itemize}
-    \item \textbf{Bhaswar:} Game-theoretic formulations for channel selection, power control, and contention window adaptation.
-    \item \textbf{Rohan, Lokesh, Indu:} Machine learning models (e.g., reinforcement learning) for dynamic spectrum access and adaptive rate selection.
+    \item $\mathcal{N} = \{1, 2, \dots, N\}$ is the finite set of participating players (e.g., contending stations or mobile devices).
+    \item $\mathcal{S}_i$ denotes the strategy set (action space) available to player $i$. An action profile is represented as $\mathbf{s} = (s_i, \mathbf{s}_{-i}) \in \mathcal{S} = \prod_{i=1}^N \mathcal{S}_i$, where $\mathbf{s}_{-i}$ represents the strategies chosen by all players other than $i$.
+    \item $u_i(\mathbf{s}) : \mathcal{S} \to \mathbb{R}$ is the utility (payoff) function of player $i$, reflecting its throughput, energy consumption, delay penalty, or monetary cost.
 \end{itemize}
 
-\section{Game-Theoretic and ML-Based Resource Allocation}
-We analyze how decentralized nodes interact strategically or adaptively learn to share scarce radio resources, summarizing Nash equilibria and RL-based MAC configurations.
+A central solution concept in non-cooperative games is the \emph{Nash Equilibrium} (NE). A strategy profile $\mathbf{s}^* = (s_1^*, s_2^*, \dots, s_N^*)$ constitutes a pure-strategy Nash equilibrium if no player can unilaterally improve its utility by deviating from its chosen strategy:
+\begin{equation}
+    u_i(s_i^*, \mathbf{s}_{-i}^*) \ge u_i(s_i, \mathbf{s}_{-i}^*), \quad \forall s_i \in \mathcal{S}_i, \quad \forall i \in \mathcal{N}.
+\end{equation}
+When pure equilibria do not exist, players may adopt mixed strategies, selecting actions according to probability distributions $p_i(s_i)$, leading to mixed-strategy Nash equilibria.
+
+\subsection{Pricing Mechanisms and Incentive Design}
+In competitive wireless environments, selfish behavior often leads to the ``tragedy of the commons,'' where aggressive spectrum access collapses overall network efficiency (e.g., severe collisions in random access channels). To guide selfish nodes toward socially desirable equilibria, network operators introduce pricing mechanisms. The net utility function of player $i$ becomes:
+\begin{equation}
+    U_i(\mathbf{s}) = u_i(\mathbf{s}) - P_i(\mathbf{s}),
+\end{equation}
+where $P_i(\mathbf{s})$ is the cost charged by the network. By dynamically adjusting price parameters based on network congestion or interference levels, distributed nodes can be steered toward Pareto-optimal resource allocation.
+
+% ============================================================
+\section{Mobile Data Offloading via Minority Game Framework}
+\label{sec:minority_game_offloading}
+% ============================================================
+
+\subsection{The Data Offloading Problem}
+The explosion of mobile data traffic driven by high-definition video streaming, augmented reality, and cloud computing places severe strain on cellular licensed spectrum. Mobile data offloading channelizes a fraction of cellular traffic over complementary, unlicensed wireless local area networks (e.g., IEEE 802.11 Wi-Fi).
+
+However, uncoordinated offloading can lead to herd behavior: when numerous mobile devices simultaneously offload their traffic to a nearby Wi-Fi Access Point (AP), severe contention and collisions degrade Wi-Fi throughput below that of the cellular network. Conversely, if too few devices offload, cellular spectrum remains heavily congested while Wi-Fi resources are underutilized.
+
+\subsection{The Minority Game (MG) Formulation}
+To achieve decentralized, self-organizing load balancing without continuous central signaling, the offloading process can be modeled using the \emph{Minority Game} (MG) paradigm. Originally introduced in econophysics, the minority game models systems where $N$ players repeatedly choose between two alternative actions, and those who choose the less crowded (minority) option win a payoff.
+
+In the context of mobile data offloading, let $N$ mobile users choose between two transmission technologies:
+\begin{equation}
+    a_i \in \{-1, +1\},
+\end{equation}
+where $a_i = -1$ corresponds to retaining the transmission on the cellular link, and $a_i = +1$ corresponds to offloading to Wi-Fi. Let $A(t) = \sum_{i=1}^N a_i(t)$ denote the aggregate action sum at decision round $t$. The minority outcome occurs when the chosen alternative has fewer occupants than a defined capacity threshold.
+
+\subsection{Exponential Learning Dynamics and Target Pricing}
+To adapt their decisions under non-stationary traffic, nodes implement an exponential learning reinforcement scheme. Each node maintains virtual scores $U_{i, k}(t)$ for a portfolio of heuristic decision strategies $k \in \mathcal{K}_i$. At each round, the strategy is selected according to a Gibbs-Boltzmann soft-max probability distribution:
+\begin{equation}
+    \pi_{i, k}(t) = \frac{\exp\left( \frac{U_{i, k}(t)}{T_c} \right)}{\sum_{k' \in \mathcal{K}_i} \exp\left( \frac{U_{i, k'}(t)}{T_c} \right)},
+\end{equation}
+where $T_c$ is a temperature coefficient governing the exploration-versus-exploitation trade-off.
+
+After transmission, strategies that favored the winning (uncongested) resource receive score increments, while those that led to congestion are penalized. To align user decisions with operator revenue and QoS targets, a \emph{Target Pricing scheme} is incorporated:
+\begin{equation}
+    b(t+1) = b(t) + \beta \left( \bar{S}_{\text{WiFi}}(t) - S^*_{\text{target}} \right),
+\end{equation}
+where $b(t)$ is the dynamic unit price parameter, $\beta > 0$ is a learning step size, and $S^*_{\text{target}}$ is the optimal target Wi-Fi throughput.
+
+By coupling minority game dynamics with dynamic pricing, distributed mobile nodes self-balance across cellular and Wi-Fi networks in heterogeneous environments, stabilizing system throughput near theoretical capacity even under dynamic user arrival and departure patterns.
+
+% ============================================================
+\section{Non-Cooperative Contention and Power Control}
+\label{sec:noncoop_contention_power}
+% ============================================================
+
+\subsection{Contention Window Adaptation Games}
+In random access protocols such as CSMA/CA, nodes choose their backoff parameters (minimum contention window $CW_{\min}$). If modeled as a non-cooperative game where each node seeks to maximize individual throughput:
+\begin{equation}
+    u_i(\tau_i, \boldsymbol{\tau}_{-i}) = \frac{\tau_i \prod_{j \neq i} (1 - \tau_j)}{\bar{L}_{\text{slot}}},
+\end{equation}
+nodes have an incentive to transmit with transmission probability $\tau_i \to 1$ ($CW_{\min} \to 0$). This dominant strategy results in continuous collisions, driving aggregate network utility to zero. Game-theoretic penalty functions and utility proportional fair pricing enforce socially efficient backoff parameters, preventing malicious starvation.
+
+\subsection{Power Control and Interference Games}
+In co-channel wireless deployments, transmitters choose power levels $p_i \in [0, P_{\max}]$ to maximize their Signal-to-Interference-plus-Noise Ratio (SINR):
+\begin{equation}
+    \gamma_i(\mathbf{p}) = \frac{h_{ii} p_i}{\sigma^2 + \sum_{j \neq i} h_{ji} p_j}.
+\end{equation}
+A standard utility function balances achievable rate and power dissipation:
+\begin{equation}
+    u_i(\mathbf{p}) = \ln(1 + \gamma_i(\mathbf{p})) - \alpha_i p_i,
+\end{equation}
+where $\alpha_i$ represents the unit energy cost. The best-response update rule yields supermodular games whose fixed points guarantee the existence and uniqueness of the Nash equilibrium power allocation vector.

@@ -1,0 +1,118 @@
+\chapter{Machine Learning Applications}
+\label{sec:chapter_ml}
+
+Next-generation wireless networks are increasingly characterized by extreme densification, diverse Quality of Service (QoS) requirements, dynamic topology changes, and highly non-stationary propagation environments. Conventional Medium Access Control (MAC) protocols rely predominantly on static rules, pre-configured backoff parameters, or idealized heuristic policies designed for stationary conditions. Consequently, traditional approaches struggle to adapt in complex, unpredictable scenarios such as industrial automation, massive machine-type communications (mMTC), and high-mobility vehicular swarms.
+
+To address these limitations, machine learning (ML)---particularly Reinforcement Learning (RL) and Multi-Armed Bandit (MAB) frameworks---has emerged as a foundational methodology for intelligent protocol design. By framing radio resource allocation, scheduling, and channel access as learning problems, wireless nodes can autonomously optimize their transmission strategies through continuous interaction with the physical environment. This chapter explores key machine learning applications in modern wireless MAC design, focusing on Phasic Policy Gradient reinforcement learning for Industrial IoT, contextual bandits for 5G New Radio initial access, and deep reinforcement learning for dynamic wireless environments.
+
+% ============================================================
+\section{Reinforcement Learning in Wireless Medium Access}
+\label{sec:rl_mac_principles}
+% ============================================================
+
+\subsection{The Wireless MAC as a Markov Decision Process}
+Reinforcement learning operates within the mathematical framework of a Markov Decision Process (MDP), characterized by the tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$, where:
+\begin{itemize}
+    \item $\mathcal{S}$ is the state space representing observable network conditions (e.g., local buffer occupancy, perceived channel interference, recent collision history, and link quality metrics).
+    \item $\mathcal{A}$ denotes the action space available to the MAC entity (e.g., contention window size, transmission power level, transmission slot, or carrier frequency).
+    \item $\mathcal{P}(s' | s, a) = \mathbb{P}(S_{t+1} = s' | S_t = s, A_t = a)$ defines the transition probability distribution between states under action $a$.
+    \item $\mathcal{R}(s, a, s')$ is the reward signal returned by the environment, reflecting key performance indicators such as successful packet delivery, throughput, latency penalty, or energy efficiency.
+    \item $\gamma \in [0, 1)$ is the discount factor balancing instantaneous rewards against future expectations.
+\end{itemize}
+
+The learning objective is to discover an optimal policy $\pi^*(a | s)$ that maximizes the expected cumulative discounted return:
+\begin{equation}
+    J(\pi) = \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t R(S_t, A_t, S_{t+1}) \right].
+\end{equation}
+
+% ============================================================
+\section{Phasic Policy Gradient for Time Slotted Channel Hopping Networks}
+\label{sec:ppg_tsch_networks}
+% ============================================================
+
+\subsection{IEEE 802.15.4e TSCH in Industrial IoT}
+The Industrial Internet of Things (IIoT) demands ultra-high communication reliability and deterministic latency for mission-critical sensing and industrial process control. To meet these rigorous requirements, the IEEE 802.15.4e amendment standardized the \emph{Time Slotted Channel Hopping} (TSCH) MAC mode.
+
+In TSCH, time is discretized into synchronized time slots of equal duration (typically 10~ms), grouped into recurring slotframes. A transmission cell within the TSCH matrix is uniquely identified by a pair of coordinates:
+\begin{equation}
+    (\text{slotoffset}, \text{channeloffset}),
+\end{equation}
+where $\text{slotoffset} \in [0, N_{\text{slot}} - 1]$ specifies the temporal position within the slotframe, and $\text{channeloffset} \in [0, N_{\text{channel}} - 1]$ determines the physical frequency channel via pseudo-random channel hopping:
+\begin{equation}
+    f = F\left[ (\text{ASN} + \text{channeloffset}) \pmod{N_{\text{channel}}} \right],
+\end{equation}
+with $\text{ASN}$ representing the absolute slot number and $F[\cdot]$ a lookup mapping to physical IEEE 802.15.4 frequencies.
+
+While TSCH defines the lower-layer channel hopping execution, the construction and dynamic maintenance of the TSCH schedule is left open to implementation. Static scheduling fails under dynamic factory interference and mobile machinery, while centralized re-scheduling incurs prohibitive signaling overhead.
+
+\subsection{Phasic Policy Gradient (PPG) Architecture}
+To autonomously learn adaptive, robust TSCH schedules, Bommisetty and Venkatesh developed a deep reinforcement learning framework based on \emph{Phasic Policy Gradient} (PPG).
+
+Traditional actor-critic algorithms (such as PPO) optimize the policy $\pi_\theta(a|s)$ and value baseline $V_\phi(s)$ using shared feature representations. However, joint optimization often causes representation interference, where aggressive value function fitting distorts features crucial for policy generation. PPG resolves this by decoupling training into two distinct alternating phases:
+\begin{enumerate}
+    \item \textbf{Policy Phase:} Optimizes the actor policy parameters $\theta$ using clipped surrogate policy loss over several rollouts:
+    \begin{equation}
+        L^{\text{CLIP}}(\theta) = \hat{\mathbb{E}}_t \left[ \min\left( r_t(\theta) \hat{A}_t, \, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right],
+    \end{equation}
+    where $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}$ is the probability ratio and $\hat{A}_t$ is the generalized advantage estimator. During this phase, policy drift is strictly constrained.
+    \item \textbf{Auxiliary Phase:} Periodically halts environment interaction to distill value knowledge across auxiliary heads using stored trajectories. It minimizes value regression error while preserving the policy distribution via a Kullback-Leibler (KL) divergence penalty:
+    \begin{equation}
+        L^{\text{aux}}(\phi) = \hat{\mathbb{E}}_t \left[ (V_\phi(s_t) - \hat{R}_t)^2 + \beta_{\text{KL}} D_{\text{KL}}\left( \pi_\theta(\cdot | s_t) \,\|\, \pi_{\theta_{\text{target}}}(\cdot | s_t) \right) \right].
+    \end{equation}
+\end{enumerate}
+
+\subsection{Reward Formulation and Performance}
+The reward function is formulated to capture multi-objective trade-offs between network throughput, packet delay, and energy efficiency:
+\begin{equation}
+    R_t = \omega_1 S_t - \omega_2 D_t - \omega_3 E_t,
+\end{equation}
+where $S_t$ denotes the number of successfully acknowledged packets, $D_t$ represents queuing latency, $E_t$ measures radio energy expenditure during active listen/transmit states, and $\omega_1, \omega_2, \omega_3$ are prioritization weights.
+
+Experimental evaluations demonstrate that the PPG-based TSCH scheduler converges significantly faster than legacy Deep Q-Networks (DQN) and PPO, achieving up to $35\%$ reduction in transmission collisions and extending device battery lifetimes under dense, multi-hop industrial sensor conditions.
+
+% ============================================================
+\section{Contextual Bandits for 5G NR Initial Access}
+\label{sec:contextual_bandits_5gnr}
+% ============================================================
+
+\subsection{Random Access and Numerology Selection in 5G NR}
+Fifth-generation (5G) New Radio (NR) networks support massive Machine-Type Communications (mMTC), where tens of thousands of IoT devices attempt random access over common Random Access Channel (RACH) occasions. In the millimeter-wave (mmWave) spectrum, directional beamforming and severe sensitivity to physical blockages (e.g., humans, vehicles, foliage) exacerbate initial access latency.
+
+To accommodate heterogeneous services and diverse channel conditions, 5G NR introduces \emph{flexible numerology}, where subcarrier spacing (SCS) $\Delta f$ is scalable according to:
+\begin{equation}
+    \Delta f = 2^\mu \times 15~\text{kHz}, \quad \mu \in \{0, 1, 2, 3, 4\}.
+\end{equation}
+Different numerologies offer distinct trade-offs: smaller SCS ($\mu = 0, 1$) provides longer symbol duration and robust cyclic prefix protection against delay spread, whereas larger SCS ($\mu = 2, 3$) shortens slot duration, reducing RACH occasion latency and mitigating Doppler shift at the expense of higher sensitivity to phase noise and inter-carrier interference.
+
+\subsection{Contextual Multi-Armed Bandit Formulation}
+Choosing the optimal numerology $\mu$ dynamically cannot rely on slow feedback loops during initial access because the device has not yet established radio resource control (RRC) connectivity. Bommisetty and Venkatesh formulated this problem as a \emph{Contextual Multi-Armed Bandit} (CMAB).
+
+In the CMAB framework:
+\begin{itemize}
+    \item At decision round $t$, the base station observes a contextual vector $\mathbf{x}_t \in \mathbb{R}^d$ summarizing environmental states, such as spatial blockage density, user mobility indicators, and aggregate channel busy ratios.
+    \item The agent selects an arm $a_t \in \mathcal{A} = \{\mu_0, \mu_1, \dots, \mu_K\}$, representing the active numerology configuration for the upcoming RACH slot.
+    \item The network executes initial access and receives a scalar reward $r_{t, a_t}$, proportional to the number of successfully connected devices and inversely proportional to connection latency.
+\end{itemize}
+
+\subsection{Upper Confidence Bound (UCB) Action Selection}
+To balance exploration of unverified numerologies against exploitation of proven configurations, the agent employs the contextual Upper Confidence Bound (LinUCB) policy:
+\begin{equation}
+    a_t = \arg\max_{a \in \mathcal{A}} \left[ \mathbf{x}_t^T \hat{\boldsymbol{\theta}}_a + \alpha \sqrt{\mathbf{x}_t^T \mathbf{A}_a^{-1} \mathbf{x}_t} \right],
+\end{equation}
+where $\hat{\boldsymbol{\theta}}_a = \mathbf{A}_a^{-1} \mathbf{b}_a$ is the ridge-regression weight vector estimate for arm $a$, $\mathbf{A}_a = \mathbf{I}_d + \sum_{\tau \in \mathcal{T}_a} \mathbf{x}_\tau \mathbf{x}_\tau^T$ is the covariance matrix, and $\alpha > 0$ controls the confidence exploration width.
+
+By adapting numerology to real-time blockage context, the contextual bandit mechanism increases successful device connections by over $40\%$ per RACH occasion compared to static numerology schemes, substantially reducing network access delay in high-density mMTC deployments.
+
+% ============================================================
+\section{Deep Reinforcement Learning in Dynamic Wireless Environments}
+\label{sec:drl_dynamic_wireless}
+% ============================================================
+
+Beyond scheduling and initial access, Deep Reinforcement Learning (DRL) algorithms (including Deep Q-Networks and Double Deep Q-Networks with prioritized experience replay) are widely deployed across wireless protocol stacks:
+\begin{itemize}
+    \item \textbf{Dynamic Rate and Power Adaptation:} In fast-fading vehicular and mobile environments, DRL agents learn joint modulation, coding, and power adaptation policies directly from raw signal-to-noise ratio trajectories without requiring explicit channel state information (CSI) models.
+    \item \textbf{Cognitive Spectrum Sharing:} In multi-tier heterogeneous networks, secondary users employ actor-critic policies to identify idle spectral white spaces and adjust transmission parameters without causing harmful interference to primary licensees.
+    \item \textbf{Integrated Sensing and Communication (ISAC):} DRL facilitates the joint optimization of radar sensing beams and communication data streams in connected vehicular environments, enabling reliable situational awareness and high-throughput infotainment.
+\end{itemize}
+
+Through modern reinforcement learning and bandit algorithms, wireless MAC protocols transition from rigid, handcrafted heuristics to intelligent, self-optimizing architectures capable of delivering robust performance across diverse 5G-Advanced and 6G communication environments.

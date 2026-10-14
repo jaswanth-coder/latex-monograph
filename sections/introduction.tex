@@ -1,4 +1,4 @@
-\chapter{Mathematical foundations}
+\chapter{Mathematical Preliminaries}
 In this chapter we review some of the essential mathematical prelimenieries that are required to carry out the performance analysis of the wireless networks. For more details readers can refer to \cite{EE6150 notes}.
 
 \section{Stochastic Processes}
@@ -107,15 +107,15 @@ Given the history of states traversed till time $n$, i.e., $X_n,\;X_{n-1},\;X_{n
       \overline{\pi}^{n+1}=\overline{\pi}^n \mathbb{P}
   \end{equation*}
 
- INCLUDE FIG 3.3
-
- Consider a three-state Markov chain with transition probability matrix 
-P=
-\begin{bmatrix}
+% Include Fig 3.3
+Consider a three-state Markov chain with transition probability matrix 
+\begin{equation*}
+P = \begin{bmatrix}
 0.5 & 0.4 & 0.1\\
 0.3 & 0.4 & 0.3\\
 0.2 & 0.3 & 0.5\\
 \end{bmatrix}
+\end{equation*}
 The long run proportions $\pi_{i}$ thus satisfy
 \begin{align*}
     \pi_{1}&=0.5 \pi_{1}+0.3 \pi_{2}+0.2 \pi_{3}\\
@@ -577,199 +577,172 @@ The Laplace transform of the interference, $\mathcal{L}_I(s) = \mathbb{E}[e^{-sI
 \begin{equation}
     \mathcal{L}_I(s) = \exp\left(-\pi \lambda s^{2/\alpha} \Gamma(1 - 2/\alpha) \mathbb{E}[h^{2/\alpha}]\right)
 \end{equation}
-This formulation allows direct evaluation of fundamental wireless metrics, including the Signal-to-Interference-plus-Noise Ratio (SINR) and the coverage probability $P(\text{SINR} > \theta)$, offering closed-form expressions that explicitly link transmit density $\lambda$, power, and physical layer parameters.
+\chapter{Wireless Local Area Networks}
+\label{sec:chapter_wlan}
 
+This chapter reviews research efforts, analytical models, and protocol enhancements in the domain of Wireless Local Area Networks (WLANs). It focuses on fundamental channel access mechanisms, mathematical throughput and jitter modeling, Quality of Service (QoS) differentiation, millimeter-wave architectures, and cross-layer physical enhancements including Multi-Packet Reception (MPR), Successive Interference Cancellation (SIC), and Full-Duplex communication.
 
-\chapter{Medium Access Control Protocol for WLAN}
+\section{Architecture and Medium Access Fundamentals}
+The IEEE 802.11 WLAN architecture defines two fundamental deployment configurations: the \textbf{Basic Service Set (BSS)}, in which all client stations communicate through a centralized Access Point (AP), and the \textbf{Independent Basic Service Set (IBSS)}, in which stations communicate directly in an ad-hoc, decentralized manner without an infrastructure coordinator.
 
-
-
-
-This chapter introduces the fundamental concepts of Medium Access Control (MAC) protocols in wireless local area networks (WLANs). We discuss the design decisions of the IEEE 802.11 standard, including the comparison between collision detection and collision avoidance, the mechanics of handshaking, and the core coordination functions.
-
-\section{Why Not CSMA/CD?}
-In wired Ethernet (IEEE 802.3), Carrier Sense Multiple Access with Collision Detection (CSMA/CD) is widely used. However, CSMA/CD is not viable in wireless environments due to:
+\subsection{Why Not CSMA/CD?}
+In wired Ethernet networks (IEEE 802.3), Carrier Sense Multiple Access with Collision Detection (CSMA/CD) is widely deployed. However, CSMA/CD cannot be directly implemented in wireless environments due to three physical constraints:
 \begin{itemize}
-    \item \textbf{Half-Duplex Radio Limitation:} Wireless transceivers cannot transmit and receive on the same frequency channel simultaneously. A station's own transmission would drown out any incoming signal, making it impossible to detect a collision while transmitting.
-    \item \textbf{Attenuation & Path Loss:} Signal strength attenuates rapidly over distance. A collision occurring near a receiver might not be strong enough to be detected at the transmitter.
-    \item \textbf{Hidden Station Problem:} Collisions occur at the receiver, not the sender. Senders may not detect a collision due to obstacles or physical distance.
+    \item \textbf{Half-Duplex Radio Limitation:} Wireless transceivers typically transmit and receive on the same frequency channel. A station's own high transmit power severely drowns out any incoming signals, rendering concurrent collision detection impossible during active transmission.
+    \item \textbf{Rapid Signal Attenuation:} Due to path loss and shadowing, received signal power decays steeply over distance ($d^{-\alpha}$). A collision occurring near a remote receiver might produce signal fluctuations too faint to be detected at the transmitter.
+    \item \textbf{Hidden Station Problem:} Collisions occur at the receiver rather than at the sender. Two transmitting stations out of mutual sensing range may transmit simultaneously to a common receiver, producing overlapping packets that cannot be sensed at the transmitter ends.
 \end{itemize}
 
-\section{CSMA with Collision Avoidance (CSMA/CA)}
-To address these limitations, IEEE 802.11 uses CSMA/CA. Instead of detecting collisions after they occur, CSMA/CA attempts to prevent them beforehand:
+\subsection{CSMA with Collision Avoidance (CSMA/CA)}
+To overcome the inability to detect collisions during transmission, IEEE 802.11 adopts Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA). Instead of detecting collisions after they happen, CSMA/CA minimizes collision probability proactively:
 \begin{itemize}
-    \item \textbf{Physical Carrier Sensing:} Stations listen to the channel before transmitting.
-    \item \textbf{Virtual Carrier Sensing:} Achieved using the Network Allocation Vector (NAV) carried in the headers of frames.
-    \item \textbf{Random Backoff:} When the medium is busy, stations defer transmission and wait for a random backoff period.
+    \item \textbf{Physical Carrier Sensing:} Stations perform clear channel assessment (CCA) by sensing RF energy and detecting preamble preambles before initiating transmission.
+    \item \textbf{Virtual Carrier Sensing:} Stations maintain a timer called the Network Allocation Vector (NAV), populated from the Duration fields in overheard frame headers. The medium is treated as busy as long as the NAV is non-zero.
+    \item \textbf{Inter-Frame Spacings (IFS):} Strict priority ordering is enforced through geometric time intervals, including Short Inter-Frame Space (SIFS), Priority Inter-Frame Space (PIFS), and Distributed Inter-Frame Space (DIFS), satisfying $\text{SIFS} < \text{PIFS} < \text{DIFS}$.
+    \item \textbf{Random Slotted Backoff:} If the medium is sensed busy, stations defer and initialize a backoff counter uniformly distributed in the contention window $[0, CW - 1]$. The counter decrements by one for each idle slot time $\sigma$, freezes whenever the medium is busy, and resumes once the medium has remained idle for a full DIFS duration.
 \end{itemize}
 
-IEEE 802.11 ( Sitaram )
+\subsection{RTS/CTS Handshake and Exposed Station Resolution}
+To address the hidden station problem, IEEE 802.11 provides a four-way handshake mechanism:
+\begin{itemize}
+    \item \textbf{RTS/CTS Handshake:} The transmitter sends a short Request-to-Send (RTS) frame. The destination replies with a Clear-to-Send (CTS) frame after SIFS. Surrounding nodes hearing either RTS or CTS update their NAV for the entire transaction duration, preventing hidden terminal collisions during the longer data payload.
+    \item \textbf{Exposed Station Problem:} Occurs when a station refrains from transmitting to an independent receiver because it overhears a nearby transmitter, even though its transmission would not cause interference at the existing receiver. Virtual carrier sensing and directional beamforming are primary mechanisms used to mitigate this issue.
+\end{itemize}
 
-The IEEE 802.11 WLAN  defines two architectures namely Basic Service Set (BSS) and Independent Basic Service Set (IBSS).  In BSS all wireless nodes are connected to an  access point (A.P.) and communicate only through that A.P. In (IBSS) nodes communicate  directly with each other in an adhoc manner i.e without an A.P.
+\section{IEEE 802.11 DCF Performance Modeling}
+The Distributed Coordination Function (DCF) forms the foundation of contention-based channel access in IEEE 802.11.
 
-IEEE 802.11 MAC defines two different mechanisms for frame transmission namely  Distributed Coordination Function (DCF) and Point Coordination Function (PCF).   DCF uses  Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA) mechanism with slotted Binary Exponential Back-off (BEB) algorithm. PCF provides controlled channel access through polling. 
+\subsection{Bianchi's 2-D Markov Chain Model for Saturated DCF}
+To quantify the theoretical saturation throughput of IEEE 802.11 DCF, Bianchi formulated a discrete-time two-dimensional Markov chain $\{s(t), b(t)\}$, where $s(t) \in [0, m]$ represents the backoff stage at slot time $t$, and $b(t) \in [0, W_i - 1]$ denotes the backoff counter, with $W_i = 2^i W_0$ being the contention window at stage $i$.
 
+Assuming constant conditional collision probability $p$ in each transmission attempt, the station transmission probability $\tau$ is derived as:
+\begin{equation}
+    \tau = \sum_{i=0}^m b_{i,0} = \frac{2(1 - 2p)}{(1 - 2p)(W_0 + 1) + p W_0 (1 - (2p)^m)}
+\end{equation}
+For a network of $n$ independent, contending stations, the conditional collision probability $p$ is the probability that at least one of the remaining $n - 1$ stations transmits in the same slot:
+\begin{equation}
+    p = 1 - (1 - \tau)^{n - 1}
+\end{equation}
+The unique operating point $(\tau^*, p^*)$ is obtained via fixed-point analysis. Letting $P_{tr} = 1 - (1 - \tau)^n$ denote the probability that at least one station transmits in a generic slot, and $P_s = \frac{n \tau (1 - \tau)^{n-1}}{P_{tr}}$ denote the conditional probability of a successful transmission, the normalized saturation throughput $S$ is:
+\begin{equation}
+    S = \frac{P_{tr} P_s E[P]}{(1 - P_{tr})\sigma + P_{tr} P_s T_s + P_{tr} (1 - P_s) T_c}
+\end{equation}
+where $E[P]$ is the expected payload length, $T_s$ is the average channel duration of a successful transmission, and $T_c$ is the average duration of a collision.
 
-Today's WLAN carry many forms of media such as video, voice, data and signaling.   Information services on the Internet come in varying forms, such as web browsing, e-mail, VOIP based telephony and multimedia on demand. This means that  different applications have different service features and desired QoS. Multimedia applications such as VOIP, and video-on demand have stringent QOS requirements and are sensitive to delay and jitter in their traffic. In contrast web-browsing are bursty in nature and do not require QOS service guarantee on delay and jitter. While multimedia traffic can tolerate packet loss, applications like FTP needs to be very reliable.
+\subsection{Unsaturated Traffic Conditions and Queue State Modeling}
+In practical networks, client buffers are frequently empty (unsaturated traffic conditions). The saturated model is generalized by coupling the discrete-time backoff Markov chain with a single-server queueing model. 
 
- 
+When a station successfully transmits or drops a packet and its queue is empty, it transitions to an idle state with probability $1 - q$, where $q$ is the probability that at least one packet is present in the buffer at the beginning of a slot. The transmission probability under unsaturated conditions scales proportionally with queue occupancy:
+\begin{equation}
+    \tau_{unsat} = q \cdot \tau_{sat}
+\end{equation}
+Analytical results demonstrate that below a critical arrival rate $\lambda_c$, the network operates in a stable, low-contention regime where collisions are minimal. As arrival rates exceed $\lambda_c$, packet queues saturate, causing the network to transition abruptly into the contention-limited saturated regime.
 
-  The IEEE 802.11 DCF operates in two modes. First mechanism is the basic access mechanism and the second mechanism is by using RTS/CTS frames. Figure \ref{acsqos1} illustrates the basic access mechanism. In basic access mechanism a station with a new frame to transmit, continuously monitors the channel activity.  If the channel is sensed to be idle for a period equal to at least  Distributed Inter Frame  Space (DIFS) time interval the station transmits. On the other hand if the channel is sensed busy, the station continuously monitors the channel activity, until the channel becomes idle for at least DIFS time. At this point the station generates a random number of slots, the random number being uniformly distributed between (0,CW-1), where "CW" denotes the contention window size. 
+\subsection{Packet Delay and Delay Jitter Analysis}
+For real-time multimedia services, access delay and packet delay variance (jitter) are critical Quality of Service metrics. Let $D$ be the random variable denoting the access delay from the instant a frame reaches the head of the queue until its successful reception.
 
-The initial value of CW is set as W$_0$, a value  predefined by the standard. A back-off timer keeps track of the number of slots to wait for frame transmission. The back-off count value  is decremented by "1" in  every slot as long as the channel is idle. The counter is frozen whenever the  channel is sensed busy. The countdown is reactivated when channel is again sensed idle for more than DIFS time interval.  When the back-off timer count reaches zero the station attempts a transmission. If the transmitting station starts receiving ACK (acknowledgement) for a transmitted frame within SIFS time interval (defined by standards), the transmitting station assumes it as a successful frame transmission. Lack of an acknowledgement within SIFS time interval for a transmitted frame is assumed to indicate  an unsuccessful frame transmission.  Since  SIFS time interval is less than DIFS time interval, ACK do not encounter collision. For each unsuccessful frame transmission CW is doubled until it becomes a predefined maximum value CW$_{max}$. There after CW remains constant at CW$_{max}$. According to the standards \cite{IEEEhowto:kopka},  a frame can have a finite number of retrials with CW$_{max}$.  If collision occurs after finite retrials, the frame is dropped.  
+The access delay consists of the accumulated backoff intervals and transmission attempts across successive backoff stages:
+\begin{equation}
+    D = \sum_{j=0}^{k} \left( \sum_{l=1}^{B_j} T_{slot, l} + T_{attempt, j} \right)
+\end{equation}
+where $k$ is the number of retransmissions experienced, $B_j$ is the uniform random backoff counter at stage $j$, and $T_{slot}$ is the random duration of a backoff slot.
 
+The delay jitter, defined as the standard deviation or variance of the frame access delay, is derived from the second moment of service time:
+\begin{equation}
+    \mathrm{Var}[D] = \mathbb{E}[D^2] - (\mathbb{E}[D])^2
+\end{equation}
+Closed-form expressions for $\mathrm{Var}[D]$ confirm that while increasing the initial contention window $W_0$ reduces collision probability, it increases delay jitter, revealing a fundamental tradeoff between collision mitigation and bounded latency variance.
 
-RTS/CTS mechanism is a four way hand shaking mechanism.  Figure \ref{acsqos2} illustrates the RTS/CTS mechanism wherein the source station sends a short frame called RTS before data transmission. Then the destination station responds with CTS at the end of  the RTS frame after a period of time equal to SIFS, if RTS is received correctly. On the reception of CTS the sender sends the data frame to the destination within a time duration of SIFS.    The successful reception of data frame is followed by an ACK frame after a period of time equal to SIFS. Successful exchange of RTS/CTS ensures that channel has been reserved for transmission for particular pair of sender and receiver.
+\section{Quality of Service and IEEE 802.11e EDCA}
+The legacy IEEE 802.11 standard treats all traffic categories identically. To guarantee differentiated Quality of Service for voice, video, and best-effort applications, IEEE 802.11e introduced the \textbf{Enhanced Distributed Channel Access (EDCA)} mechanism within the Hybrid Coordination Function (HCF).
 
-The  RTS and CTS frames  carry the length of the data frame to be transmitted. All other stations hearing RTS or CTS frame update their  Network Allocation Vector (NAV) containing the information of the period of time in which the channel will remain busy. Therefore other stations delay their transmission and thereby avoid interference.  RTS/CTS mechanism is useful only when longer data frames are transmitted since for smaller data frame  the overhead caused by using RTS/CTS would degrade the performance.
-
- In the IEEE 802.11 standard, there is no traffic differentiation. In view of this an enhanced Channel access mechanism has been introduced in  the IEEE 802.11e standard to satisfy the QoS requirements of different traffic. The EDCA mechanism has also been implemented in ieee 802.11p vehicular Networks \cite{5712769} to maintain traffic priorities.
- 
-%\subsection{Overview of IEEE 802.11e MAC Protocol}
-
-
- 
- The IEEE 802.11e standard defines a new coordination function called the Hybrid Coordination Function (HCF) to support QoS. The contention based channel access mechanism of HCF is called as the Enhanced Distributed Channel Access  (EDCA). The centrally  controlled, contention free channel access mechanism of HCF is called the HCF controlled channel access (HCCA). The HCF combines the features of both EDCA and HCCA. We concentrate only on EDCA because HCCA is not widely used. The EDCA  supports QoS by assigning different priorities for the incoming traffic.
-
-\begin{figure}[!thb]
-\centering
-% \includegraphics[width=3.5in,height=2.25in,angle=0,trim=0mm 0mm 0mm 0mm, clip]{qos1}
-\caption{Four different ACs of an IEEE 802.11e EDCA station}
-\label{acsqos}
-\end{figure}
-
-Fig.\ref{acsqos} shows EDCA mechanism. As shown in Fig.\ref{acsqos},  each EDCA station maintains four queues for the four different Access Categories (ACs). Each frame with a particular kind of traffic is mapped to a particular  AC. The service differentiation is realised by using  different set of parameters for each AC.  Parameters used for service differentiation are,\newline
-
+\subsection{Access Categories and Parameter Differentiation}
+In an EDCA station, the MAC layer maintains four parallel queues corresponding to four Access Categories (ACs):
 \begin{enumerate}
-
-\item AIFS (Arbitration Inter Frame Spacing): This is the time period  for which medium has to be sensed idle before transmitting or initiation of backoff.
-
-\item CW$_{max}$ and CW$_{min}$ :  These are the maximum and minimum values of contention window sizes.
-
-\item TXOP (Transmission opportunity): The maximum duration of the frame transmission after channel is accessed.  
-
+    \item \textbf{AC\_VO (Voice):} Highest priority, designed for conversational real-time traffic.
+    \item \textbf{AC\_VI (Video):} High priority, prioritized for streaming multimedia.
+    \item \textbf{AC\_BE (Best Effort):} Medium priority, standard data traffic (e.g., HTTP, FTP).
+    \item \textbf{AC\_BK (Background):} Lowest priority, bulk data and background print traffic.
 \end{enumerate}
 
-\begin{table}[ht]
+Service differentiation is achieved through specific parameter sets per AC:
+\begin{itemize}
+    \item \textbf{Arbitration Inter-Frame Space (AIFS):} The duration the medium must remain idle before backoff commences:
+    \begin{equation}
+        AIFS[AC] = SIFS + AIFSN[AC] \times \sigma
+    \end{equation}
+    \item \textbf{Contention Window Bounds ($CW_{min}[AC], CW_{max}[AC]$):} High-priority ACs utilize significantly smaller contention windows to secure statistical access priority.
+    \item \textbf{Transmission Opportunity (TXOP):} The maximum duration a station is granted channel ownership to burst multiple frames separated by SIFS upon winning contention.
+\end{itemize}
+
+\begin{table}[htbp]
 \centering
+\caption{IEEE 802.11e Default EDCA Parameter Set}
+\label{tab:edca_params}
 \begin{tabular}{|c|c|c|c|c|r|}
-        \hline
-$ $ & $AC$    &   $CWmin$  & $CWmax$   & AIFSN   & TXOP \\
-        \hline 0   & AC0 & 7  & 15 & 2 & 3.264ms   \\
-       \hline
-1   & AC1 & 15 & 31 & 2 & 6.016ms\\
-        \hline
-2   & AC2 &31  & 1023 & 3 & 0 \\
-       \hline
-3   & AC3 &31  &1023  & 7  & 0\\
-        \hline
+\hline
+\textbf{Priority} & \textbf{AC} & \textbf{$CW_{min}$} & \textbf{$CW_{max}$} & \textbf{AIFSN} & \textbf{Max TXOP} \\
+\hline
+0 (Highest) & AC\_VO & 7  & 15 & 2 & 1.504 ms \\
+\hline
+1 & AC\_VI & 15 & 31 & 2 & 3.008 ms \\
+\hline
+2 & AC\_BE & 31 & 1023 & 3 & 0 \\
+\hline
+3 (Lowest) & AC\_BK & 31 & 1023 & 7 & 0 \\
+\hline
 \end{tabular}
-\label{table11}
-\caption{Parameters used for service differentiation \\ (IEEE 802.11e standard \cite{IEEEhowto:kopka})}
 \end{table}
 
-As shown in the table I, the high priority AC (i.e AC$_0$) has smaller  values of AIFS, CW$_{min}$, CW$_{max}$, and larger value of TXOP compared to low priority AC (i.e AC$_3$). There are two types of collisions that are present in EDCA. They are internal collisions (also called as virtual collisions) and external collisions. Virtual collision occurs because two or more ACs  within a station attempt to transmit in the same slot ( i.e , decrease their back-off counter to zero simultaneously). When virtual collision occurs transmission opportunity is given to the highest priority AC and the lower ACs behave as if an external collision has occurred and follows the back-off rules.  The scheduler resolves the internal collisions by assigning transmission opportunity to the highest AC involved in collision.  
+\subsection{Internal and External Collision Resolution}
+In EDCA, two distinct collision mechanisms occur:
+\begin{itemize}
+    \item \textbf{Internal (Virtual) Collisions:} Occur when two or more internal AC queues within the same physical station decrement their backoff counters to zero simultaneously. The internal scheduler resolves this collision by granting the transmission opportunity to the highest-priority AC, while the lower-priority ACs double their contention windows and re-enter backoff as if an external collision occurred.
+    \item \textbf{External Collisions:} Occur when two different stations transmit on the wireless medium simultaneously.
+\end{itemize}
+Analytical evaluations demonstrate that EDCA effectively shields real-time voice and video streams from throughput degradation even under extreme network saturation from best-effort background traffic.
 
-\section{IEEE 802.11ad Hybrid access mechanism}
+\section{IEEE 802.11ad 60 GHz Directional MAC Architecture}
+The availability of massive unlicensed spectrum in the 60 GHz millimeter-wave band enabled the IEEE 802.11ad standard to achieve multi-gigabit data rates (exceeding 1 Gbps).
 
-The huge unlicensed  bandwidths available at 60 GHz band  prompted the designers of wireless systems to venture into and design wireless systems operating at 60 GHz. 
-The frequency space at 60 GHz offers the advantage of huge  bandwidths, but brings along greater technical challenges.
-Due to the availability of large unlicensed bands at 60 GHz, larger bandwidths can be used for communication at 60 GHz which will support larger data rates.
- Data rates of 1 Gbps can be achieved at 60 GHz as compared to a maximum of 300 Mbps obtained by legacy Wi-Fi networks operating at 2.4/5 GHz \cite{eval}. This would imply that HD video that is transmitted over Wi-Fi with data compression, can  now be  transmitted in uncompressed form at 60 GHz, thereby maintaining higher video quality \cite{sai}.
+\subsection{Millimeter-Wave Channel Characteristics}
+Communication at 60 GHz offers multi-gigahertz channels but encounters severe propagation challenges:
+\begin{itemize}
+    \item \textbf{Oxygen Absorption Peak:} Oxygen molecules absorb RF energy prominently at 60 GHz, introducing severe path loss (approximately 16 dB/km).
+    \item \textbf{Blockage Vulnerability:} The small millimeter wavelength ($\lambda \approx 5$ mm) prevents penetration through walls and human bodies, confining links to line-of-sight (LOS) indoor environments.
+    \item \textbf{Directional Antenna Arrays:} To overcome attenuation, 60 GHz devices employ highly directional phased-array beamforming antennas.
+\end{itemize}
 
+\subsection{PBSS Architecture and Beacon Interval Structure}
+IEEE 802.11ad adopts a \textbf{Personal Basic Service Set (PBSS)} architecture, coordinated by a PBSS Central Point (PCP) or Access Point (AP). Channel access is organized into periodic \textbf{Beacon Intervals (BIs)}. The PCP/AP coordinates channel access through beacon frames, generating schedules and communicating them to nodes using beacon and announcement frames.
 
-However, the oxygen absorption spectrum peaks at 60GHz which means that systems operating at 60 GHz will face an additional attenuation due to oxygen absorption. The wave length corresponding to 60 GHz boils down to few mm, which restricts the passage of signal through most of the physical obstructions. 
-The maximum range of  typical 60 GHz systems  are less than 30 ft. Also in indoor scenarios, the communication would be limited to single room. In nutshell  it can be said that in the 60 GHz systems, network range is sacrificed for the increased data rates.
+The BI is divided into two main sub-intervals:
+\begin{enumerate}
+    \item \textbf{Beacon Header Interval (BHI):} Consists of three access periods:
+    \begin{itemize}
+        \item \textbf{Beacon Transmission Interval (BTI):} The PCP/AP transmits directional DMG beacon frames to establish network synchronization across multiple antenna sectors.
+        \item \textbf{Association Beamforming Training (A-BFT):} Client stations perform beamforming training with the PCP/AP.
+        \item \textbf{Announcement Transmission Interval (ATI):} A request-response based management access period between the PCP/AP and associated nodes. During the ATI, the PCP/AP polls nodes. Associated nodes requiring service periods respond with a Service Period Request (SPR). Based on these requests and QoS requirements, the PCP/AP allocates SPs in subsequent frames, tracking outstanding requests.
+    \end{itemize}
+    \item \textbf{Data Transmission Interval (DTI):}
+    \begin{itemize}
+        \item \textbf{Contention-Based Access Periods (CBAP):} Contention access using slotted CSMA/CA.
+        \item \textbf{Service Periods (SPs):} Dedicated, scheduled time slots allocated exclusively to specific transmitter-receiver pairs for QoS data exchange and power management.
+    \end{itemize}
+\end{enumerate}
 
-The envisaged applications that the IEEE 802.11ad standard would support varies  from Quality of Service (QoS) sensitive applications like wireless display, gaming etc. to best effort applications like wireless file transfer, web browsing etc. \cite{eval}. Thus the propagation challenges along with the  diverse set of requirements make the MAC layer design of 802.11ad to be non trivial.  In order to overcome some of these challenges, a hybrid MAC protocol based on contention based access and scheduled access has been  proposed in IEEE 802.11ad \cite{802.11ad}.  Due to explicit channel allocations to the nodes (called SPs), better support for QoS and directional communication is provided. Besides, SPs help in improved power management.
+\subsection{Queuing Modeling of Scheduled Service Periods}
+Analytical studies model the scheduled Service Periods of the IEEE 802.11ad hybrid MAC as a special case of a \textbf{Periodically Gated Queueing System (PGQS)} with Bernoulli scheduling. During non-SP intervals, the queue is gated, accumulating Poisson arrivals. When the SP activates, queued packets are served sequentially.
 
-\section{Brief Introduction of IEEE 802.11ad }\label{802.11ad}
+Using these results, the average packet delay and delay jitter are expressed in terms of the vacation duration (interval between consecutive SPs) and service period length. Analytical evaluations reveal that as the arrival rate increases, delay increases linearly up to a critical arrival rate $\lambda^*$, beyond which packet buffers overflow and delay becomes unbounded.
 
+\section{Physical Layer Enhancements: Multi-Packet Reception (MPR) MAC}
+Advancements in the physical layer---such as Multi-User MIMO (MU-MIMO) and Successive Interference Cancellation (SIC)---enable wireless receivers to decode multiple overlapping packet transmissions simultaneously, known as \textbf{Multi-Packet Reception (MPR)}.
 
-In this section a brief introduction  to the IEEE 802.11ad standard is provided \cite{802.11ad}. Further details can be found in the standard document \cite{802.11ad}.
-The IEEE 802.11ad networks use an architecture called  Personal Basic Service Set (PBSS).
-Similar to the Independent Basic Service Set (IBSS) of the legacy IEEE 802.11 \cite{802.11}, the PBSS is an architecture in which directional multi gigabit (DMG) stations (STAs)  communicate  in an adhoc manner (i.e. directly with each other).
-(Hereafter we will  use the terms nodes and  DMG STAs interchangeably ).
-In contrast to the IBSS, in the PBSS one node assumes the role of the PBSS Central Point (PCP) /Access Point (AP). The PCP/AP
-provides the basic timing and synchronization for the PBSS %through  Beacon and Announce frames 
-as well as allocation of  Data Transmission Interval (DTI)  \cite{802.11ad}.
+\subsection{Order Statistics Analysis of Pure ALOHA under MPR}
+Under a $K$-MPR channel model, up to $K$ concurrent packet transmissions can be decoded without error. Using order statistics, the arrival times of $N$ packets arriving within a frame window are evaluated. The probability of capturing $j \le K$ packets is obtained in closed form from the joint distribution of arrival order statistics, demonstrating significant throughput gains over standard single-packet capture ALOHA.
 
-The access times are divided into Beacon Intervals (BIs). The PCP/AP coordinates the channel access through the beacon frames. The PCP/AP generates the schedule and communicates it to the nodes using the beacon and announce frames.
-The  BI is divided into two sub intervals namely, Beacon Header Interval (BHI) and Data Transmission Interval (DTI). 
-The BHI  consists of three access periods namely, BTI, A-BFT and ATI.
-Fig. \ref{beacon} shows an example beacon interval structure. %structure of access periods within a BI.
-BTI is the access period during which beacon frames are transmitted.
-A-BFT is the access period during which beam-forming training is performed.
-ATI is a request response based management access period between PCP/AP and the other nodes.
-
-The Announcement Time Interval
-(ATI)  of the BI is used to reserve the slots for SP. 
-This reservation process in ATI is depicted in Fig. \ref{beacon}. 
-The PCP/AP initiates the frame transmission in ATI.  During the ATI, the PCP/AP polls all the nodes or a subset of nodes. 
-All the nodes associated with the PCP/AP which are in need of SP, send a  Service Period Request (SPR) as a reply to the poll sent by a PCP/AP.
-Based on these requests and QoS requirements, the PCP/AP allocates %zero, single or multiple 
- SPs to the different nodes in the subsequent frames.  The PCP/AP keeps count of all the SP requests received from the individual nodes.  The amount of outstanding request is reduced as the  SP is allocated to each node.
-%There is an inherent assumption of admission control, i.e. during {association period} of the protocol, the PCP/AP accepts 
-%nodes only to the extant that it can satisfy the QoS requirements.
-
-
-
- The DTI
- is divided into CBAP and SPs. The access during CBAP is based on contention mechanism and access during the SPs is scheduled and the ownership of the channel is assigned to specific STA for each SP.
-
-Ref. \cite{} have modeled the  service periods of the  IEEE 802.11ad hybrid MAC as  special case of  Periodically Gated  Queueing System (PGQS) with Bernoulli scheduling. 
-Using these results they derive the average  delay and the delay variations (jitter) of packets belonging to SP of IEEE 802.11ad.  It is shown that as the arrival rates increases, the delay increases linearly till the critical arrival rate  and beyond that  becomes unbounded. 
-
-\section{IEEE 802.11ax}
-
-IEEE 802.11ax is the current generation of the WLAN standard proposed by IEEE. It is predicted that by 2023, $27.4\%$ of all WLAN endpoints will be driven by IEEE 802.11ax technology \cite{cisco_20}. One of the challenging goals of the  802.11 ax is to achieve at least four times more average per-station (STA) throughput than its legacy in a dense environment \cite{ni}. Apart from providing such high throughput, 802.11ax is aimed at offering a better user experience and efficient resource utilization. To address these challenges, the 802.11ax task group has come up with key Physical (PHY) and Medium Access Control (MAC) layer enhancements \cite{tgax_datasheet} like Multi-User (MU)-Orthogonal Frequency Division Multiple Access (OFDMA), MU-MIMO (Multi-Input Multi-Output), newer Modulation and coding schemes (MCS), etc.
-
-Further, the future WLAN networks also need to handle  dynamic scenarios wherein STAs may frequently join or leave the network, which we refer to in this paper as the Random Access(RA) Capability of the network. The other major challenge that future WLANs face is to handle the diverse kind of Internet traffic with different QoS requirements. Few applications like live video conferencing require stringent conditions on the need for high aggregate throughput, high per-STA throughput, high RA Capability, and thus less latency \cite{qos}. The other challenging goal of the IEEE 802.11 ax is to achieve at least $4 \times$ more average per-STA throughput when compared to its legacy in a dense environment \cite{ni}. To address the above challenges faced by the dense and dynamic network, the IEEE 802.11ax Task group has come up with crucial PHY and MAC Layer enhancements \cite{tgax_datasheet}. One of the key enhancements proposed in IEEE 802.11ax is the MU technology, which has significant effect on the access methodology used and also has a substantial impact on the different performance metrics obtained.
-
- The future WLAN networks needs to cater for high density use-case scenarios such as smart-homes residential apartments, enterprise applications, stadiums, airports etc \cite{ni}. In-order to cater the high capacity demands of these use-cases, a large number of APs needs to be placed in near vicinity of each other such that the whole geographic area is covered and they are no coverage holes left in between. However, deploying such large number of Access Points in near vicinity can leading to high Overlapping Base Service Set (OBSS) channel interference. Thus in-order to tackle the OBSS interference, WLAN has come up with two schemes: 1) Frequency Reuse scheme (which is supported even in the legacy WLAN systems right from the starting WLAN standards such as 802.11a) and 2) Multi-User Frequency Division Multiple Access (MU-OFDMA) feature (which is the new feature supported by the latest 802.11ax WLAN systems) \cite{tgax_datasheet}.
-
-\textit{1) Frequency Reuse scheme:}  The typical license free ISM frequency bands used by WLAN are 2.4 GHz and 5GHz. The frequency range of the 5GHz band is 5.15GHz to 5.35GHz and 5.725GHz to 5.85GHz. The frequency range of 2.4GHz band is. These frequency bands are in-turn divided into non-overlapping channels as follows: The 2.4 GHz can be divided into a maximum of 3 non-overlapping channels while the 5GHz frequency band can be divided into a maximum of 23 non-overlapping channels. The primary advantage of using 5 GHz frequency bands over the 2.4GHz is.. , however signals signals transmitted under 5GHz cannot penetrate through walls and also has less path loss.   However the actual number of channels available varies from country to country.  
-
-\textit { 2) MU-OFDMA Feature:} In order to attain higher spectral efficiency, the latest 802.11ax systems has come up with a new feature known as MU-OFDMA. The given channel bandwidth is divided into orthogonal subcarriers and a group of such orthogonal subcarriers (or tones) is known as a Resource Unit (RU). We can have different sized RUs such as RU-26, RU-52 etc., where the designation RU-x says that this RU has x tones. Assume that each channel is divided into $N_{RU}$ RUs. These RUs are allocated to different APs/STA such that in a given time-slot for a given channel we can have a maximum of $N_{RU}$ number of simultaneous transmissions. However for the legacy systems (which are based on MU-OFDM transmissions), in a given time-slot for a given channel, up-to a maximum of only one transmission is possible. Thus the usage of the MU-OFDMA feature leads to better spectral efficiency when compared to the legacy WLAN systems. This MU-OFDMA feature has a significant impact both on the PHY and MAC layer working of 802.11ax systems. 
- 
-
-\subsection{Hybrid Access (HA) Methodology}
-\label{sec:ha_proc}
-In an SA-based mechanism, the RUs are carefully planned and scheduled by the Access Point (AP), thus avoiding collisions, and hence the system can achieve high throughput. But the downside of this centralized SA method is that the AP needs to periodically poll the UL requirements of these STAs, which consumes significant overhead and thus leads to more delay  (latency) and less RA capability. In contrast, if we consider the case of the pure RA mechanism (where all the RUs are for RA), we get less delay and high RA capability  (newly joined STAs can immediately join the network) but at the cost of less throughput (due to more number of collisions). In summary, we can observe that there is always a trade-off between the different performance metrics. Therefore, there is an immense need to balance these metrics carefully; thus, a HA-based mechanism is proposed where the centralized SA and the distributed RA mechanisms are integrated together. \\
-
-\textcolor{red}{Fig 1 of IEEE systems paper of Aparna }
-
-
-\noindent \textit{MU-OFDMA based HA procedure:} The AP broadcasts RU information using Trigger Frame-Request (TF-R) frame. Based on this, the STAs decrements their back-off counter value by $N_{RA}$ \cite{tgax_datasheet} and finally when this value reduces to less than or equal to $0$, the concerned STAs transmit their Buffer Status Report (BSR) on a randomly chosen RA RU. 
-Now the status of each RA RU can be in one of the following three states: (i)Success state (when exactly one STA transmits its BSR on that particular RU). {For example, RU $4$ in Fig.\ref{fig:system}}  (ii) Failure state (when more than one STAs transmit on that particular RU) { i.e., RU $3$ of Fig.\ref{fig:system} because two STAs $S3,S4$ simultaneously transmits their BSR onto this RU.} (iii) Idle state (none of the STAs transmit on that particular RU){i.e., RU $2$ of Fig.\ref{fig:system}}. The AP decodes the successful RUs, and the concerned STAs are scheduled. This scheduling information is broadcasted using the TF control frame. Then the scheduled STAs initiate their UL data transmission using the packet aggregation technique as outlined in sub-section \ref{sec:aggr}. Later these aggregated UL transmissions are acknowledged using Multi-Station Block Acknowledgement (MS-BACK) control frame \cite{Khorov}. The duration for completing a single set of the above-mentioned frame exchanges is referred as TF-Cycle; hereafter referred to as a time slot with duration $t_s= T_{TF-R} + 4T_{SIFS} + T_{BSR}+T_{TF} 
-             + T_{data}+T_{MS-BACK}$ where $T_{x}$ represents the duration of the  control frame with subscript x.
-\subsection{Packet Aggregation}
-\label{sec:aggr}
-For dense WLAN networks, air-time efficiency is an important measure. The air-time efficiency can be increased by reducing the  temporal overhead caused by the control frames during the channel access mechanism.  Thus, instead of reattempting for channel access every time, once a STA gets access to the channel, i.e., after receiving the TF frame from the AP, each of the scheduled STAs can club multiple packets into a single aggregated frame. 
-
-The aggregated frame is transmitted during its allocated TXOP  (Transmission Opportunity) duration of length $T_{data}$ as shown in Fig.\ref{fig:system}. The payload data (of length $L$ bits) received from the PHY layer is appended with a MAC header and tail bits of length $L_{MH}$ and $L_{TB}$ forming a MAC protocol data unit (MPDU). A group of these MPDUs from a given STA are aggregated together to form aggregated A-MPDU frame and sent using a single PHY layer header of duration ${T_{PHY}^{he}}$ \cite{pkt_ag1}\cite{singal}. This mechanism is known as packet aggregation.
-
-The motivation for using the MU feature is to allow many STAs to access the channel simultaneously hence targeting for better spectral efficiency. Several simultaneous transmissions are possible by exploiting the frequency domain(MU-OFDMA), or spatial domain (MU-MIMO) or a combination of both. The ISM(Industrial,Scientific and Medical) frequency bands are split up into 20MHz non-overlapping channels, and these channels are then, in turn, sub-divided into multiple orthogonal subcarriers(tones), and a group of these subcarriers is known as a Resource Units(RUs). Based upon the size of the RUs, i.e., the number of sub-carriers in each RU, we can have different types of RUs like RU-26(RU with 26 subcarriers), RU-52, RU-106, etc. Based on the individual traffic requirements of each STA, AP can assign them with these different sized RUs. It may allocate the complete channel (of Bandwidth say 20MHz without further subdividing it into RUs) to one STA (such as
-the case with the current IEEE 802.11 ac ) or split the channel
-into smaller RUs and allocate them to different STAs. Hence from
-Figure 2, we can observe that at a given point of time, multiple
-STAs can transmit simultaneously over the same frequency
-channel. This kind of multiple access is known as MU-OFDMA. The other sort of MU transmission supported in IEEE 802.11ax is MU-MIMO. In each of the RUs whose size is $\geq$ 106 sub-carriers, MU-MIMO operation is
-possible, i.e., we can transmit data simultaneously to multiple
-STAs over the same RUs by using multiple antennas and
-beamforming the data to individual STAs. Generally, the AP can have a maximum of 8 antennas, and each of
-the user STAs can have a maximum of 4 antennas. To decode the MIMO data packets, we need to have an accurate
-channel state information(CSI) between the transmitter and
-the receiver. The CSI completely changes when an STA moves even by a little distance also, hence the AP needs to query the CSI information from the STAs frequently. This
-process is known as channel sounding, and it consumes a
-significant overhead.
-
-
-
-  
-\subsection{Analytical Foundations of CSMA under Multi-Packet Reception (MPR)}
-In traditional wireless network modeling, any overlapping transmissions are assumed to collide and fail completely. However, advancements in the physical layer—such as Multi-User MIMO (MU-MIMO) and Successive Interference Cancellation (SIC)—enable a receiver to decode multiple overlapping packets concurrently. This capability is known as Multi-Packet Reception (MPR).
-
+\subsection{Analytical Modeling of CSMA under MPR}
 Balan and Venkatesh \cite{balan2015analysis} developed an exact throughput analysis for unslotted carrier sense multiple access protocols under a $K$-MPR channel model. In this model, up to $K$ overlapping packets can be successfully received. If the number of concurrent transmissions exceeds $K$, all packets in the slot fail.
 
 For an unslotted Non-Persistent CSMA (NP-CSMA) protocol, the average duration of the idle time is $1/\Lambda$, where $\Lambda$ is the Poisson arrival rate of new and rescheduled packets. The channel timeline alternates between idle and busy periods. A busy period is initiated by the first packet arrival at some time $t$. Any subsequent packets that arrive within the carrier sensing delay $a$ (representing the signal propagation delay) will also be transmitted immediately because the busy channel state has not yet been sensed by those nodes. The interval $[t, t+a]$ is the vulnerable interval.
@@ -778,79 +751,48 @@ Let $Y$ be the random variable denoting the duration between the start of the fi
 \begin{equation}
     F_Y(y) = e^{-\Lambda(a - y)}, \quad 0 \le y \le a
 \end{equation}
-The mean value of $Y$ is derived as:
+The mean busy duration $\bar{B}$ (with packet duration normalized to 1) is:
 \begin{equation}
-    \bar{Y} = a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})
+    \bar{B} = 1 + 2a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})
 \end{equation}
-Consequently, the average duration of a busy period $\bar{B}$ (including the transmission time of 1 unit and the propagation delay $a$ until the channel is sensed idle again) is:
+Under $K$-MPR, all transmissions are successful if and only if the total number of packets transmitted during the busy interval is at most $K$. Applying the renewal reward theorem, the normalized system throughput $S$ of NP-CSMA under MPR is:
 \begin{equation}
-    \bar{B} = 1 + \bar{Y} + a = 1 + 2a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})
-\end{equation}
-Under the $K$-MPR channel model, a transmission is successful if and only if the total number of packets transmitted during the busy period is less than or equal to $K$. If $i$ additional packets arrive in the vulnerable interval, the total number of packets transmitted in the busy period is $i+1$. Thus, the expected number of successful packets transmitted in a renewal cycle (idle + busy period) is:
-\begin{equation}
-    \bar{U} = \sum_{i=0}^{K-1} (i + 1) \frac{(\Lambda a)^i e^{-\Lambda a}}{i!}
-\end{equation}
-Using the renewal reward theorem, the normalized system throughput $S$ of NP-CSMA under MPR is:
-\begin{equation}
-    S = \frac{\bar{U}}{\bar{C}} = \frac{\sum_{i=0}^{K-1} (i + 1) \frac{(\Lambda a)^i e^{-\Lambda a}}{i!}}{\frac{1}{\Lambda} + 1 + 2a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})} = \frac{\Lambda e^{-\Lambda a} \sum_{i=0}^{K-1} \frac{(i+1)(\Lambda a)^i}{i!}}{1 + (2a + 1)\Lambda - (1 - e^{-a\Lambda})}
+    S = \frac{\Lambda e^{-\Lambda a} \sum_{i=0}^{K-1} \frac{(i+1)(\Lambda a)^i}{i!}}{1 + (2a + 1)\Lambda - (1 - e^{-a\Lambda})}
 \end{equation}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_balan_2015_1.png}
-    \caption{Illustrating the state of the channel against time of NP-CSMA}
+    \caption{Channel state over time for unslotted NP-CSMA under MPR}
     \label{fig:balan_2015_fig1}
 \end{figure}
 
-In 1-Persistent CSMA (1P-CSMA), nodes that find the channel busy do not reschedule; instead, they wait and transmit immediately as soon as the channel becomes idle. The busy periods are significantly longer and more complex than in NP-CSMA. Balan and Venkatesh modeled the 1P-CSMA busy periods using a Markov chain, where the states represent the number of packets accumulated during a transmission period that will contend in the subsequent transmission period.
+In 1-Persistent CSMA (1P-CSMA), packets finding the medium busy defer and transmit immediately upon channel clearance. Balan and Venkatesh modeled 1P-CSMA busy periods via a discrete-time Markov chain, where states denote packet backlog:
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_balan_2015_5.png}
-    \caption{Illustrating the channel and time: 1P-CSMA}
+    \caption{Channel timeline of 1-Persistent CSMA}
     \label{fig:balan_2015_fig5}
 \end{figure}
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_balan_2015_6.png}
-    \caption{Transition probability Markov chain}
+    \caption{Transition probability Markov chain for 1P-CSMA}
     \label{fig:balan_2015_fig6}
 \end{figure}
 
-\section{RTS/CTS Handshake \& Hidden/Exposed Station Problems}
-To resolve the hidden station and exposed station problems:
-\begin{itemize}
-    \item \textbf{RTS/CTS Mechanism:} The transmitter sends a Request to Send (RTS) frame. The receiver replies with a Clear to Send (CTS) frame. Any station hearing the CTS defers its transmission, mitigating the hidden station problem.
-    \item \textbf{Hidden Station Problem:} Occurs when station A can communicate with B, and station C can communicate with B, but A and C cannot hear each other. A and C may transmit simultaneously to B, causing a collision at B.
-    \item \textbf{Exposed Station Problem:} Occurs when station B can communicate with A, and station C can communicate with D. If B is transmitting to A, C might defer transmitting to D because it senses B's transmission, even though C's transmission to D would not interfere with B's reception at A.
-\end{itemize}
-
-\section{Basic Access, Acknowledgements, and Backoff}
-\begin{itemize}
-    \item \textbf{Basic Access:} The default mechanism where data is sent immediately after sensing the channel free for a Distributed Inter-Frame Space (DIFS) duration.
-    \item \textbf{Acknowledgements (ACK):} Since collision detection is not possible, the receiver must send an explicit ACK frame to confirm successful reception.
-    \item \textbf{Exponential Backoff:} If an ACK is not received, the station assumes a collision occurred, doubles its Contention Window (CW), and schedules a retransmission.
-\end{itemize}
-
-\section{Distributed and Point Coordination Functions (DCF \& PCF)}
-\begin{itemize}
-    \item \textbf{Distributed Coordination Function (DCF):} The primary contention-based access method, relying on carrier sensing and random backoff.
-    \item \textbf{Point Coordination Function (PCF):} A contention-free, centralized polling-based access method, managed by a Point Coordinator (typically the Access Point).
-\end{itemize}
-
 \subsection{Adaptive Backoff DCF Protocol under MPR}
-To translate MPR gains from the physical layer to the MAC layer, Balan and Venkatesh \cite{arun2017design} proposed an adaptive backoff protocol that modifies the backoff stage decrement step size based on channel utilization.
+To translate physical-layer MPR capacity into MAC efficiency, Balan and Venkatesh \cite{arun2017design} designed an \textbf{adaptive backoff DCF protocol}. 
 
-Unlike the conventional IEEE 802.11 DCF, where the backoff counter freezes whenever the channel is busy (any active transmission), the adaptive MPR-DCF protocol only freezes the counter when the number of concurrent transmissions exceeds a threshold $K_t$ (where $K_t \le K$). If there are $i$ ongoing transmissions and $i \le K_t$, the backoff counter continues to decrement by a variable step size $d(i)$:
+Unlike standard DCF, which freezes the backoff counter whenever any transmission is active, the adaptive MPR-DCF protocol allows the backoff counter to continue decrementing as long as the number of concurrent transmissions $i$ is below a threshold $K_t \le K$:
 \begin{equation}
     d(i) = \begin{cases}
         K - i, & \text{if } i \le K_t \\
         0, & \text{otherwise}
     \end{cases}
 \end{equation}
-This approach allows the node to access the channel more aggressively when the channel is under-utilized, and slow down when the channel is nearing its MPR capacity. A consequence of this design is that transmissions from different nodes are not frame-synchronous; new transmissions can be initiated during ongoing transmissions.
-
-The protocol is analyzed using a 3-D discrete-time Markov chain, where the state of a station is represented by $\{s(t), b(t), c(t)\}$, representing the backoff stage, backoff counter, and channel status, respectively:
+The protocol is solved using a coupled 3-D discrete-time Markov chain capturing backoff stage, counter value, and channel status:
 
 \begin{figure}[htbp]
     \centering
@@ -858,96 +800,123 @@ The protocol is analyzed using a 3-D discrete-time Markov chain, where the state
     \caption{3-D Markov chain model for the adaptive backoff protocol}
     \label{fig:balan_2017_fig1}
 \end{figure}
-
-To solve the model, the 3-D Markov chain is split into two coupled chains:
-\begin{enumerate}
-    \item A Markov chain for the backoff process of the node with generalized counter decrements $d(i)$:
-    \begin{figure}[htbp]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_balan_2017_2.png}
-    \caption{Markov chain model for the backoff process of MPR DCF for uniform counter decrements by a value d >= 1}
+    \caption{Backoff process Markov chain for uniform counter decrements $d \ge 1$}
     \label{fig:balan_2017_fig2}
 \end{figure}
-    \item A discrete-time Markov chain to model the MPR channel state transitions:
-    \begin{figure}[htbp]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_balan_2017_3.png}
-    \caption{Markov Chain model for the MPR Channel}
+    \caption{Markov chain model for MPR channel states}
     \label{fig:balan_2017_fig3}
 \end{figure}
+
+\subsection{Adaptive EDCA for Prioritized MPR Channels}
+Extending the adaptive backoff philosophy to QoS networks, Adaptive EDCA dynamically adjusts the decrement step size $d_{AC}(i)$ according to the traffic Access Category. High-priority voice and video frames decrement aggressively even under moderate MPR channel loads, ensuring that priority traffic retains low delay bounds while low-priority best-effort traffic yields airtime.
+
+\section{IEEE 802.11ax Multi-User Enhancements}
+IEEE 802.11ax represents a major milestone in WLAN evolution, designed to achieve at least four times higher average per-station (STA) throughput in dense deployments compared to legacy standards. To address dynamic scenarios where STAs frequently join and leave the network while supporting diverse QoS requirements, the standard introduces key Physical (PHY) and Medium Access Control (MAC) layer enhancements.
+
+\subsection{OBSS Interference Mitigation and Frequency Reuse}
+In high-density scenarios (e.g., smart homes, enterprise environments, and auditoriums), numerous Access Points (APs) are deployed in close proximity, causing severe Overlapping Basic Service Set (OBSS) interference. To mitigate this interference, the standard leverages:
+\begin{enumerate}
+    \item \textbf{Frequency Reuse:} Operating across the 2.4~GHz and 5~GHz ISM bands (and extending to 6~GHz in Wi-Fi 6E). While 2.4~GHz provides up to 3 non-overlapping 20~MHz channels, 5~GHz supports up to 23 non-overlapping channels, mitigating co-channel interference at the cost of higher path loss through physical obstacles.
+    \item \textbf{MU-OFDMA Resource Units:} Subdividing channel bandwidth into orthogonal subcarriers grouped into Resource Units (RUs) of varying sizes (e.g., RU-26, RU-52, RU-106, RU-242).
 \end{enumerate}
 
-\section{Full-Duplex Evolution of IEEE 802.11 MAC: SM-FD MAC}
-Full-Duplex (FD) communication—where a node transmits and receives simultaneously on the same frequency band—can potentially double the capacity of Half-Duplex (HD) channels. Gupta and Venkatesh \cite{gupta2022design} proposed a Synchronized Mode Full-Duplex (SM-FD) MAC protocol that adapts the IEEE 802.11 standard to support both FD-capable and legacy HD-capable nodes without modifying the standard packet header structure.
+\subsection{Hybrid Access (HA) Methodology}
+\label{sec:ha_proc}
+In scheduled access (SA) mechanisms, RUs are planned and assigned deterministically by the Access Point (AP), eliminating collisions and maximizing throughput. However, centralized SA requires the AP to periodically poll uplink requirements, incurring signaling overhead and latency. In contrast, pure random access (RA) achieves low access delay for newly joined STAs at the expense of collision-induced throughput degradation under high load.
 
-\subsection{Link Configurations and Address 4 Piggybacking}
-SM-FD MAC supports three communication modes, illustrated in:
+To achieve an optimal operating balance, IEEE 802.11ax implements a \textbf{Hybrid Access (HA)} mechanism integrating scheduled access and distributed random access:
+\begin{enumerate}
+    \item The AP broadcasts RU availability and allocation parameters using a Trigger Frame-Request (TF-R) frame.
+    \item Contending STAs decrement their backoff counters by the number of random access RUs ($N_{\text{RA}}$). When a counter reaches zero, the STA transmits its Buffer Status Report (BSR) on a randomly selected RA RU.
+    \item The state of each RA RU is classified into:
+    \begin{itemize}
+        \item \emph{Success:} Exactly one STA transmits its BSR on the RU.
+        \item \emph{Collision/Failure:} Two or more STAs transmit simultaneously on the RU.
+        \item \emph{Idle:} No STA selects the RU.
+    \end{itemize}
+    \item The AP decodes successful BSRs and schedules uplink data transmissions via a Trigger Frame (TF). Scheduled STAs then transmit aggregated payloads (A-MPDUs), which are acknowledged by the AP using a Multi-Station Block Acknowledgement (MS-BACK) frame.
+\end{enumerate}
+The complete duration of this exchange cycle is given by:
+\begin{equation}
+    t_s = T_{\text{TF-R}} + 4 T_{\text{SIFS}} + T_{\text{BSR}} + T_{\text{TF}} + T_{\text{data}} + T_{\text{MS-BACK}}.
+\end{equation}
+
+\subsection{Packet Aggregation and Air-Time Efficiency}
+\label{sec:aggr}
+To maximize air-time efficiency in dense networks, scheduled STAs aggregate multiple MAC Protocol Data Units (MPDUs) into an Aggregate MPDU (A-MPDU) during their allocated TXOP duration ($T_{\text{data}}$). Each MPDU combines payload data with MAC headers and tail bits, sharing a single Physical Layer Convergence Procedure (PLCP) header ($T_{\text{PHY}}^{\text{he}}$), thereby substantially reducing control overhead.
+
+\subsection{Multi-User MIMO and Channel Sounding}
+In addition to frequency-domain multiplexing via MU-OFDMA, IEEE 802.11ax supports Multi-User MIMO (MU-MIMO) across RUs comprising 106 subcarriers or more. Using multi-antenna arrays (up to 8 antennas at the AP and 4 antennas at user STAs), the AP steers spatial beams to multiple STAs concurrently. To decode MU-MIMO transmissions, accurate Channel State Information (CSI) is maintained through periodic channel sounding, providing the spatial channel matrices required for beamforming precoding.
+
+\section{Physical Layer Enhancements: SIC and Full-Duplex MAC}
+Further physical-layer integrations include Successive Interference Cancellation (SIC) and in-band Full-Duplex (FD) communications.
+
+\subsection{SIC-Based Slotted ALOHA with Signal Diversity}
+Successive Interference Cancellation (SIC) allows a receiver to decode overlapping packets sequentially by decoding the strongest packet first, reconstructing its analog waveform, subtracting it from the composite signal, and decoding the remaining packets. 
+
+Combining Slotted ALOHA with signal transmission diversity and SIC enables nodes to transmit multiple packet replicas across time slots. Collisions in earlier slots are iteratively resolved backwards once an uncollided replica is decoded in a subsequent slot, doubling the theoretical throughput limit of ALOHA.
+
+\subsection{Synchronized Mode Full-Duplex MAC (SM-FD MAC)}
+In-band Full-Duplex communication allows a node to transmit and receive simultaneously on the same frequency band. Gupta and Venkatesh \cite{gupta2022design} developed the \textbf{Synchronized Mode Full-Duplex (SM-FD)} MAC protocol, compatible with legacy Half-Duplex (HD) stations.
+
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_1.png}
-    \caption{Full duplex communication in WLAN}
+    \caption{Full-Duplex communication topologies in WLAN}
     \label{fig:gupta_2022_fig1}
 \end{figure}
+
+SM-FD MAC supports three link types:
 \begin{enumerate}
-    \item \textbf{Symmetrical FD Link ($N_a \leftrightarrow \text{AP}$):} An FD-enabled Access Point and an FD-enabled node transmit to each other simultaneously.
-    \item \textbf{Asymmetrical FD Link ($N_a \rightarrow \text{AP} \rightarrow N_b$):} An FD-enabled AP receives a packet from node $N_a$ while simultaneously transmitting a different packet to node $N_b$. This mode supports networks containing legacy HD-only nodes ($N_b$).
-    \item \textbf{Half-Duplex Link:} Standard HD transmission when no concurrent packets are available.
+    \item \textbf{Symmetrical FD Link ($N_a \leftrightarrow \text{AP}$):} Full-duplex AP and node transmit concurrently.
+    \item \textbf{Asymmetrical FD Link ($N_a \rightarrow \text{AP} \rightarrow N_b$):} FD AP receives from $N_a$ while simultaneously transmitting to legacy HD node $N_b$.
+    \item \textbf{Half-Duplex Link:} Legacy single-direction transmission.
 \end{enumerate}
 
-To establish slot synchronization and minimize RTS/CTS overhead, the protocol defines two node states: \textit{Free nodes} (which contend using random access) and \textit{Slot Allocated (SA) nodes}. During a successful data packet transmission, the SA node piggybacks its next randomly selected backoff slot to the AP by writing it into the unused \textbf{Address 4} field of the 802.11 MAC header. The AP stores this backoff slot, allowing future transmissions to be scheduled. This maintains slot synchronization, eliminating the need for RTS/CTS contention on subsequent packet exchanges.
+\subsubsection{Address-4 Piggybacking and Packet Alignment}
+To eliminate RTS/CTS handshaking overhead in steady state, a Slot Allocated (SA) node piggybacks its next chosen backoff slot inside the unused \textbf{Address 4} field of the standard IEEE 802.11 MAC header. 
 
-\subsection{Capture Effect and Packet Alignment}
-In an asymmetrical link ($N_a \rightarrow \text{AP} \rightarrow N_b$), the transmission from the AP to node $N_b$ (downlink) overlaps with the transmission from node $N_a$ to the AP (uplink). If $N_b$ is a legacy HD node, the uplink transmission from $N_a$ acts as co-channel interference, causing a collision.
-
-To enable the HD node $N_b$ to decode the AP's downlink packet in the presence of this interference, the SM-FD MAC protocol forces the AP to align its transmission so that the downlink packet starts at least a \textbf{preamble duration} ahead of the uplink packet from $N_a$:
+In asymmetrical links, the AP enforces \textbf{preamble alignment}: the downlink packet to node $N_b$ starts at least a preamble duration before the uplink transmission from $N_a$:
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_3.png}
-    \caption{An example of the proposed FD MAC protocol operation}
+    \caption{Packet alignment and capture effect in SM-FD MAC}
     \label{fig:gupta_2022_fig3}
 \end{figure}
-This packet alignment allows the receiver at $N_b$ to lock onto the AP's preamble first. Based on the capture effect, $N_b$ can successfully decode the stronger downlink packet despite the subsequent interference from $N_a$.
+This alignment allows the receiver at $N_b$ to lock onto the AP's preamble first and successfully decode the packet via the capture effect despite co-channel uplink interference from $N_a$.
 
-\subsection{Frame Control Field Modifications}
-To maintain backward compatibility with legacy devices, SM-FD MAC utilizes reserved bit patterns in the standard 802.11 Frame Control field (Type and Sub-type bits) to signal FD control and data frames without changing the frame length:
-\begin{itemize}
-    \item \textbf{Type 01 (Control):} Subtype `0000` is mapped to HD-RTS, `0001` is mapped to FD-RTS, and `0010` is mapped to FD-CTS.
-    \item \textbf{Type 10 (Data):} Subtype `0001` is mapped to FD-Data.
-\end{itemize}
-Legacy devices interpret these reserved frames as unknown or ignore them, while SM-FD-enabled nodes process them to coordinate channel access.
-
-\subsection{Collision Scenarios and Reset Behavior}
-Although SA nodes are synchronized, collisions can still occur if a Free node selects the same slot to transmit an RTS, or if multiple SA nodes happen to choose the same future backoff slot. Collisions can happen in the following scenarios:
-\begin{itemize}
-    \item Two or more Free nodes transmit an RTS in the same slot.
-    \item One Free node transmits an RTS and at least one SA node transmits a scheduled data packet.
-    \item Two or more SA nodes transmit scheduled data packets in the same slot.
-\end{itemize}
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_4.png}
-    \caption{Flow Diagram of Data packet transmitted by node using SM-FD MAC protocol}
+    \caption{SM-FD MAC transmission flow diagram}
     \label{fig:gupta_2022_fig4}
 \end{figure}
 
-When a collision occurs, the affected nodes do not receive an ACK. Upon timeout, both the Free nodes and the SA nodes involved in the collision revert to the Free state, reset their slot allocations, and must re-contend for the channel through the random backoff process.
-
-The protocol's transition states are modeled using three coupled discrete-time Markov chains representing the backoff slot of the SA node, the number of SA nodes in the system, and the overall status of the transceivers:
+The steady-state dynamics of SM-FD MAC are captured by three coupled discrete-time Markov chains:
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_5.png}
-    \caption{Markov chain for the backoff slot of SA node}
+    \caption{Markov chain for backoff slot of SA node}
     \label{fig:gupta_2022_fig5}
 \end{figure}
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_6.png}
-    \caption{Markov chain: state denoting the number of SA node}
+    \caption{Markov chain for number of active SA nodes}
     \label{fig:gupta_2022_fig6}
 \end{figure}
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_7.png}
-    \caption{Markov chain for Tnode status}
+    \caption{Markov chain for transceiver operating status}
     \label{fig:gupta_2022_fig7}
 \end{figure}
+
+\subsection{Constellation-Based Full-Duplex MAC (C-FD MAC) and Channel Sounding}
+In Constellation-Based Full-Duplex MAC (C-FD MAC), physical-layer constellation mapping is exploited alongside efficient channel sounding to facilitate instant link discovery. By embedding sounding feedback directly into control signaling, the channel state information (CSI) required for self-interference cancellation is acquired with minimal protocol airtime overhead.
