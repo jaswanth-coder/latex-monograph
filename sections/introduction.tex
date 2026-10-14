@@ -1,5 +1,6 @@
 \chapter{Mathematical Preliminaries}
-In this chapter we review some of the essential mathematical prelimenieries that are required to carry out the performance analysis of the wireless networks. For more details readers can refer to \cite{EE6150 notes}.
+In this chapter we review some of the essential mathematical prelimenieries that are required to carry out the performance analysis of the wireless networks. For more details readers can refer to \cite{EE6150_notes}.
+
 
 \section{Stochastic Processes}
 A stochastic process is a mathematical structure defined as indexed family of random variables.
@@ -623,12 +624,27 @@ To overcome the inability to detect collisions during transmission, IEEE 802.11 
     \item \textbf{Random Slotted Backoff:} If the medium is sensed busy, stations defer and initialize a backoff counter uniformly distributed in the contention window $[0, CW - 1]$. The counter decrements by one for each idle slot time $\sigma$, freezes whenever the medium is busy, and resumes once the medium has remained idle for a full DIFS duration.
 \end{itemize}
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\columnwidth]{figures/conference_paper_figures/fig_sitaram_basic_access.png}
+    \caption{Basic Access mechanism in IEEE 802.11 CSMA/CA, showing DIFS carrier sensing, slotted random backoff counter decrement, frame transmission, SIFS turnaround, and positive acknowledgment (ACK)~\cite{sitaram80211e}.}
+    \label{fig:csma_basic_access}
+\end{figure}
+
 \subsection{RTS/CTS Handshake and Exposed Station Resolution}
 To address the hidden station problem, IEEE 802.11 provides a four-way handshake mechanism:
 \begin{itemize}
     \item \textbf{RTS/CTS Handshake:} The transmitter sends a short Request-to-Send (RTS) frame. The destination replies with a Clear-to-Send (CTS) frame after SIFS. Surrounding nodes hearing either RTS or CTS update their NAV for the entire transaction duration, preventing hidden terminal collisions during the longer data payload.
     \item \textbf{Exposed Station Problem:} Occurs when a station refrains from transmitting to an independent receiver because it overhears a nearby transmitter, even though its transmission would not cause interference at the existing receiver. Virtual carrier sensing and directional beamforming are primary mechanisms used to mitigate this issue.
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\columnwidth]{figures/conference_paper_figures/fig_sitaram_rts_cts.png}
+    \caption{RTS/CTS four-way handshake access mechanism in IEEE 802.11 CSMA/CA with Network Allocation Vector (NAV) reservation at neighbor stations to resolve the hidden terminal vulnerability~\cite{sitaram80211e}.}
+    \label{fig:rts_cts_mechanism}
+\end{figure}
+
 
 \section{IEEE 802.11 DCF Performance Modeling}
 The Distributed Coordination Function (DCF) forms the foundation of contention-based channel access in IEEE 802.11.
@@ -721,7 +737,79 @@ In EDCA, two distinct collision mechanisms occur:
     \item \textbf{Internal (Virtual) Collisions:} Occur when two or more internal AC queues within the same physical station decrement their backoff counters to zero simultaneously. The internal scheduler resolves this collision by granting the transmission opportunity to the highest-priority AC, while the lower-priority ACs double their contention windows and re-enter backoff as if an external collision occurred.
     \item \textbf{External Collisions:} Occur when two different stations transmit on the wireless medium simultaneously.
 \end{itemize}
-Analytical evaluations demonstrate that EDCA effectively shields real-time voice and video streams from throughput degradation even under extreme network saturation from best-effort background traffic.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\columnwidth]{figures/conference_paper_figures/fig_sitaram_edca_queues.png}
+    \caption{Architecture of an IEEE 802.11e EDCA station featuring four parallel Access Categories (AC0--AC3), independent backoff engines, an internal virtual collision handler, and TXOP burst transmission control~\cite{sitaram80211e}.}
+    \label{fig:sitaram_edca_queues}
+\end{figure}
+
+\subsection{Analytical Modeling of EDCA with Virtual Collisions and Finite Retrials}
+Following the analytical framework developed by Sitaram et al.~\cite{sitaram80211e}, we model the four Access Categories $\alpha \in \{0, 1, 2, 3\}$ ($\mathrm{AC}_0$: Voice, $\mathrm{AC}_1$: Video, $\mathrm{AC}_2$: Best Effort, $\mathrm{AC}_3$: Background) operating under saturated traffic conditions. The model incorporates:
+\begin{enumerate}
+    \item \textbf{Internal (Virtual) Collisions:} Simultaneous countdown expiry among local queues within the station. The internal scheduler grants channel access to the highest-priority contending AC (lowest index $\alpha$), while lower-priority ACs double their contention windows and retry as if an external collision occurred.
+    \item \textbf{Differentiated Access Parameters:} Each AC is parameterized by contention window bounds $[W_0^\alpha, W_{m_\alpha}^\alpha]$, retry limit $f_\alpha$, arbitration space $\mathrm{AIFS}_\alpha = \mathrm{SIFS} + \mathrm{AIFSN}_\alpha \times \sigma$, and transmission opportunity bursting $L_\alpha = \lfloor \frac{\mathrm{TXOP}_\alpha}{\text{packet length}} \rfloor$ frames ($L_0, L_1 \ge 1$; $L_2 = L_3 = 1$).
+    \item \textbf{External Collisions:} Concurrent transmissions across $n$ independent stations sharing the wireless medium.
+\end{enumerate}
+
+\subsubsection{Conditional Collision Probabilities}
+The internal collision probability $P_{I\alpha}$ experienced by $\mathrm{AC}_\alpha$ is governed by the transmission events of strictly higher-priority ACs in the same node:
+\begin{align}
+    P_{I0} &= 0, \\
+    P_{I1} &= \tau_0, \\
+    P_{I2} &= 1 - (1 - \tau_0)(1 - \tau_1), \\
+    P_{I3} &= 1 - (1 - \tau_0)(1 - \tau_1)(1 - \tau_2).
+\end{align}
+Letting $P_{ex} = 1 - (1 - \tau)^{n-1}$ denote the external collision probability from the remaining $n-1$ contending stations (where $\tau = 1 - \prod_{\alpha=0}^3 (1 - \tau_\alpha)$ is the aggregate transmission probability of a station in a generic slot), the total conditional collision probability for $\mathrm{AC}_\alpha$ is:
+\begin{equation}
+    P_\alpha = P_{I\alpha} + (1 - P_{I\alpha}) P_{ex}.
+\end{equation}
+
+The conditional success probability $P_{S\alpha}$ given that a transmission occurs on the channel is:
+\begin{align}
+    P_{S0} &= \frac{n \tau_0 (1 - \tau)^{n-1}}{1 - (1 - \tau)^n}, \\
+    P_{S1} &= \frac{n \tau_1 (1 - \tau_0)(1 - \tau)^{n-1}}{1 - (1 - \tau)^n}, \\
+    P_{S2} &= \frac{n \tau_2 (1 - \tau_0)(1 - \tau_1)(1 - \tau)^{n-1}}{1 - (1 - \tau)^n}, \\
+    P_{S3} &= \frac{n \tau_3 (1 - \tau_0)(1 - \tau_1)(1 - \tau_2)(1 - \tau)^{n-1}}{1 - (1 - \tau)^n}.
+\end{align}
+
+\subsubsection{Station Transmission Probability $\tau_\alpha$}
+For each $\mathrm{AC}_\alpha$, the discrete-time Markov chain transition structure with $m_\alpha$ window doubling stages, $f_\alpha$ maximum window retry stages, and $L_\alpha$ burst transmission states yields the stationary probability of the initial state $b_{0,0}^\alpha$:
+\begin{equation}
+    b_{0,0}^\alpha = \left[ L_\alpha W_0^\alpha + \frac{1 - (2P_\alpha)^{m_\alpha+1}}{1 - 2P_\alpha}\frac{W_0^\alpha}{2} + \frac{1 - P_\alpha^{m_\alpha+1}}{1 - P_\alpha}\frac{1}{2} + P_\alpha^{m_\alpha+1}\frac{W_{m_\alpha}^\alpha}{2}\frac{1 - P_\alpha^{f_\alpha}}{1 - P_\alpha} \right]^{-1}.
+\end{equation}
+The transmission probability of $\mathrm{AC}_\alpha$ in a generic slot is then:
+\begin{equation}
+    \tau_\alpha = \frac{1 - P_\alpha^{m_\alpha + f_\alpha + 1}}{1 - P_\alpha} b_{0,0}^\alpha.
+\end{equation}
+The simultaneous non-linear system of equations is solved numerically to obtain the unique operating point $(\tau_\alpha, P_\alpha)$.
+
+\subsubsection{Average Frame Transmission Delay and Jitter}
+The average frame transmission delay $E[D_\alpha]$ for $\mathrm{AC}_\alpha$ is given by:
+\begin{equation}
+    E[D_\alpha] = \frac{E[N_\alpha] \cdot E[T_\alpha]}{L_\alpha},
+\end{equation}
+where $E[N_\alpha]$ is the expected number of backoff slot decrements required for successful frame delivery:
+\begin{equation}
+    E[N_\alpha] = \left[ \frac{1 - (2P_\alpha)^{m_\alpha+1}}{1 - 2P_\alpha}\frac{W_0^\alpha}{2} + \frac{1}{2}\frac{1 - P_\alpha^{m_\alpha+1}}{1 - P_\alpha} + \frac{W_{m_\alpha}^\alpha}{2} P_\alpha^{m_\alpha+1}\frac{1 - P_\alpha^{f_\alpha}}{1 - P_\alpha} \right] \frac{1 - P_\alpha}{1 - P_\alpha^{m_\alpha + f_\alpha + 1}},
+\end{equation}
+and $E[T_\alpha]$ is the expected duration of a generic slot transition:
+\begin{equation}
+    E[T_\alpha] = (1 - P_{tr})\sigma + P_{tr} \left[ (\mathrm{AIFS}_\alpha - \mathrm{AIFS}_{\min}) + \sum_{\beta=0}^3 P_{S\beta} T_s^\beta + \sum_{\beta=0}^3 (1 - P_{S\beta}) T_c^\beta \right].
+\end{equation}
+Here $P_{tr} = 1 - (1 - \tau)^n$, and $T_s^\beta, T_c^\beta$ are the durations of successful transmissions and collisions respectively.
+
+The delay jitter $J_\alpha$, defined as the square root of delay variance $\mathrm{Var}[D_\alpha]$, evaluates in closed form to:
+\begin{equation}
+    J_\alpha = \sqrt{\mathrm{Var}[D_\alpha]} = \frac{\sqrt{\mathrm{Var}[N_\alpha]} \cdot E[T_\alpha]}{L_\alpha},
+\end{equation}
+with:
+\begin{equation}
+    \mathrm{Var}[N_\alpha] = \sum_{i=0}^{m_\alpha + f_\alpha} \left[ \frac{(W_i^\alpha)^2 - 1}{12} + \left( \frac{W_i^\alpha - 1}{2} \right)^2 \right] \frac{P_\alpha^i (1 - P_\alpha)}{1 - P_\alpha^{m_\alpha + f_\alpha + 1}} - (E[N_\alpha])^2.
+\end{equation}
+Analytical computations demonstrate that smaller contention windows, reduced AIFSN, TXOP burst transmission, and prioritized virtual collision resolution jointly guarantee significantly lower delay and jitter for voice and video streams, insulating them from lower-priority best-effort traffic under saturated conditions~\cite{sitaram80211e}.
+
 
 \section{IEEE 802.11ad 60 GHz Directional MAC Architecture}
 The availability of massive unlicensed spectrum in the 60 GHz millimeter-wave band enabled the IEEE 802.11ad standard to achieve multi-gigabit data rates (exceeding 1 Gbps).
@@ -752,10 +840,54 @@ The BI is divided into two main sub-intervals:
     \end{itemize}
 \end{enumerate}
 
-\subsection{Queuing Modeling of Scheduled Service Periods}
-Analytical studies model the scheduled Service Periods of the IEEE 802.11ad hybrid MAC as a special case of a \textbf{Periodically Gated Queueing System (PGQS)} with Bernoulli scheduling. During non-SP intervals, the queue is gated, accumulating Poisson arrivals. When the SP activates, queued packets are served sequentially.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\columnwidth]{figures/conference_paper_figures/fig_hemanth_bi.png}
+    \caption{Beacon Interval (BI) structure of the IEEE 802.11ad Hybrid MAC comprising the Beacon Header Interval (BTI, A-BFT, ATI) and Data Transmission Interval (CBAP and scheduled SPs)~\cite{hemanth2014iet, hemanth2019tett}.}
+    \label{fig:hemanth_beacon_interval}
+\end{figure}
 
-Using these results, the average packet delay and delay jitter are expressed in terms of the vacation duration (interval between consecutive SPs) and service period length. Analytical evaluations reveal that as the arrival rate increases, delay increases linearly up to a critical arrival rate $\lambda^*$, beyond which packet buffers overflow and delay becomes unbounded.
+\subsection{Queuing Modeling of Scheduled Service Periods (PGQS)}
+Analytical studies by Hemanth and Venkatesh~\cite{hemanth2014iet, hemanth2019tett} model the scheduled Service Periods (SPs) of the IEEE 802.11ad hybrid MAC as a special case of a \textbf{Periodically Gated Queueing System (PGQS)} with Bernoulli scheduling. During non-SP intervals (which include BTI, A-BFT, ATI, and CBAPs or other nodes' SPs), the queue is gated (in vacation), accumulating Poisson arrivals with rate $\lambda$. When the dedicated SP opens, queued packets are served sequentially with packet transmission time $L$.
+
+\subsubsection{PGF of Queue Length and Waiting Time}
+Let $X$ denote the duration of the vacation period between successive SP visits. In a stable PGQS with Bernoulli scheduling parameter $q$, the probability generating function (PGF) of the queue length $Q_a(z)$ at an arbitrary epoch during the vacation is related to the queue length distributions at vacation start and end epochs:
+\begin{equation}
+    Q_a(z) = \frac{1 - V(z)}{\lambda E[X](1 - z)} Q_v(z),
+\end{equation}
+where $V(z) = X^*(\lambda(1 - z))$ is the PGF of arrivals during vacation duration $X$, and $Q_v(z)$ is the PGF of customer queue lengths at vacation-ending epochs~\cite{hemanth2019tett}.
+
+Applying Brumelle's theorem, the factorial moments of queue length map directly to the moments of waiting time $W$:
+\begin{equation}
+    E[W] = \frac{E[Q_a]}{\lambda}, \qquad E[W^2] = \frac{1}{\lambda^2} \left. \frac{d^2 Q_a(z)}{dz^2} \right|_{z=1^-}.
+\end{equation}
+The variance of delay in the PGQS stage is therefore:
+\begin{equation}
+    \mathrm{Var}[W] = E[W^2] - (E[W])^2.
+\end{equation}
+
+\subsubsection{Overall Delay and Delay Jitter (PDV)}
+A packet's end-to-end latency consists of the reservation and scheduling delay in PGQS ($W$) plus the transmission delay in the final Beacon Interval ($D_i$) where the tagged station occupies the $i$-th service period order:
+\begin{equation}
+    E[D_i] = (i - 1)\rho L + (N - i)L_s + L,
+\end{equation}
+where $\rho$ is the probability of SP reservation, $L_s$ is the sensing/IFS overhead, and $N$ is the number of associated stations. Averaging over all positions $i \in \{1, \dots, N\}$, the mean end-to-end delay is derived in closed form~\cite{hemanth2019tett}:
+\begin{equation}
+    E[\text{Delay}] = \frac{E[Q_a]}{\lambda} + \frac{N - 1}{2}\left[ \frac{\lambda(B + \alpha)L}{q - N\lambda L} + L_s \right] + L,
+\end{equation}
+where $B$ is the Beacon Interval duration, $\alpha$ is the gating overhead, and $q$ is the Bernoulli SP availability probability.
+
+Assuming stochastic independence between queueing vacation delays and intra-BI transmission scheduling, the packet delay variation (PDV or delay jitter) is:
+\begin{equation}
+    \mathrm{PDV} = \sqrt{\mathrm{Var}[W] + \mathrm{Var}[D_i]}.
+\end{equation}
+
+\subsubsection{Stability Condition and Admission Control}
+The closed-form delay expression reveals that the system remains stable as long as the arrival rate is strictly below the critical threshold:
+\begin{equation}
+    \lambda^* = \frac{q}{N L}.
+\end{equation}
+As $\lambda \to \lambda^*$, queue lengths grow asymptotically and packet delay becomes unbounded. This critical arrival rate provides a rigorous closed-form criterion for admission control and dynamic SP duration allocation in IEEE 802.11ad millimeter-wave networks~\cite{hemanth2014iet, hemanth2019tett}.
 
 \section{Physical Layer Enhancements: Multi-Packet Reception (MPR) MAC}
 Advancements in the physical layer---such as Multi-User MIMO (MU-MIMO) and Successive Interference Cancellation (SIC)---enable wireless receivers to decode multiple overlapping packet transmissions simultaneously, known as \textbf{Multi-Packet Reception (MPR)}.
