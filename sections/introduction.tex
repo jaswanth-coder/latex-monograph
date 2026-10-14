@@ -504,9 +504,80 @@ Then expected duration of a renewal cycle is
 The  reward is the number of packets transmitted successfully in a renewal cycle. Expected reward is
 
 1 * $P_{s}$ + 0 * ( 1- $P_{s}$) = $P_{s}$.
- Therefore throughput $S$ is \begin{equation}
+Therefore throughput $S$ is \begin{equation}
     S = \frac{P_{s}}{\sigma ( 1- P_{s} + P_{c}  )   +  2 \sigma P_{c} + ( E[L] + \sigma )  P_{s}}
 \end{equation}
+
+\section{Fixed-Point Analysis in MAC Modeling}
+In the performance evaluation of distributed random-access protocols (such as IEEE 802.11 DCF), the interactions among contending nodes result in complex, coupled stochastic processes. Fixed-point analysis provides an elegant decoupling technique to determine the steady-state operating point of the network.
+
+Under this framework, each station is modeled as an independent entity whose transmission probability in a generic slot, $\tau$, depends on the conditional collision probability $p$ that it experiences:
+\begin{equation}
+    \tau = f(p)
+\end{equation}
+Conversely, assuming a symmetric network of $n$ contending stations where each station transmits independently with probability $\tau$, the conditional collision probability seen by any given transmitting station is the probability that at least one of the remaining $n-1$ stations transmits in the same slot:
+\begin{equation}
+    p = g(\tau) = 1 - (1 - \tau)^{n-1}
+\end{equation}
+The steady-state behavior of the network is thus governed by the non-linear fixed-point equation:
+\begin{equation}
+    p = g(f(p)) \quad \text{or} \quad \tau = f(g(\tau))
+\end{equation}
+Existence and uniqueness of the operating point are established using fixed-point theorems (such as Brouwer's or Banach's contraction mapping theorem), while numerical values are computed via iterative substitution until convergence:
+\begin{equation}
+    p^{(k+1)} = g(f(p^{(k)}))
+\end{equation}
+Once the fixed-point $(\tau^*, p^*)$ is determined, key performance metrics such as saturation throughput, slot probabilities, and average access delay can be evaluated in closed form.
+
+\section{Fluid Limit Approach}
+As network scale increases---such as in ultra-dense WLANs, massive IoT deployments, or multi-user OFDMA systems with fine-grained resource allocations---the state space of discrete Markov chains grows exponentially, making exact stochastic analysis intractable. The fluid limit approach (or mean-field approximation) addresses this challenge by approximating discrete, stochastic packet and queue dynamics with continuous, deterministic trajectories.
+
+Let $X^{(N)}(t)$ represent a vector of stochastic state variables (such as queue lengths or node states) in a system of scale $N$. By scaling space and time appropriately, the normalized state process is defined as:
+\begin{equation}
+    x^{(N)}(t) = \frac{X^{(N)}(t)}{N}
+\end{equation}
+Under standard regularity and Lipschitz conditions (governed by Kurtz's functional law of large numbers), as the system scale $N \to \infty$, the sample paths of the stochastic process $x^{(N)}(t)$ converge almost surely over finite time intervals to the deterministic trajectory $x(t)$ governed by a set of ordinary differential equations (ODEs):
+\begin{equation}
+    \frac{d x(t)}{dt} = F(x(t))
+\end{equation}
+where $F(x)$ represents the expected drift vector of the system given state $x$. 
+
+The equilibrium of the fluid model, characterized by $F(x^*) = 0$, reveals the asymptotic steady-state behavior, queue stability conditions, and resource allocation efficiency without requiring the explicit generation or solution of massive transition rate matrices.
+
+\section{Stochastic Geometry for Wireless Networks}
+Traditional analytical models often assume simplified geometric topologies (such as grid networks or fixed transmission ranges). In contrast, stochastic geometry provides a rigorous mathematical framework for modeling the spatial randomness inherent in modern wireless deployments, where node locations (base stations, APs, and user equipments) fluctuate unpredictably across space.
+
+\subsection{Spatial Poisson Point Processes}
+The cornerstone of stochastic geometry is the Poisson Point Process (PPP). A homogeneous spatial Poisson Point Process $\Phi = \{x_i\} \subset \mathbb{R}^d$ of intensity $\lambda > 0$ satisfies two fundamental properties:
+\begin{enumerate}
+    \item The number of nodes $\Phi(B)$ lying inside any bounded Borel set $B \subset \mathbb{R}^d$ is a Poisson random variable with parameter $\lambda |B|$:
+    \begin{equation}
+        P(\Phi(B) = k) = \frac{(\lambda |B|)^k}{k!} e^{-\lambda |B|}
+    \end{equation}
+    where $|B|$ denotes the $d$-dimensional Lebesgue measure (area/volume) of $B$.
+    \item For disjoint regions $B_1, B_2, \dots, B_m$, the counts $\Phi(B_1), \dots, \Phi(B_m)$ are mutually independent random variables.
+\end{enumerate}
+
+\subsection{Campbell's Theorem and Probability Generating Functionals}
+To evaluate aggregate network quantities (such as total received interference), stochastic geometry utilizes Campbell's theorem and the Probability Generating Functional (PGFL). For any non-negative measurable function $f(x)$:
+\begin{equation}
+    \mathbb{E}\left[\sum_{x \in \Phi} f(x)\right] = \lambda \int_{\mathbb{R}^d} f(x) \, dx
+\end{equation}
+Furthermore, the PGFL of a homogeneous PPP $\Phi$ for a function $v(x) \in [0, 1]$ is given by:
+\begin{equation}
+    \mathbb{E}\left[\prod_{x \in \Phi} v(x)\right] = \exp\left(-\lambda \int_{\mathbb{R}^d} (1 - v(x)) \, dx\right)
+\end{equation}
+
+\subsection{Interference and Coverage Probability}
+Consider a typical receiver located at the origin. If transmitters in $\Phi \setminus \{x_0\}$ transmit with power $P$ over a path-loss channel $l(x) = \|x\|^{-\alpha}$ (with path-loss exponent $\alpha > 2$) and Rayleigh fading channels with power gains $h_i \sim \text{Exp}(1)$, the aggregate interference $I$ is:
+\begin{equation}
+    I = \sum_{x_i \in \Phi \setminus \{x_0\}} P h_i \|x_i\|^{-\alpha}
+\end{equation}
+The Laplace transform of the interference, $\mathcal{L}_I(s) = \mathbb{E}[e^{-sI}]$, can be evaluated in closed form using the PGFL:
+\begin{equation}
+    \mathcal{L}_I(s) = \exp\left(-\pi \lambda s^{2/\alpha} \Gamma(1 - 2/\alpha) \mathbb{E}[h^{2/\alpha}]\right)
+\end{equation}
+This formulation allows direct evaluation of fundamental wireless metrics, including the Signal-to-Interference-plus-Noise Ratio (SINR) and the coverage probability $P(\text{SINR} > \theta)$, offering closed-form expressions that explicitly link transmit density $\lambda$, power, and physical layer parameters.
 
 
 \chapter{Medium Access Control Protocol for WLAN}
