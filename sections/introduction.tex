@@ -7,7 +7,7 @@ Stochastic processes are widely used as mathematical models of systems and pheno
 appear to vary in a random manner.The index of a SP is also referred as its parameter. In most cases it may denote time
 
 Inherently we assume that the random variables have the same state space and are real val-
-ued functions defined over the same σ-algebra constructed from a event space. Physically it
+ued functions defined over the same $\sigma$-algebra constructed from a event space. Physically it
 means the RVs correspond to the same random experiment ( physical phenomenon ) but con-
 ducted ( observed ) at say different time or space points ( that constitute the index set ). f we repeat the Bernoulli trial again, its outcome can be used to define another random
 variable, say X2. Arranging all of them together X1, X2, X3,... and giving index, {1, 2, 3, ...}
@@ -31,7 +31,7 @@ We know that a random variable can have discrete or continuous state space. To b
 An example of  Discrete parameter, Discrete state stochastic process is a sequence of Bernoulli trials such as sequence of coin tossing denoted as
 {Xn : n = 1, 2, 3}, with X = 1 for success and X =0 for a failure.
 An example of  continuous  parameter, Discrete state stochastic process   is  the number of customers who have entered into a market till time t
-{A(t) | t ≥ 0}
+$\{A(t) \mid t \ge 0\}$
 At any given time t, the random variable A(t), denote the number of customer arrived till time
 t. A(t) is an discrete quantity. It can take only non negative and integer values.
 
@@ -58,7 +58,7 @@ is a DTMC as follows. If we are in a given state, at any given time, for predict
     P(S_8=4|S_3=3,S_2=2,...)=P(S_8=4|S_3=3)
 \end{equation*}
 
-Let us consider a Discrete Time Markov chain with infinite number of states $\left{X_n;\;n=1,2,3,\dots\right}$ such that
+Let us consider a Discrete Time Markov chain with infinite number of states $\left\{X_n;\;n=1,2,3,\dots\right\}$ such that
 
 \begin{equation*}
     P(X_{n+1}=j|X_n=i,X_{n-1}=k,X_{n-2}=l,\dots)=P(X_{n+1}=j|X_n=i)=p_{ij}
@@ -96,12 +96,10 @@ Given the history of states traversed till time $n$, i.e., $X_n,\;X_{n-1},\;X_{n
   \end{enumerate}
   
   First condition tells that the probability of any state being occupied at a given instance is non-negative. Second condition shows the stochastic property i.e., at any given time any one of the state should be occupied.  State occupancy probability at $n+1^{th}$ instance can be calculated from state occupancy vector at $n^{th}$ instance and the transition probability matrix $\mathbb{P}$ as follows.
-  \begin{equation*}
-  \begin{align}
+  \begin{align*}
        \pi_j^{n+1}=P(X_{n+1}=j)&=\sum_iP(X_n=i)P(X_{n+1}=j|X_n=i)\\
        &=\sum_i \pi^n_i p_{ij} \qquad\qquad \forall j
-       \end{align}
-  \end{equation*}
+  \end{align*}
   
   From the above equation, the state occupancy vector at $n+1^{th}$ instance is determined as follows,
   
@@ -119,14 +117,12 @@ P=
 0.2 & 0.3 & 0.5\\
 \end{bmatrix}
 The long run proportions $\pi_{i}$ thus satisfy
-\begin{equation*}
 \begin{align*}
-    $\pi_{1}=0.5 \pi_{1}+0.3 \pi_{2}+0.2 \pi_{3}$\\
-    $\pi_{2}=0.4 \pi_{1}+0.4 \pi_{2}+0.3 \pi_{3}$\\
-    $\pi_{3}=0.1 \pi_{1}+0.3 \pi_{2}+0.5 \pi_{3}$\\
-    $\pi_{1}+\pi_{2}+\pi_{3}=1$
-    \end{align*}
-\end{equation*}
+    \pi_{1}&=0.5 \pi_{1}+0.3 \pi_{2}+0.2 \pi_{3}\\
+    \pi_{2}&=0.4 \pi_{1}+0.4 \pi_{2}+0.3 \pi_{3}\\
+    \pi_{3}&=0.1 \pi_{1}+0.3 \pi_{2}+0.5 \pi_{3}\\
+    \pi_{1}+\pi_{2}+\pi_{3}&=1
+\end{align*}
 Hence,
 $\pi_{1}=\frac{21}{62}, \pi_{2}=\frac{23}{62}, 
 \pi_{3}=\frac{18}{62}$
@@ -408,12 +404,12 @@ Average number of customer waiting in the queue excluding the one, if any gettin
     N_Q = \lambda W = \dfrac{\lambda^2}{\mu^2(1-\rho)} = \dfrac{\rho^2}{1-\rho}
 \end{equation}\\
 $M/M/m$ queuing system is a First In First Out (FIFO) queuing model where the arrivals into the system follow a Poisson process (having rate, say, $\lambda$), and with $m (1\leq m \leq \infty)$ parallel service channels having IID exponential service time distribution, each with rate, say, $\mu$. The buffer size/ waiting positions are considered to be infinite. 
-\begin{figure*}[h]
-    \centering
-    \includegraphics[width=0.5\linewidth]{MM1-MMc.png}
-    \caption{$M/M/m$ queuing system}
-    \label{fig:my_label}
-\end{figure*}
+% \begin{figure*}[h]
+%     \centering
+%     \includegraphics[width=0.5\linewidth]{MM1-MMc.png}
+%     \caption{$M/M/m$ queuing system}
+%     \label{fig:my_label}
+% \end{figure*}
 
 If there are $n$ customers in the system such that $n < m$, then $n$ servers are busy. Then the expected time for the first served unit is the minimum of $n$ IID exponential RVs and hence the rate is $n\mu$. If $n \geq m$, then all $m$ severs are busy and the service rate of the system will be $m\mu$.For a M/M/m queue The formula for  calculating the probability of a customer to wait in the queue is called \textbf{Erlang's C formula}.
 
@@ -460,9 +456,9 @@ A large number of probability models are special cases of the following model. C
 then R(t) represents the total reward earned by the time t. Let 
 \[E[R] = E[R_{n}], E[X] = E[X_{n}]\] 
 \textbf{Proposition}: If $E[R] < \infty \;\; and \;\; E[X] < \infty$, then 
-\begin{enumerate}[(a)]
-    \item with probability 1, $      \lim_{t\to\infty} \frac{R(t)}{t} = \frac{E[R]}{E[X]}$
-    \item  $\lim_{t\to\infty} \frac{E[R(t)]}{t} = \frac{E[R]}{E[X]}$
+\begin{enumerate}
+    \item[(a)] with probability 1, $      \lim_{t\to\infty} \frac{R(t)}{t} = \frac{E[R]}{E[X]}$
+    \item[(b)]  $\lim_{t\to\infty} \frac{E[R(t)]}{t} = \frac{E[R]}{E[X]}$
 \end{enumerate}
 \textbf{Proof.} We give the proof for (a). To prove this, 
 \begin{equation*}
@@ -566,12 +562,9 @@ The  RTS and CTS frames  carry the length of the data frame to be transmitted. A
 
 \begin{figure}[!thb]
 \centering
-\begin{center}
-\leavevmode
-\includegraphics[width=3.5in,height=2.25in,angle=0,trim=0mm 0mm 0mm 0mm, clip]{qos1}
+% \includegraphics[width=3.5in,height=2.25in,angle=0,trim=0mm 0mm 0mm 0mm, clip]{qos1}
 \caption{Four different ACs of an IEEE 802.11e EDCA station}
 \label{acsqos}
-\end{center}
 \end{figure}
 
 Fig.\ref{acsqos} shows EDCA mechanism. As shown in Fig.\ref{acsqos},  each EDCA station maintains four queues for the four different Access Categories (ACs). Each frame with a particular kind of traffic is mapped to a particular  AC. The service differentiation is realised by using  different set of parameters for each AC.  Parameters used for service differentiation are,\newline
@@ -744,7 +737,7 @@ The protocol is analyzed using a 3-D discrete-time Markov chain, where the state
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_balan_2017_1.png}
-    \caption{3-D Markov chain model for the adaptive backoﬀ protocol}
+    \caption{3-D Markov chain model for the adaptive backoff protocol}
     \label{fig:balan_2017_fig1}
 \end{figure}
 
@@ -754,7 +747,7 @@ To solve the model, the 3-D Markov chain is split into two coupled chains:
     \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_balan_2017_2.png}
-    \caption{Markov chain model for the backoﬀ process of MPR DCF for uniform counter decrements by a value d >= 1}
+    \caption{Markov chain model for the backoff process of MPR DCF for uniform counter decrements by a value d >= 1}
     \label{fig:balan_2017_fig2}
 \end{figure}
     \item A discrete-time Markov chain to model the MPR channel state transitions:
