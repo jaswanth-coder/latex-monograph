@@ -46,12 +46,6 @@ Continuous state and continuous time stochastic process is the Brownian motion, 
 In this section we will discuss the Discrete Time Markov Chains abbreviated henceforth as DTMC. To reiterate the parameter of the DTMC is time and it is discrete in nature taking finite or countably infinite values. The state space of DTMC is also discrete, hence the adjective "chain". Further it obeys the Markov property. To understand the Markov property in the context of DTMC, let us take an example of DTMC.
 Consider a sequence of Bernoulli trials of a fair coin. The probability of getting a Head (H) is 0.5 and that of getting a Tail(T) is 0.5. For example a realization of the  sequence of trials may look like \{H,H,T,T,H,H,T...\}.To define a discrete RV, let us associate the real numbers "1" or "0"  with the occurrence of the events Head and Tail respectively. 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\linewidth]{figure 3.3 three chain markov chain.png}
-    \caption{Three chain markov chain}
-    \label{fig:placeholder}
-\end{figure}
 Let us  denote the  Random variables corresponding to successive trials as as ${X_1, X_2, X_3 ...}$.
 Let $S_n$ define the cumulative profit until and including the $n^{th}$ trial.  For any n,  $S_n$ is a random variable and it is given by 
 \begin{equation}
@@ -114,7 +108,13 @@ Given the history of states traversed till time $n$, i.e., $X_n,\;X_{n-1},\;X_{n
       \overline{\pi}^{n+1}=\overline{\pi}^n \mathbb{P}
   \end{equation*}
 
-% Include Fig 3.3
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figure 3.3 three chain markov chain.png}
+    \caption{State transition diagram of a three-state Discrete-Time Markov Chain.}
+    \label{fig:three_state_dtmc}
+\end{figure}
+
 Consider a three-state Markov chain with transition probability matrix 
 \begin{equation*}
 P = \begin{bmatrix}
@@ -334,11 +334,11 @@ The key properties possessed by a Poisson process that we studied in the previou
 
 \section{Queueing Theory : Basics}
 A queueing system is one in which customers, typically from a large pool come and wait to get service from a service station, having one or more servers.
-\begin{figure}
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.5\linewidth]{queue basic.png}
-    \caption{Enter Caption}
-    \label{fig:placeholder}
+    \includegraphics[width=0.6\linewidth]{queue basic.png}
+    \caption{Basic single-server queueing model showing arrival and service processes.}
+    \label{fig:queue_basic}
 \end{figure}
 
 \section{Important Terminologies}
@@ -358,7 +358,7 @@ A queueing system is one in which customers, typically from a large pool come an
     \item Balking:
     An arriving customer may decide not to join the queue.
     
-    \item, Reneging : A customer in queue may leave without getting service if the waiting time exceeds a deadline 
+    \item Reneging : A customer in queue may leave without getting service if the waiting time exceeds a deadline 
 \end{itemize}
 Ler S denote the time taken by a customer in getting the service.
 \subsubsection*{Notation}
@@ -385,11 +385,11 @@ By little's formula\\
 
 \subsection{M/M/1 Queue}
 
-\begin{figure}
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.5\linewidth]{fig 5.5 dtmc .png}
-    \caption{Enter Caption}
-    \label{fig:placeholder}
+    \includegraphics[width=0.6\linewidth]{fig 5.5 dtmc .png}
+    \caption{State transition rate diagram for an $M/M/1$ queue.}
+    \label{fig:mm1_dtmc}
 \end{figure}
 Using a markov chain based analysis the following performance metrics of the M/M/1 queue can be derived.
 \begin{equation}
