@@ -1,5 +1,8 @@
 \chapter{Machine Learning Applications}
 \label{sec:chapter_ml}
+\begin{refsection}[sections/chapter_ml_references.bib]
+\noindent\emph{Editorial note: The six paper summaries identified as source excerpts retain the papers' wording. PDF line wrapping and typographic formatting are normalized. Figure, table and bracketed reference numbers within an excerpt refer to the original paper. Screenshot captions are editorial.}
+\medskip
 
 Next-generation wireless networks are increasingly characterized by extreme densification, diverse Quality of Service (QoS) requirements, dynamic topology changes, and highly non-stationary propagation environments. Conventional Medium Access Control (MAC) protocols rely predominantly on static rules, pre-configured backoff parameters, or idealized heuristic policies designed for stationary conditions. Consequently, traditional approaches struggle to adapt in complex, unpredictable scenarios such as industrial automation, massive machine-type communications (mMTC), and high-mobility vehicular swarms.
 
@@ -26,51 +29,36 @@ The learning objective is to discover an optimal policy $\pi^*(a | s)$ that maxi
 \end{equation}
 
 % ============================================================
-\section{Phasic Policy Gradient for Time Slotted Channel Hopping Networks}
+\clearpage
+\section{Phasic Policy Gradient for Industrial IoT}
 \label{sec:ppg_tsch_networks}
-% ============================================================
+\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_ppg2022}.
 
-\subsection{IEEE 802.15.4e TSCH in Industrial IoT}
-The Industrial Internet of Things (IIoT) demands ultra-high communication reliability and deterministic latency for mission-critical sensing and industrial process control. To meet these rigorous requirements, the IEEE 802.15.4e amendment standardized the \emph{Time Slotted Channel Hopping} (TSCH) MAC mode.
+\medskip
+\noindent\textbf{Background.}
+The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours. Hence the transmission, reception and sleep routines of nodes has to be scheduled to save their energy and to provide a synchronized connection in the network. The nodes in TSCH network communicate using a scheduling matrix composed of cells which are designated by its time slot index and the channel index. Recently, learning algorithms such as machine learning (ML) and reinforcement learning (RL) methods are being adopted to address resource allocation problems in wireless networks [2]. Cobbe et al. proposed the PPG, by modifying the traditional actor-critic policy gradient method [3]. In PPG, the policy and the value functions are learnt independently so that the sharing of network parameters between the value optimization and the policy optimization networks can be regulated.
 
-In TSCH, time is discretized into synchronized time slots of equal duration (typically 10~ms), grouped into recurring slotframes. A transmission cell within the TSCH matrix is uniquely identified by a pair of coordinates:
-\begin{equation}
-    (\text{slotoffset}, \text{channeloffset}),
-\end{equation}
-where $\text{slotoffset} \in [0, N_{\text{slot}} - 1]$ specifies the temporal position within the slotframe, and $\text{channeloffset} \in [0, N_{\text{channel}} - 1]$ determines the physical frequency channel via pseudo-random channel hopping:
-\begin{equation}
-    f = F\left[ (\text{ASN} + \text{channeloffset}) \pmod{N_{\text{channel}}} \right],
-\end{equation}
-with $\text{ASN}$ representing the absolute slot number and $F[\cdot]$ a lookup mapping to physical IEEE 802.15.4 frequencies.
+\medskip
+\noindent\textbf{Proposed scheme.}
+During policy phase, the agent is trained using proximal policy optimization (PPO) [5]. During auxiliary phase, the features from the value function are distilled into the policy network, so that the future policy phases improve.
 
-While TSCH defines the lower-layer channel hopping execution, the construction and dynamic maintenance of the TSCH schedule is left open to implementation. Static scheduling fails under dynamic factory interference and mobile machinery, while centralized re-scheduling incurs prohibitive signaling overhead.
+In auxiliary phase, the joint objective function that includes behavioral cloning loss and an arbitrary auxiliary loss is used to optimized the policy network.
 
-\subsection{Phasic Policy Gradient (PPG) Architecture}
-To autonomously learn adaptive, robust TSCH schedules, Bommisetty and Venkatesh developed a deep reinforcement learning framework based on \emph{Phasic Policy Gradient} (PPG).
+\medskip
+\noindent\textbf{Major outcomes.}
+We consider that the network consists of 70 nodes communicating to a border router over a maximum of 3 hops. We compare the performance of our proposed scheduling algorithm with that of PPO [5] based algorithm and the Minimum Scheduling Function (MSF) [6], which is a default scheduling algorithm in TSCH networks.
 
-Traditional actor-critic algorithms (such as PPO) optimize the policy $\pi_\theta(a|s)$ and value baseline $V_\phi(s)$ using shared feature representations. However, joint optimization often causes representation interference, where aggressive value function fitting distorts features crucial for policy generation. PPG resolves this by decoupling training into two distinct alternating phases:
-\begin{enumerate}
-    \item \textbf{Policy Phase:} Optimizes the actor policy parameters $\theta$ using clipped surrogate policy loss over several rollouts:
-    \begin{equation}
-        L^{\text{CLIP}}(\theta) = \hat{\mathbb{E}}_t \left[ \min\left( r_t(\theta) \hat{A}_t, \, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right],
-    \end{equation}
-    where $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}$ is the probability ratio and $\hat{A}_t$ is the generalized advantage estimator. During this phase, policy drift is strictly constrained.
-    \item \textbf{Auxiliary Phase:} Periodically halts environment interaction to distill value knowledge across auxiliary heads using stored trajectories. It minimizes value regression error while preserving the policy distribution via a Kullback-Leibler (KL) divergence penalty:
-    \begin{equation}
-        L^{\text{aux}}(\phi) = \hat{\mathbb{E}}_t \left[ (V_\phi(s_t) - \hat{R}_t)^2 + \beta_{\text{KL}} D_{\text{KL}}\left( \pi_\theta(\cdot | s_t) \,\|\, \pi_{\theta_{\text{target}}}(\cdot | s_t) \right) \right].
-    \end{equation}
-\end{enumerate}
+It can be seen that the PPG achieves a better reward than PPO right from the starting of the training phase and converges quickly.
 
-\subsection{Reward Formulation and Performance}
-The reward function is formulated to capture multi-objective trade-offs between network throughput, packet delay, and energy efficiency:
-\begin{equation}
-    R_t = \omega_1 S_t - \omega_2 D_t - \omega_3 E_t,
-\end{equation}
-where $S_t$ denotes the number of successfully acknowledged packets, $D_t$ represents queuing latency, $E_t$ measures radio energy expenditure during active listen/transmit states, and $\omega_1, \omega_2, \omega_3$ are prioritization weights.
+We show that the PPG improves the system throughput by 58\% compared to the default scheduling algorithm MSF and 22\% over the proximal policy optimization method (PPO).
 
-Experimental evaluations demonstrate that the PPG-based TSCH scheduler converges significantly faster than legacy Deep Q-Networks (DQN) and PPO, achieving up to $35\%$ reduction in transmission collisions and extending device battery lifetimes under dense, multi-hop industrial sensor conditions.
-
-% ============================================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\textwidth,height=4.6cm,keepaspectratio]{ML_chapter_figures/ppg_results.png}
+\caption{PPG convergence and system throughput. Screenshot of Fig.~1 in~\cite{ml_ppg2022}.}
+\label{fig:ml_ppg_results}
+\end{figure}
+\clearpage
 \section{Contextual Bandits for 5G NR Initial Access}
 \label{sec:contextual_bandits_5gnr}
 % ============================================================
@@ -116,3 +104,154 @@ Beyond scheduling and initial access, Deep Reinforcement Learning (DRL) algorith
 \end{itemize}
 
 Through modern reinforcement learning and bandit algorithms, wireless MAC protocols transition from rigid, handcrafted heuristics to intelligent, self-optimizing architectures capable of delivering robust performance across diverse 5G-Advanced and 6G communication environments.
+
+\clearpage
+\section{DQN-Based Joint Scheduling of eMBB and Massive URLLC}
+\label{sec:ml_dqn_joint}
+\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_dqn2025}.
+
+\medskip
+\noindent\textbf{Background.}
+In 5G, the most popular approach to accomodate low latency users in the same network is through puncturing. The high data rate eMBB users are punctured and a minislot worth of resource is used by URLLC user.
+
+The punctured EMBB users experience a degradation in reliability [14]. As more resource blocks are punctured, the error probability in decoding the block becomes difficult.
+
+\medskip
+\noindent\textbf{Proposed scheme.}
+To circumvent this, we introduce a hybrid scheme that switches to orthogonal multiplexing mode for a fixed number of RBs and puncturing mode for the rest of the RBs whenever the URLLC arrival rate shoots up.
+
+Let K be the number of RBs dedicated to URLLC data and N be the total number of resource blocks in a minislot.
+
+\medskip
+\noindent\textbf{Major outcomes.}
+The results highlight that the baseline puncturing strategy experiences performance degradation much earlier under increasing traffic load. In contrast, the DQN agent maintains superior performance by dynamically adapting its actions at each time slot, effectively addressing the reliability demands of both URLLC and eMBB services. However, even the DQN approach reaches a saturation point at very high arrival rates, constrained by the system's total available bandwidth and throughput.
+
+The DQN-based approach consistently outperforms the baseline, keeping latency significantly lower across all $\lambda_u$. While the baseline exhibits a sharp increase in delay---exceeding 8 ms under high traffic---the DQN model effectively mitigates queue build-up through dynamic resource adaptation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.49\textwidth,height=4.6cm,keepaspectratio]{ML_chapter_figures/dqn_latency.png}
+\caption{Average URLLC latency. Screenshot of Fig.~6 in~\cite{ml_dqn2025}.}
+\label{fig:ml_dqn_latency}
+\end{figure}
+\clearpage
+\section{Intrusion Detection with Efficient Feature Selection}
+\label{sec:ml_feature_selection}
+\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_features2023}.
+
+\medskip
+\noindent\textbf{Background.}
+The primary features are insufficient to predict the network attacks with very high precision. Derived features are generated by applying some statistical functions or transformations to the primary features. These derived features give us greater insight into the behavior of the network in case of an attack. ASNM dataset provides a large set of derived features. Generating a large number of derived features increases the complexity of the model. Hence feature selection techniques become important.
+
+\medskip
+\noindent\textbf{Proposed scheme.}
+We apply Chi-squared Test feature selection technique on the Advanced Security Network Metrics dataset to choose highly dependent features and remove features independent of the classifier output.
+
+We build a Logistic Regression based and a Neural Network based IDS on this dataset and obtain a highly accurate Network attack detection model.
+
+We perform a 5-fold cross validation on all the three datasets, where each dataset is split into 5 stratified sets and the mean of the individual performance metrics are recorded.
+
+\medskip
+\noindent\textbf{Major outcomes.}
+After use of Chi-squared test, we obtain a good performance result and the classifier trains much faster. The number of nodes in the input layer reduces, so the number of computations also reduces greatly.
+
+Flow based features and their derived features give us better performance over the primary features, but the flow based features have a larger memory footprint. Feature Selection methods in combination with Deep Learning algorithms is one of the best solutions to intrusion detection systems. We can compromise on number of features in case of timing constraints.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.44\textwidth,height=4.5cm,keepaspectratio]{ML_chapter_figures/ids_feature_selection.png}
+\caption{Selection of hidden-layer size. Screenshot of Fig.~2 in~\cite{ml_features2023}.}
+\label{fig:ml_ids_feature_selection}
+\end{figure}
+\clearpage
+\section{Hybrid Deep Models for Automatic Modulation Classification}
+\label{sec:ml_amc}
+\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_amc2024}.
+
+\medskip
+\noindent\textbf{Background.}
+Automatic Modulation Classification (AMC) plays a pivotal role in modern wireless communication systems, enabling receivers to autonomously identify modulation schemes without requiring prior knowledge of the transmitter's settings. This capability is essential for enhancing the efficiency, robustness, and adaptability of real-time applications such as 5G networks, dynamic spectrum allocation, and interference mitigation.
+
+\medskip
+\noindent\textbf{Proposed scheme.}
+The Hybrid 1 model integrates the strengths of the RanNet and VGG architectures to create a novel hybrid approach. The core idea is to enhance the feature extraction capabilities of RanNet by incorporating additional layers from VGG. Specifically, a convolutional layer with a maxpooling layer and a skip connection is added between the two Ranblocks, aimed at retaining critical information during initial processing.
+
+Inspired by the Chain Residual Pooling block from RefineNet, the X block improves the model's ability to capture contextual information from large input regions.
+
+In this architecture, two Ranblocks are employed, each incorporating an X block in place of the traditional Feablock.
+
+\medskip
+\noindent\textbf{Major outcomes.}
+At an SNR of 18 dB, the Hybrid 2 model achieves an accuracy of 87.69\%, as shown in Fig. 10.
+
+The comparison shows that Hybrid 1 and Hybrid 2 models achieve higher classification accuracies at most SNR levels, with Hybrid 1 slightly outperforming Hybrid 2 at very low SNR values. Hybrid 3, while still competitive, demonstrates lower accuracy, indicating that the architectural enhancements in Hybrid 1 and Hybrid 2 are more effective in improving classification performance.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.43\textwidth,height=4.6cm,keepaspectratio]{ML_chapter_figures/amc_hybrid_comparison.png}
+\caption{Comparison of hybrid architectures. Screenshot of Fig.~17 in~\cite{ml_amc2024}.}
+\label{fig:ml_amc_hybrid_comparison}
+\end{figure}
+\clearpage
+\section{Robust Intrusion Detection for Previously Unseen Attacks}
+\label{sec:ml_rnids}
+\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_rnids2022}.
+
+\medskip
+\noindent\textbf{Background.}
+However, whether an ML-based NIDS can successfully handle a new type of attack is an open question. CNN-based IDS can classify these types of attacks to a certain extent but they classify most unknown attacks as benign. Due to this problem, a robust outlier detection in the NIDS system becomes necessary. The purpose of this paper is to address this vital issue.
+
+\medskip
+\noindent\textbf{Proposed scheme.}
+We put forward a Robust NIDS model, called RNIDS, which is a combination of CNN followed by an outlier detection system. The combined system classifies known attacks and identifies new outliers with high accuracy.
+
+We further analyze the prediction probabilities of the neural network using nearest neighbor approximation. This information helps us decide if a new adversary was attempting a malicious attack on the network.
+
+If the average distance is beyond a certain threshold dth, then the point is classified as a new adversary.
+
+\medskip
+\noindent\textbf{Major outcomes.}
+The CNN model with 13 attack classes has classified different attacks with an overall accuracy of 98.3\%.
+
+Compared to the results in Table V, Botnet, Port scan and SSH Patator are predicted as a new adversary with an accuracy of 74.96\%, 88.03\% and 90.08\%.
+
+Retraining the CNN model with an appropriate balance of initial dataset and real time data will be a difficult task. There is a high chance that the CNN may forget the patterns from the initial data if we feed it a large set of newer samples.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.96\textwidth,height=4.5cm,keepaspectratio]{ML_chapter_figures/rnids_architecture.png}
+\caption{RNIDS training and deployment. Screenshot of Fig.~1 in~\cite{ml_rnids2022}.}
+\label{fig:ml_rnids_architecture}
+\end{figure}
+\clearpage
+\section{BIOS: Biogeography-Inspired Scheduling for TSCH}
+\label{sec:ml_bios}
+\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_bios2021}.
+
+\medskip
+\noindent\textbf{Background.}
+The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours.
+
+In TSCH, the time is divided into slots and the bandwidth is divided into orthogonal channels [4]. The nodes in TSCH network communicate in a scheduling matrix composed of cells. The cells are the basic resource units for communication in TSCH network which are designated by its time slot index and the channel index.
+
+IEEE 802.15.4e standard does not define the algorithm for computing the scheduling matrix and is open to implementation. Hence the problem of designing efficient schedule in TSCH networks has gained importance in networking research community.
+
+\medskip
+\noindent\textbf{Proposed scheme.}
+In initiation stage, a set of random schedules are generated. To improve the existing set of scheduling algorithms, we employ the migration and mutation operations. Migration operation shares the good features from best scheduling algorithm to the poor ones by appropriately modelling the immigration and emigration of each node in the network. Mutation operation maintains the diversity in the candidate schedules to tackle the sporadic changes in the network.
+
+\medskip
+\noindent\textbf{Major outcomes.}
+It has been shown through simulations that the proposed BIOS scheduling algorithm achieves an improvement of 60\% in delay performance and upto 40\% of energy efficiency compared to MSF.
+
+In the mobile TSCH networks, the topology changes frequently forcing BIOS to explore more solutions by mutation operation which makes the solution convergence slower.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth,height=4.5cm,keepaspectratio]{ML_chapter_figures/bios_mobile_convergence.png}
+\caption{BIOS convergence with mobile nodes. Screenshot of Fig.~3 in~\cite{ml_bios2021}.}
+\label{fig:ml_bios_mobile_convergence}
+\end{figure}
+\clearpage
+\printbibliography[heading=subbibliography,title={References for the Paper Summaries}]
+\end{refsection}

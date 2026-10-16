@@ -1,0 +1,80 @@
+[
+  {
+    "image": "dqn_latency.png",
+    "source_pdf": "DQN-Based_Joint_Scheduling_of_eMBB_and_Massive_URLLC_in_5G_Networks.pdf",
+    "page": 5,
+    "figure": 6,
+    "crop_pdf_points": [
+      355,
+      307,
+      515,
+      434
+    ],
+    "dpi": 300
+  },
+  {
+    "image": "ids_feature_selection.png",
+    "source_pdf": "Network_Intrusion_Detection_Through_Machine_Learning_With_Efficient_Feature_Selection.pdf",
+    "page": 3,
+    "figure": 2,
+    "crop_pdf_points": [
+      365,
+      183,
+      498,
+      329
+    ],
+    "dpi": 300
+  },
+  {
+    "image": "amc_hybrid_comparison.png",
+    "source_pdf": "Deep_Learning-Based_Hybrid_Models_for_Automatic_Modulation_Classification.pdf",
+    "page": 8,
+    "figure": 17,
+    "crop_pdf_points": [
+      177,
+      233,
+      300,
+      379
+    ],
+    "dpi": 300
+  },
+  {
+    "image": "rnids_architecture.png",
+    "source_pdf": "Robust_Network_Intrusion_Detection_Systems_for_Outlier_Detection.pdf",
+    "page": 3,
+    "figure": 1,
+    "crop_pdf_points": [
+      45,
+      46,
+      568,
+      208
+    ],
+    "dpi": 300
+  },
+  {
+    "image": "ppg_results.png",
+    "source_pdf": "Phasic_Policy_Gradient_Based_Resource_Allocation_for_Industrial_Internet_of_Things.pdf",
+    "page": 2,
+    "figure": 1,
+    "crop_pdf_points": [
+      310,
+      48,
+      565,
+      172
+    ],
+    "dpi": 300
+  },
+  {
+    "image": "bios_mobile_convergence.png",
+    "source_pdf": "BIOS_Biogeography_Inspired_Optimal_Scheduling_Algorithm_for_TSCH_Networks.pdf",
+    "page": 6,
+    "figure": 3,
+    "crop_pdf_points": [
+      332,
+      48,
+      524,
+      204
+    ],
+    "dpi": 300
+  }
+]
