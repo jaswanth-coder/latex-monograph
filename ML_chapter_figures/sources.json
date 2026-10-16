@@ -76,5 +76,18 @@
       204
     ],
     "dpi": 300
+  },
+  {
+    "image": "bios_topology_schedule.png",
+    "source_pdf": "BIOS_Biogeography_Inspired_Optimal_Scheduling_Algorithm_for_TSCH_Networks.pdf",
+    "page": 2,
+    "figure": 1,
+    "crop_pdf_points": [
+      303,
+      48,
+      550,
+      160
+    ],
+    "dpi": 300
   }
 ]
