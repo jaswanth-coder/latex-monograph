@@ -1,325 +1,525 @@
 \chapter{Machine Learning Applications}
 \label{sec:chapter_ml}
 \begin{refsection}[sections/chapter_ml_references.bib]
-% 
-
-Next-generation wireless networks are increasingly characterized by extreme densification, diverse Quality of Service (QoS) requirements, dynamic topology changes, and highly non-stationary propagation environments. Conventional Medium Access Control (MAC) protocols rely predominantly on static rules, pre-configured backoff parameters, or idealized heuristic policies designed for stationary conditions. Consequently, traditional approaches struggle to adapt in complex, unpredictable scenarios such as industrial automation, massive machine-type communications (mMTC), and high-mobility vehicular swarms.
-
-To address these limitations, machine learning (ML)---particularly Reinforcement Learning (RL) and Multi-Armed Bandit (MAB) frameworks---has emerged as a foundational methodology for intelligent protocol design. By framing radio resource allocation, scheduling, and channel access as learning problems, wireless nodes can autonomously optimize their transmission strategies through continuous interaction with the physical environment. This chapter explores key machine learning applications in modern wireless MAC design, focusing on Phasic Policy Gradient reinforcement learning for Industrial IoT, contextual bandits for 5G New Radio initial access, and deep reinforcement learning for dynamic wireless environments.
-
-Most existing approaches either focus solely on orthogonal multiplexing or rely heavily on puncturing-based methods without adaptively balancing the trade-off under varying network loads. Moreover, the application of lightweight, scalable reinforcement learning models for real-time joint scheduling in massive URLLC-eMBB coexistence remains underexplored~\cite{ml_dqn2025}.
-
-To save their energy, nodes keep their radio off at all times except when the node is transmitting, receiving or listening to a broadcast message in the network. To enable this to happen, nodes should have an idea of the cells in which its communications are scheduled. IEEE 802.15.4e standard does not define the algorithm for computing the scheduling matrix and is open to implementation. Hence the problem of designing efficient schedule in TSCH networks has gained importance in networking research community~\cite{ml_bios2021}.
-
-ML classifiers take quite a lot of time to train and learn from real-world datasets. The training suffers from over-fitting and very few attack samples in existing networks. Due to these issues, network datasets are built in a simulated environment. Many of these attacks are introduced into the system to create better datasets. The ratio of malicious traffic to benign traffic is kept close to a real-world network. The learning rate of the classifiers is highly dependent on the algorithms used, the hardware, and the choice of features. Feature selection is one such aspect that makes the classifier learn faster [9]~\cite{ml_features2023}.
-
-The current literature has a different implementation for the classification of attacks and outlier detection. The unique contribution of this paper is to bridge these two systems and to develop a unified model that will detect not only known attacks but also outliers~\cite{ml_rnids2022}.
-
-We aim to address the limitations of current deep learning models for AMC, which often exhibit suboptimal accuracy across diverse modulation schemes and varying signal conditions, by developing robust architectures. Additionally, we seek to overcome the inflexibility of existing models to adapt to new modulation schemes, thereby creating scalable and adaptable solutions~\cite{ml_amc2024}.
 
 % ============================================================
-\section{Reinforcement Learning in Wireless Medium Access}
-\label{sec:rl_mac_principles}
+\section{Introduction}
+\label{sec:ml_intro}
 % ============================================================
 
-\subsection{The Wireless MAC as a Markov Decision Process}
-Reinforcement learning operates within the mathematical framework of a Markov Decision Process (MDP), characterized by the tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$, where:
-\begin{itemize}
-    \item $\mathcal{S}$ is the state space representing observable network conditions (e.g., local buffer occupancy, perceived channel interference, recent collision history, and link quality metrics).
-    \item $\mathcal{A}$ denotes the action space available to the MAC entity (e.g., contention window size, transmission power level, transmission slot, or carrier frequency).
-    \item $\mathcal{P}(s' | s, a) = \mathbb{P}(S_{t+1} = s' | S_t = s, A_t = a)$ defines the transition probability distribution between states under action $a$.
-    \item $\mathcal{R}(s, a, s')$ is the reward signal returned by the environment, reflecting key performance indicators such as successful packet delivery, throughput, latency penalty, or energy efficiency.
-    \item $\gamma \in [0, 1)$ is the discount factor balancing instantaneous rewards against future expectations.
-\end{itemize}
+The preceding chapters designed and analysed medium access protocols with mathematical models: Markov chains, queueing systems and optimisation problems whose parameters are assumed known. Such models give insight and provable guarantees, but they become hard to apply as networks grow more heterogeneous. A modern network carries traffic classes with conflicting requirements, its topology changes as nodes move or fail, and its environment includes interference and even deliberate attacks that no closed-form model captures completely. In these settings the designer often cannot write down the system dynamics accurately, yet the network itself generates large amounts of data about how it behaves. \emph{Machine learning} (ML) provides a way to turn this data into decisions.
 
-The learning objective is to discover an optimal policy $\pi^*(a | s)$ that maximizes the expected cumulative discounted return:
+This chapter presents six case studies, drawn from work carried out at IIT Madras, in which learning-based methods solve concrete problems in wireless and wired networks. The problems fall into two groups. The first group concerns \emph{resource allocation and scheduling}: deciding which node transmits in which time--frequency cell, and how radio resources are shared between services with different demands. The second group concerns \emph{classification}: identifying the modulation format of a received signal, and deciding whether network traffic is benign or malicious. Before turning to the case studies, the remainder of this section introduces the learning paradigms they use.
+
+\subsection{Supervised Learning for Classification}
+In supervised learning, a model is trained on a labelled dataset $\mathcal{D}=\{(\mathbf{x}_n,y_n)\}_{n=1}^{N_D}$, where $\mathbf{x}_n$ is a feature vector (for instance, statistics of a traffic flow, or samples of a received waveform) and $y_n\in\{1,\dots,C\}$ is its class label. A neural network with parameters $\boldsymbol{\theta}$ maps the input to a vector of scores $\mathbf{z}=f_{\boldsymbol{\theta}}(\mathbf{x})$, which the \emph{softmax} function converts into class probabilities,
 \begin{equation}
-    J(\pi) = \mathbb{E}_{\pi} \left[ \sum_{t=0}^{\infty} \gamma^t R(S_t, A_t, S_{t+1}) \right].
+  p_c(\mathbf{x}) = \frac{e^{z_c}}{\sum_{j=1}^{C} e^{z_j}}, \qquad c=1,\dots,C.
+  \label{eq:ml_softmax}
+\end{equation}
+The parameters are chosen to minimise the \emph{cross-entropy} loss
+\begin{equation}
+  \mathcal{L}(\boldsymbol{\theta}) = -\frac{1}{N_D}\sum_{n=1}^{N_D}\log p_{y_n}(\mathbf{x}_n),
+  \label{eq:ml_crossentropy}
+\end{equation}
+usually by stochastic gradient descent or one of its adaptive variants such as Adam. For binary problems ($C=2$) the softmax reduces to the logistic sigmoid $\phi(z)=1/(1+e^{-z})$. Convolutional neural networks (CNNs), which apply small learnable filters across their input, are particularly effective when the input has spatial or temporal structure, as in a sampled radio waveform.
+
+\subsection{Reinforcement Learning for Sequential Decisions}
+Scheduling decisions differ from classification in one important respect: each decision changes the state of the network, and therefore affects the decisions that follow. Such problems are modelled as a \emph{Markov decision process} (MDP), defined by the tuple $(\mathcal{S},\mathcal{A},\mathcal{P},R,\gamma)$. At each step $t$ an agent observes the state $s_t\in\mathcal{S}$ (for example, queue lengths and channel conditions), chooses an action $a_t\in\mathcal{A}$ (for example, a cell allocation), receives a reward $r_t=R(s_t,a_t)$, and the system moves to a new state according to the transition law $\mathcal{P}(s_{t+1}\mid s_t,a_t)$. The agent seeks a policy $\pi(a\mid s)$ that maximises the expected discounted return
+\begin{equation}
+  J(\pi)=\mathbb{E}_{\pi}\!\left[\sum_{t=0}^{\infty}\gamma^{t}r_t\right], \qquad 0\le\gamma<1.
+  \label{eq:ml_return}
+\end{equation}
+The quality of an action is summarised by the action-value function $Q^{\pi}(s,a)$, the expected return obtained by taking action $a$ in state $s$ and following $\pi$ thereafter. The optimal action-value function satisfies the Bellman optimality equation~\cite{ml_sutton2018}
+\begin{equation}
+  Q^{*}(s,a)=\mathbb{E}\!\left[r_t+\gamma\max_{a'}Q^{*}(s_{t+1},a')\,\middle|\,s_t=s,\,a_t=a\right].
+  \label{eq:ml_bellman}
+\end{equation}
+Reinforcement learning (RL) solves the MDP from interaction alone, without knowledge of $\mathcal{P}$. Two families of methods appear in this chapter. \emph{Value-based} methods, such as the deep Q-network (DQN)~\cite{ml_mnih2015}, approximate $Q^{*}$ with a neural network and act greedily with respect to it. \emph{Policy-gradient} methods instead parameterise the policy $\pi_{\boldsymbol{\theta}}$ directly and adjust $\boldsymbol{\theta}$ along an estimate of $\nabla_{\boldsymbol{\theta}}J$. In the \emph{actor--critic} form, a second network (the critic) learns the state-value function $V(s)$, which is used to judge whether an action turned out better or worse than expected.
+
+\subsection{Population-Based Search}
+Some network design problems, such as building a conflict-free transmission schedule, are combinatorial and NP-hard. For these, nature-inspired \emph{population-based} methods are an attractive alternative to gradient-based learning. A population of candidate solutions is maintained, and better candidates gradually pass their features on to weaker ones, so that the population as a whole improves. Biogeography-based optimisation~\cite{ml_simon2008bbo}, used in Section~\ref{sec:ml_bios}, belongs to this family.
+
+\subsection{Organisation of the Chapter}
+Table~\ref{tab:ml_overview} summarises the six case studies. Sections~\ref{sec:ml_bios}--\ref{sec:ml_dqn} treat scheduling and resource allocation: conflict-free scheduling in industrial sensor networks, its extension with deep RL, and the sharing of 5G radio resources between broadband and low-latency traffic. Sections~\ref{sec:ml_amc}--\ref{sec:ml_rnids} treat classification at the physical layer (modulation recognition) and at the network layer (intrusion detection). Section~\ref{sec:ml_summary} closes the chapter with a summary.
+
+\begin{table}[H]
+\centering
+\caption{Overview of the case studies presented in this chapter.}
+\label{tab:ml_overview}
+\small
+\begin{tabular}{@{}p{0.27\textwidth}p{0.25\textwidth}p{0.38\textwidth}@{}}
+\toprule
+\textbf{Problem} & \textbf{Method} & \textbf{Main result} \\
+\midrule
+TSCH scheduling in IIoT~\cite{ml_bios2021} & Biogeography-based optimisation & Conflict-free schedule; 60\% lower delay and up to 40\% better energy efficiency than MSF \\
+TSCH cell and power allocation~\cite{ml_ppg2022} & Phasic policy gradient (deep RL) & 58\% higher throughput than MSF, 22\% higher than PPO \\
+eMBB--URLLC coexistence in 5G~\cite{ml_dqn2025} & Deep Q-network & Lower URLLC latency than puncturing at all loads \\
+Automatic modulation classification~\cite{ml_amc2024} & Hybrid CNN architectures & 87.9\% accuracy at 18\,dB SNR \\
+Intrusion detection with derived features~\cite{ml_features2023} & Chi-square feature selection + neural network & Above 99\% F1 score; up to 5.6$\times$ faster training \\
+Detection of unseen attacks~\cite{ml_rnids2022} & CNN + $K$-nearest-neighbour outlier detection & 98.3\% accuracy on known attacks; most unseen attacks flagged \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{Biogeography-Inspired Scheduling for TSCH Networks}
+\label{sec:ml_bios}
+% ============================================================
+
+\subsection{Background}
+The Industrial Internet of Things (IIoT) connects large numbers of sensors, controllers and actuators on a factory floor. Most of these devices run on batteries and cannot keep their radios on for long. To meet the reliability and energy requirements of such networks, the IEEE 802.15.4e standard defines a medium access mode called \emph{Time Slotted Channel Hopping} (TSCH). In TSCH, time is divided into slots indexed by $t=0,1,2,\dots$ and the bandwidth into $M$ orthogonal channels indexed by $k$. The pair $(t,k)$ is called a \emph{cell}, and it is the basic unit of communication. A group of $T$ consecutive slots forms a \emph{slotframe}, which repeats periodically. A node switches its radio on only in the cells in which it is scheduled to transmit or receive, and sleeps otherwise.
+
+The standard specifies how a schedule is executed but not how it is computed. Designing a good schedule is therefore left to the implementer, and it is a hard problem: building a conflict-free schedule for data collection is NP-hard. Existing schedulers either place cells heuristically, which leads to collisions, or do not guarantee freedom from conflicts. The default Minimal Scheduling Function (MSF), for instance, chooses cell positions pseudo-randomly. Bommisetty and Venkatesh~\cite{ml_bios2021} approached the problem from a different direction, by treating schedule design as a search over a population of candidate schedules.
+
+\subsection{Network Model and Constraints}
+Consider $N$ nodes that send data over multiple hops to a single border router. The routing protocol for low-power and lossy networks (RPL) organises the nodes into a tree, called a destination-oriented directed acyclic graph (DODAG). Each node $i$ forwards its packets to its parent $p(i)$, as illustrated in Fig.~\ref{fig:ml_bios_topology_schedule}. A schedule is a $T\times M$ matrix whose entries are the links $(i,p(i))$ active in each cell. The border router knows the topology and the queue length $q_i$ of every node, and computes the schedule centrally. Let $c_i$ denote the number of cells allocated to node $i$ in a slotframe.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{ML_chapter_figures/bios_topology_schedule.png}
+\caption{An example RPL DODAG with border router $n_0$ (left) and a sample slotframe schedule for it (right).}
+\label{fig:ml_bios_topology_schedule}
+\end{figure}
+
+The constraints on a schedule are divided into two kinds. \emph{Primary constraints} define what is physically feasible and may never be violated:
+\begin{itemize}
+  \item \textbf{PC1:} a node cannot be scheduled on two channels in the same slot, since its radio tunes to one channel at a time;
+  \item \textbf{PC2:} neighbouring nodes cannot both transmit in the same slot, since a half-duplex node cannot transmit and receive simultaneously;
+  \item \textbf{PC3:} two children of the same parent cannot share a slot, since the parent can receive only one packet at a time.
+\end{itemize}
+\emph{Secondary constraints} describe a good schedule rather than a feasible one. A schedule that violates them is still valid, but it incurs a penalty. They are as follows.
+\begin{itemize}
+  \item \textbf{Interference (SC1):} nodes within interference range should not use the same cell. The penalty counts the transmissions whose SINR at the receiver falls below the decoding threshold $\beta$:
+  \begin{equation}
+    F_{SC1}=\sum_{i}\mathbb{1}\!\left(\mathrm{SINR}\bigl(i,\mathcal{N}(i)\bigr)\le\beta\right),
+  \end{equation}
+  where $\mathcal{N}(i)$ is the set of nodes scheduled in the same cell as node $i$.
+  \item \textbf{Fairness (SC2):} the number of cells given to a node should be proportional to its backlog. The penalty follows the proportional-fairness metric:
+  \begin{equation}
+    F_{SC2}=\sum_{i}\log\!\left(\frac{q_i}{c_i}\right).
+  \end{equation}
+  \item \textbf{Buffering delay (SC3):} a packet waits at each relay until the next hop's cell arrives, so the slots allotted to consecutive hops should be close together. The penalty $F_{SC3}$ is the average gap $|t_1-t_2|$ between the slots of neighbouring nodes.
+\end{itemize}
+The quality of a schedule $S$ is measured by its total penalty, or \emph{regret},
+\begin{equation}
+  F(S)=F_{SC1}+F_{SC2}+F_{SC3},
+  \label{eq:ml_bios_regret}
+\end{equation}
+and the design problem is to find a schedule that satisfies PC1--PC3 and minimises $F(S)$.
+
+\subsection{The BIOS Algorithm}
+Biogeography studies how species distribute themselves among habitats. A habitat with a high suitability (food, climate, vegetation) has many species. Species emigrate from it to poorer habitats, which in turn have a high immigration rate. Biogeography-based optimisation~\cite{ml_simon2008bbo} exploits this analogy. Each candidate solution is a habitat, its features are the ``suitability index variables'', and good solutions share their features with poor ones through migration. In the BIOS (Biogeography-Inspired Optimal Scheduling) algorithm, each candidate is a complete TSCH schedule, each node's cell assignment is one feature, and the regret $F(S)$ of \eqref{eq:ml_bios_regret} serves as the \emph{schedule regret index} (SRI). A schedule with a low SRI is a good habitat.
+
+The algorithm first generates $R_{\max}$ random feasible schedules and ranks them by SRI. Candidate $S_i$, with rank $R_i$ (the best schedule having the highest rank), is assigned an immigration rate $\lambda_i$ and an emigration rate $\mu_i$:
+\begin{equation}
+  \lambda_i=I\left(1-\frac{R_i}{R_{\max}}\right), \qquad
+  \mu_i=E\,\frac{R_i}{R_{\max}},
+  \label{eq:ml_bios_migration}
+\end{equation}
+where $I$ and $E$ are the maximum immigration and emigration rates. A good schedule thus readily shares its features but seldom adopts others, while a poor schedule readily adopts features from others. Each iteration then performs three operations.
+\begin{enumerate}
+  \item \textbf{Migration.} For every node $k$ in schedule $S_i$, with probability $\lambda_i$ a donor schedule $S_j$ is picked, and with probability $\mu_j$ node $k$ is moved to the cells it occupies in $S_j$, provided the primary constraints remain satisfied.
+  \item \textbf{Mutation.} With a small probability, either one node's cell is moved to another feasible cell, or the cells of two non-neighbouring nodes are swapped. Mutation keeps the population diverse. Without it, all candidates would collapse onto the current best schedule and could not adapt when the topology changes.
+  \item \textbf{Differential update.} Instead of copying the best schedule $S_1$ wholesale, each candidate moves part of the way towards it,
+  \begin{equation}
+    S_i \leftarrow (1-\alpha)\,S_i+\alpha\,(S_1-S_i),
+  \end{equation}
+  where the learning rate $\alpha$ balances improvement against diversity: $\alpha=1$ would replace $S_i$ by $S_1$, and $\alpha=0$ would leave it unchanged.
+\end{enumerate}
+Because every candidate is generated and modified within the region defined by PC1--PC3, the schedule returned by BIOS is conflict-free by construction.
+
+\subsection{Performance}
+BIOS was implemented in the 6TiSCH simulator for a 50-node network with at most three hops, a 101-slot slotframe, 50 candidate schedules and Poisson traffic, and compared with MSF. Table~\ref{tab:ml_bios_results} lists the results. Since BIOS schedules contain no MAC-layer conflicts, every packet is delivered, whereas the pseudo-random placement of MSF loses packets to collisions. BIOS also attains a lower end-to-end delay and a lower radio duty cycle in every scenario. Overall, delay improves by about 60\% and energy efficiency by up to 40\%.
+
+\begin{table}[H]
+\centering
+\caption{Performance of BIOS and MSF (data from~\cite{ml_bios2021}).}
+\label{tab:ml_bios_results}
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}ccccccccc@{}}
+\toprule
+& \multicolumn{2}{c}{\textbf{Setting}} & \multicolumn{2}{c}{\textbf{Delay (s)}} & \multicolumn{2}{c}{\textbf{Duty cycle}} & \multicolumn{2}{c}{\textbf{Delivery ratio}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+No. & Mobility & Var.\ traffic & BIOS & MSF & BIOS & MSF & BIOS & MSF \\
+\midrule
+1 & No  & No  & 0.043 & 0.098 & 0.030 & 0.045 & 1 & 0.982 \\
+2 & Yes & No  & 0.097 & 0.125 & 0.033 & 0.054 & 1 & 0.964 \\
+3 & No  & Yes & 0.072 & 0.240 & 0.042 & 0.077 & 1 & 0.977 \\
+4 & Yes & Yes & 0.147 & 0.268 & 0.049 & 0.083 & 1 & 0.945 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Mobility exposes the role of mutation. When nodes move, the tree and hence the primary constraints change, so the search must explore new regions of the schedule space. Fig.~\ref{fig:ml_bios_mobile_convergence} shows the normalised regret during learning in a mobile network: higher mutation rates converge more slowly but reach a markedly better schedule, and in a dynamic network this gain outweighs the slower convergence.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth,height=5.2cm,keepaspectratio]{ML_chapter_figures/bios_mobile_convergence.png}
+\caption{Convergence of BIOS in a network with mobile nodes, for different mutation rates.}
+\label{fig:ml_bios_mobile_convergence}
+\end{figure}
+
+% ============================================================
+\section{Phasic Policy Gradient for IIoT Resource Allocation}
+\label{sec:ml_ppg}
+% ============================================================
+
+\subsection{Background}
+BIOS computes a schedule by searching a population of candidates. A complementary approach is to \emph{learn} a scheduling policy that maps the current network state directly to an allocation. Deep reinforcement learning is a natural tool for this, but the two obvious architectures both have drawbacks. Fully distributed agents see only local information, while a fully centralised agent faces a very large state space. Actor--critic methods offer a middle ground, but the usual practice of sharing one neural network between the actor (policy) and the critic (value function) lets the two objectives interfere with each other. The \emph{phasic policy gradient} (PPG) method of Cobbe \emph{et al.}~\cite{ml_cobbe2021ppg} removes this interference by training the policy and the value function in separate phases. Bommisetty and Venkatesh~\cite{ml_ppg2022} applied PPG to joint cell and power allocation in TSCH networks.
+
+\subsection{Problem Formulation}
+The network model is that of Section~\ref{sec:ml_bios}. Let $X^{i}_{(t,k)}\in\{0,1\}$ indicate whether node $i$ is scheduled in cell $(t,k)$, and let $p^{i}$ be its transmit power. A packet of node $i$ fails if it waits longer than its deadline $D_i$, which happens with probability $P^{i}_{k,drop}=\Pr(W_i>D_i)$, or if co-channel interference pushes its SINR $\Gamma^{i}_{k}$ below the threshold $\beta$, which happens with probability $P^{i}_{k,err}=\Pr(\Gamma^{i}_{k}<\beta)$. The probability that the packet succeeds is therefore
+\begin{equation}
+  P^{i}_{k,suc}=1-P^{i}_{k,drop}-P^{i}_{k,err}+P^{i}_{k,drop}P^{i}_{k,err}.
+\end{equation}
+Network throughput and energy efficiency (successful deliveries per unit transmit power) follow as
+\begin{equation}
+  Th=\sum_{i=1}^{N}\sum_{k=1}^{M}P^{i}_{k,suc}, \qquad
+  \eta=\frac{\sum_{i=1}^{N}\sum_{k=1}^{M}P^{i}_{k,suc}}{\sum_{i=1}^{N}\sum_{k=1}^{M}p^{i}X^{i}_{(t,k)}}.
+\end{equation}
+The schedule $\mathbf{X}$ and the power vector $\mathbf{P}$ are chosen to maximise a weighted utility subject to the radio and quality-of-service constraints:
+\begin{equation}
+\begin{aligned}
+  \max_{\mathbf{P},\mathbf{X}}\quad & U=\theta_1\,Th+\theta_2\,\eta \\
+  \text{s.t.}\quad & \textstyle\sum_{k=1}^{M}X^{i}_{(t,k)}\le 1, && \forall i, \\
+  & P^{i}_{k,drop}<\epsilon_i,\quad P^{i}_{k,err}<\delta_i, && \forall i,k.
+\end{aligned}
+\label{eq:ml_ppg_problem}
+\end{equation}
+The first constraint states that a node uses at most one channel per slot. The other two bound the deadline-violation and error probabilities. The weights $\theta_1,\theta_2$ set the relative importance of throughput and energy efficiency.
+
+To solve \eqref{eq:ml_ppg_problem} with RL, the state is $s=\{\theta_1,\theta_2,\mathbf{q},\mathcal{T}\}$, consisting of the utility weights, the vector of queue lengths and the current topology. The action is the cell and power choice $\{(X^{i}_{(t,k)},p^{i})\}_{i=1}^{N}$ of every node, and the reward at each step is the utility $U$.
+
+\subsection{Learning in Two Phases}
+PPG alternates between two phases.
+
+\textbf{Policy phase.} The policy network $\pi_{\boldsymbol{\theta}}$ is trained with proximal policy optimisation (PPO)~\cite{ml_schulman2017ppo}. Let $x_t(\boldsymbol{\theta})=\pi_{\boldsymbol{\theta}}(a_t\mid s_t)/\pi_{\boldsymbol{\theta}_{old}}(a_t\mid s_t)$ be the probability ratio between the new and old policies, and $\hat{A}_t$ an estimate of the advantage of action $a_t$, that is, how much better it was than the average action in $s_t$. The policy maximises the clipped objective
+\begin{equation}
+\begin{split}
+  L^{policy}(\boldsymbol{\theta})={}&\mathbb{E}\Bigl[\min\bigl(x_t(\boldsymbol{\theta})\hat{A}_t,\;\mathrm{clip}\bigl(x_t(\boldsymbol{\theta}),1-\zeta,1+\zeta\bigr)\hat{A}_t\bigr)\Bigr]\\
+  &-\nu\,D_{KL}\bigl(\pi_{\boldsymbol{\theta}_{old}}\,\|\,\pi_{\boldsymbol{\theta}}\bigr).
+\end{split}
+\end{equation}
+Clipping the ratio to $[1-\zeta,1+\zeta]$, together with the Kullback--Leibler penalty, keeps each update close to the previous policy and so stabilises learning. In the same phase, a separate value network $V_{\boldsymbol{\phi}}$ is fitted to the observed returns $\hat{V}$:
+\begin{equation}
+  L^{value}(\boldsymbol{\phi})=\mathbb{E}\Bigl[\tfrac{1}{2}\bigl(V_{\boldsymbol{\phi}}(s_t)-\hat{V}(s_t)\bigr)^{2}\Bigr].
 \end{equation}
 
-% ============================================================
-\clearpage
-\section{Phasic Policy Gradient for Industrial IoT}
-\label{sec:ppg_tsch_networks}
-\medskip
-\noindent\textbf{Background.}
-The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours. Hence the transmission, reception and sleep routines of nodes has to be scheduled to save their energy and to provide a synchronized connection in the network. The nodes in TSCH network communicate using a scheduling matrix composed of cells which are designated by its time slot index and the channel index. Recently, learning algorithms such as machine learning (ML) and reinforcement learning (RL) methods are being adopted to address resource allocation problems in wireless networks [2]. Cobbe et al. proposed the PPG, by modifying the traditional actor-critic policy gradient method [3]. In PPG, the policy and the value functions are learnt independently so that the sharing of network parameters between the value optimization and the policy optimization networks can be regulated~\cite{ml_ppg2022}.
+\textbf{Auxiliary phase.} The value network learns useful features of the network state, and the auxiliary phase \emph{distils} these features into the policy network without disturbing the policy already learnt. The policy network is trained on the joint objective
+\begin{equation}
+  L^{joint}=L^{aux}+\mu_{clone}\,D_{KL}\bigl(\pi_{\boldsymbol{\theta}_{old}}\,\|\,\pi_{\boldsymbol{\theta}}\bigr),
+\end{equation}
+where $L^{aux}$ is an auxiliary loss (here the value loss, as in~\cite{ml_cobbe2021ppg}) and the behavioural-cloning term, weighted by $\mu_{clone}$, prevents the policy from drifting. Separating the two phases lets each network be trained with its own number of updates and its own sample reuse, which is the main advantage of PPG over a shared actor--critic.
 
-\medskip
-\noindent\textbf{Proposed scheme.}
-During policy phase, the agent is trained using proximal policy optimization (PPO) [5]. During auxiliary phase, the features from the value function are distilled into the policy network, so that the future policy phases improve.
-
-In auxiliary phase, the joint objective function that includes behavioral cloning loss and an arbitrary auxiliary loss is used to optimized the policy network.
-
-
-\medskip
-\noindent\textbf{Resource-allocation and learning equations.}
-\emph{Source: Eqs.~(1)--(3), (8) and (9) in~\cite{ml_ppg2022}.}
-\begin{align}
- Th &= \sum_{i=1}^{N}\sum_{k=1}^{M}P^i_{k,suc}, \\
- \eta &= \frac{\sum_{i=1}^{N}\sum_{k=1}^{M}P^i_{k,suc}}
- {\sum_{i=1}^{N}\sum_{k=1}^{M}p^i X^i_{(t,k)}}, \\
- \max_{\mathbf{P},\mathbf{X},\theta_1,\theta_2}\;U &= \theta_1 Th+\theta_2\eta.
-\end{align}
-\noindent\emph{Notation:} $P^i_{k,suc}$ is packet-success probability, $X^i_{(t,k)}$ indicates cell allocation, and $p^i$ is transmission power. The weights $\theta_1,\theta_2$ balance throughput and energy efficiency.
-\begin{align}
- \mathcal{L}^{value}(\phi)&=\mathbb{E}\!\left[\frac{\lVert V_\phi(s_t)-\hat V(s_t)\rVert^2}{2}\right],\\
- \mathcal{L}^{joint}&=\mathcal{L}^{aux}+\mu_{clone}D_{KL}(\pi_{\theta_{old}}\Vert\pi_\theta).
-\end{align}
-\noindent\emph{Notation:} $V_\phi$ and $\hat V$ are the value functions in the source formulation; $\mu_{clone}$ regulates the policy-preservation penalty during auxiliary learning.
-
-\medskip
-\noindent\textbf{Major outcomes.}
-We consider that the network consists of 70 nodes communicating to a border router over a maximum of 3 hops. We compare the performance of our proposed scheduling algorithm with that of PPO [5] based algorithm and the Minimum Scheduling Function (MSF) [6], which is a default scheduling algorithm in TSCH networks.
-
-It can be seen that the PPG achieves a better reward than PPO right from the starting of the training phase and converges quickly.
-
-We show that the PPG improves the system throughput by 58\% compared to the default scheduling algorithm MSF and 22\% over the proximal policy optimization method (PPO).
+\subsection{Performance}
+The scheme was evaluated in the 6TiSCH simulator for networks of up to 70 nodes and at most three hops, against a PPO-based scheduler and the default MSF. Fig.~\ref{fig:ml_ppg_results} (left) shows that PPG earns a higher reward than PPO from the start of training and converges faster. Fig.~\ref{fig:ml_ppg_results} (right) shows the system throughput as the network grows. More nodes mean more interference on every link, so throughput falls for all schemes, but PPG remains well ahead, improving throughput by 58\% over MSF and by 22\% over PPO.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.90\textwidth,height=5.3cm,keepaspectratio]{ML_chapter_figures/ppg_results.png}
-\caption{PPG convergence and system throughput.}
+\caption{Convergence of PPG and PPO during training (left), and system throughput against the number of nodes (right).}
 \label{fig:ml_ppg_results}
 \end{figure}
-\section{Contextual Bandits for 5G NR Initial Access}
-\label{sec:contextual_bandits_5gnr}
-% ============================================================
-
-\subsection{Random Access and Numerology Selection in 5G NR}
-Fifth-generation (5G) New Radio (NR) networks support massive Machine-Type Communications (mMTC), where tens of thousands of IoT devices attempt random access over common Random Access Channel (RACH) occasions. In the millimeter-wave (mmWave) spectrum, directional beamforming and severe sensitivity to physical blockages (e.g., humans, vehicles, foliage) exacerbate initial access latency.
-
-To accommodate heterogeneous services and diverse channel conditions, 5G NR introduces \emph{flexible numerology}, where subcarrier spacing (SCS) $\Delta f$ is scalable according to:
-\begin{equation}
-    \Delta f = 2^\mu \times 15~\text{kHz}, \quad \mu \in \{0, 1, 2, 3, 4\}.
-\end{equation}
-Different numerologies offer distinct trade-offs: smaller SCS ($\mu = 0, 1$) provides longer symbol duration and robust cyclic prefix protection against delay spread, whereas larger SCS ($\mu = 2, 3$) shortens slot duration, reducing RACH occasion latency and mitigating Doppler shift at the expense of higher sensitivity to phase noise and inter-carrier interference.
-
-\subsection{Contextual Multi-Armed Bandit Formulation}
-Choosing the optimal numerology $\mu$ dynamically cannot rely on slow feedback loops during initial access because the device has not yet established radio resource control (RRC) connectivity. Bommisetty and Venkatesh formulated this problem as a \emph{Contextual Multi-Armed Bandit} (CMAB).
-
-In the CMAB framework:
-\begin{itemize}
-    \item At decision round $t$, the base station observes a contextual vector $\mathbf{x}_t \in \mathbb{R}^d$ summarizing environmental states, such as spatial blockage density, user mobility indicators, and aggregate channel busy ratios.
-    \item The agent selects an arm $a_t \in \mathcal{A} = \{\mu_0, \mu_1, \dots, \mu_K\}$, representing the active numerology configuration for the upcoming RACH slot.
-    \item The network executes initial access and receives a scalar reward $r_{t, a_t}$, proportional to the number of successfully connected devices and inversely proportional to connection latency.
-\end{itemize}
-
-\subsection{Upper Confidence Bound (UCB) Action Selection}
-To balance exploration of unverified numerologies against exploitation of proven configurations, the agent employs the contextual Upper Confidence Bound (LinUCB) policy:
-\begin{equation}
-    a_t = \arg\max_{a \in \mathcal{A}} \left[ \mathbf{x}_t^T \hat{\boldsymbol{\theta}}_a + \alpha \sqrt{\mathbf{x}_t^T \mathbf{A}_a^{-1} \mathbf{x}_t} \right],
-\end{equation}
-where $\hat{\boldsymbol{\theta}}_a = \mathbf{A}_a^{-1} \mathbf{b}_a$ is the ridge-regression weight vector estimate for arm $a$, $\mathbf{A}_a = \mathbf{I}_d + \sum_{\tau \in \mathcal{T}_a} \mathbf{x}_\tau \mathbf{x}_\tau^T$ is the covariance matrix, and $\alpha > 0$ controls the confidence exploration width.
-
-By adapting numerology to real-time blockage context, the contextual bandit mechanism increases successful device connections by over $40\%$ per RACH occasion compared to static numerology schemes, substantially reducing network access delay in high-density mMTC deployments.
 
 % ============================================================
-\section{Deep Reinforcement Learning in Dynamic Wireless Environments}
-\label{sec:drl_dynamic_wireless}
+\section{Deep Q-Learning for eMBB and URLLC Coexistence in 5G}
+\label{sec:ml_dqn}
 % ============================================================
 
-Beyond scheduling and initial access, Deep Reinforcement Learning (DRL) algorithms (including Deep Q-Networks and Double Deep Q-Networks with prioritized experience replay) are widely deployed across wireless protocol stacks:
-\begin{itemize}
-    \item \textbf{Dynamic Rate and Power Adaptation:} In fast-fading vehicular and mobile environments, DRL agents learn joint modulation, coding, and power adaptation policies directly from raw signal-to-noise ratio trajectories without requiring explicit channel state information (CSI) models.
-    \item \textbf{Cognitive Spectrum Sharing:} In multi-tier heterogeneous networks, secondary users employ actor-critic policies to identify idle spectral white spaces and adjust transmission parameters without causing harmful interference to primary licensees.
-    \item \textbf{Integrated Sensing and Communication (ISAC):} DRL facilitates the joint optimization of radar sensing beams and communication data streams in connected vehicular environments, enabling reliable situational awareness and high-throughput infotainment.
-\end{itemize}
-
-Through modern reinforcement learning and bandit algorithms, wireless MAC protocols transition from rigid, handcrafted heuristics to intelligent, self-optimizing architectures capable of delivering robust performance across diverse 5G-Advanced and 6G communication environments.
-
-\section{DQN-Based Joint Scheduling of eMBB and Massive URLLC}
-\label{sec:ml_dqn_joint}
-\medskip
-\noindent\textbf{Background.}
-In 5G, the most popular approach to accomodate low latency users in the same network is through puncturing. The high data rate eMBB users are punctured and a minislot worth of resource is used by URLLC user~\cite{ml_dqn2025}.
-
-The punctured EMBB users experience a degradation in reliability [14]. As more resource blocks are punctured, the error probability in decoding the block becomes difficult.
-
-\medskip
-\noindent\textbf{Proposed scheme.}
-To circumvent this, we introduce a hybrid scheme that switches to orthogonal multiplexing mode for a fixed number of RBs and puncturing mode for the rest of the RBs whenever the URLLC arrival rate shoots up.
-
-Let K be the number of RBs dedicated to URLLC data and N be the total number of resource blocks in a minislot.
-
-
-\medskip
-\noindent\textbf{Reward and DQN training equations.}
-\emph{Source: Eqs.~(7)--(9) in~\cite{ml_dqn2025}.}
-\begin{align}
- R &= c_1R_e+c_2L_t(\lambda)+c_3,\\
- y &= r+\gamma\max_{a'}Q(s',a';\theta^-),\\
- L(\theta)&=\mathbb{E}_{(s,a,r,s')\sim\mathcal{D}}
- \left[\bigl(y-Q(s,a;\theta)\bigr)^2\right].
-\end{align}
-\noindent\emph{Notation:} $R_e$ is cumulative eMBB throughput, $L_t(\lambda)$ is URLLC queue occupancy, and $c_1,c_2,c_3$ are the source reward parameters. The replay buffer is $\mathcal{D}$, $\gamma$ is the discount factor, and $\theta^-$ denotes target-network parameters. The second equation gives the nonterminal target; Algorithm~1 uses $y=r$ for a terminal transition.
-
-\medskip
-\noindent\textbf{Major outcomes.}
-The results highlight that the baseline puncturing strategy experiences performance degradation much earlier under increasing traffic load. In contrast, the DQN agent maintains superior performance by dynamically adapting its actions at each time slot, effectively addressing the reliability demands of both URLLC and eMBB services. However, even the DQN approach reaches a saturation point at very high arrival rates, constrained by the system's total available bandwidth and throughput.
-
-The DQN-based approach consistently outperforms the baseline, keeping latency significantly lower across all $\lambda_u$. While the baseline exhibits a sharp increase in delay---exceeding 8 ms under high traffic---the DQN model effectively mitigates queue build-up through dynamic resource adaptation.
+\subsection{Background}
+5G New Radio serves three classes of traffic: enhanced mobile broadband (eMBB), which needs high data rates; ultra-reliable low-latency communication (URLLC), which needs delivery within about a millisecond with very high reliability; and massive machine-type communication. In industrial deployments, many latency-critical URLLC devices must share the spectrum with eMBB users that are continuously backlogged. The standard way to accommodate a URLLC packet is \emph{puncturing}: the resources already granted to an eMBB user are overwritten by a short URLLC transmission lasting a mini-slot, as illustrated in Fig.~\ref{fig:ml_dqn_frame}.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.60\textwidth,height=5.3cm,keepaspectratio]{ML_chapter_figures/dqn_latency.png}
-\caption{Average URLLC latency.}
+\includegraphics[width=0.62\textwidth]{ML_chapter_figures/dqn_puncturing_frame.png}
+\caption{A 5G subframe (numerology 1) in which URLLC mini-slot transmissions puncture the resource blocks of eMBB users.}
+\label{fig:ml_dqn_frame}
+\end{figure}
+
+Puncturing is fast, but it is not free. Every punctured resource block corrupts part of an eMBB codeword, so the eMBB user's decoding error probability rises and more retransmissions are needed. When URLLC arrivals are numerous, as in massive URLLC, eMBB reliability collapses. The opposite extreme, reserving dedicated (orthogonal) resources for URLLC, wastes spectrum when URLLC traffic is light. Desai, Indulekha and Venkatesh~\cite{ml_dqn2025} proposed a hybrid scheme in which a DQN agent decides, slot by slot, how much spectrum to reserve for URLLC and how much to leave to puncturing.
+
+\subsection{System Model}
+Let $N$ be the number of physical resource blocks (PRBs) in a mini-slot. In the hybrid scheme, $K$ of them are reserved orthogonally for URLLC, and the remaining $N-K$ carry eMBB data that URLLC may puncture. URLLC requests arrive as a Poisson process of rate $\lambda_u$, and eMBB users are fully buffered. Let $\varphi(t)=B\log_2(1+\mathrm{SNR})$ denote the capacity of one PRB. If $l$ mini-slots are punctured, an eMBB user's instantaneous rate is
+\begin{equation}
+  R_{X_e}(t)=\sum_{k=K+1}^{N}\mathbb{1}_p(k)\,\varphi(t)\left[1-\frac{l}{N-k}\right],
+  \label{eq:ml_dqn_embb}
+\end{equation}
+where $\mathbb{1}_p(k)$ marks the shared PRBs allocated to that user. A URLLC user collects the punctured share of the shared PRBs together with any reserved PRBs $\mathbb{1}_s(k)$ assigned to it:
+\begin{equation}
+  R_{X_u}(t)=\sum_{k=K+1}^{N}\mathbb{1}_p(k)\,\varphi(t)\,\frac{l}{N-k}+\sum_{k=1}^{K}\mathbb{1}_s(k)\,\varphi(t).
+  \label{eq:ml_dqn_urllc}
+\end{equation}
+Summing over users and slots gives the cumulative eMBB and URLLC throughputs $R_e$ and $R_u$. Writing $\alpha\in[0,1]$ for the fraction of shared PRBs punctured, the design problem is to serve as much URLLC traffic as possible while protecting eMBB:
+\begin{equation}
+\begin{aligned}
+  \max_{\alpha\in[0,1]}\quad & R_{X_u}(t)=(N-K)\,\alpha\,\varphi(t)+K\,\varphi(t) \\
+  \text{s.t.}\quad & R_{X_e}(t)=(N-K)(1-\alpha)\,\varphi(t)\ge R^{eMBB}_{\min}, \\
+  & P^{eMBB}_{out}(\alpha)\le\epsilon_{eMBB},\qquad P^{URLLC}_{out}\le\epsilon_{URLLC},
+\end{aligned}
+\end{equation}
+where $P_{out}$ denotes the probability that a service misses its rate, latency or reliability target.
+
+\subsection{The DQN Scheduler}
+Because URLLC arrivals are random and the right value of $K$ depends on the current load, the problem is cast as an MDP and solved with a deep Q-network (Fig.~\ref{fig:ml_dqn_model}). The state in slot $t$ is
+\begin{equation}
+  s_t=\bigl[R_{X_e}(t),\,R_{X_u}(t),\,\lambda_u,\,\lambda_e,\,L_t(\lambda_u)\bigr],
+\end{equation}
+where $L_t(\lambda_u)$ is the number of URLLC requests waiting in the queue. The action is the number of reserved PRBs, $K\in\{0,1,\dots,N\}$. The reward
+\begin{equation}
+  r_t=c_1R_e+c_2L_t(\lambda_u)+c_3
+  \label{eq:ml_dqn_reward}
+\end{equation}
+balances eMBB throughput against URLLC backlog, which is a direct proxy for URLLC latency. The weights $c_1,c_2$ normalise the two terms, and the constant $c_3$ shifts the reward so that good decisions are rewarded positively and poor ones negatively.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{ML_chapter_figures/dqn_model.png}
+\caption{Structure of the DQN-based scheduler. The agent observes the state $S_t$ and chooses the number $K$ of PRBs reserved for URLLC.}
+\label{fig:ml_dqn_model}
+\end{figure}
+
+The Q-network $Q(s,a;\boldsymbol{\theta})$ outputs one value for each candidate $K$. Training follows the standard DQN recipe~\cite{ml_mnih2015}. Transitions $(s,a,r,s')$ are stored in a replay buffer $\mathcal{D}$ and sampled in random mini-batches, which breaks the correlation between consecutive slots. Targets are computed with a separate, periodically synchronised target network $\boldsymbol{\theta}^{-}$,
+\begin{equation}
+  y=r+\gamma\max_{a'}Q(s',a';\boldsymbol{\theta}^{-}),
+\end{equation}
+and the network is trained to minimise the temporal-difference error
+\begin{equation}
+  L(\boldsymbol{\theta})=\mathbb{E}_{(s,a,r,s')\sim\mathcal{D}}\Bigl[\bigl(y-Q(s,a;\boldsymbol{\theta})\bigr)^{2}\Bigr].
+\end{equation}
+Exploration uses an $\epsilon$-greedy rule. Algorithm~\ref{alg:ml_dqn} summarises the procedure. A deliberately small network (two layers) keeps the scheduler light enough for per-slot decisions.
+
+\begin{algorithm}[H]
+\caption{DQN-based hybrid PRB allocation for eMBB and URLLC}
+\label{alg:ml_dqn}
+\begin{algorithmic}[1]
+\State Initialise replay buffer $\mathcal{D}$, Q-network $\boldsymbol{\theta}$ and target network $\boldsymbol{\theta}^{-}\gets\boldsymbol{\theta}$
+\For{each episode}
+  \State Observe initial state $s_t$
+  \For{each mini-slot}
+    \State With probability $\epsilon$ pick a random $K\in\{0,\dots,N\}$; otherwise $K\gets\arg\max_a Q(s_t,a;\boldsymbol{\theta})$
+    \State Reserve $K$ PRBs for URLLC; share the remaining $N-K$ with eMBB (puncturing if needed)
+    \State Compute $R_{X_e}(t)$, $R_{X_u}(t)$ from \eqref{eq:ml_dqn_embb}--\eqref{eq:ml_dqn_urllc} and $r_t$ from \eqref{eq:ml_dqn_reward}
+    \State Observe $s_{t+1}$; store $(s_t,K,r_t,s_{t+1})$ in $\mathcal{D}$
+    \State Sample a mini-batch from $\mathcal{D}$, form targets $y_j$, and take a gradient step on $L(\boldsymbol{\theta})$
+    \State $s_t\gets s_{t+1}$
+  \EndFor
+  \State Every $T_{\mathrm{sync}}$ episodes, set $\boldsymbol{\theta}^{-}\gets\boldsymbol{\theta}$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Performance}
+The scheduler was trained on a 10\,MHz carrier with numerology~1, 52 PRBs per symbol, 10 fully buffered eMBB users and URLLC arrival rates $\lambda_u$ from 5 to 100 requests per symbol. It was compared with a pure puncturing baseline. Fig.~\ref{fig:ml_dqn_latency} shows the average URLLC latency. Under puncturing, the delay grows sharply with load and exceeds 8\,ms at high arrival rates. The DQN scheduler keeps latency much lower over the entire range, because it reserves more PRBs as soon as the queue starts to build up.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.58\textwidth,height=5.3cm,keepaspectratio]{ML_chapter_figures/dqn_latency.png}
+\caption{Average URLLC latency of the DQN scheduler and the puncturing baseline, as a function of the URLLC arrival rate.}
 \label{fig:ml_dqn_latency}
 \end{figure}
-\section{Intrusion Detection with Efficient Feature Selection}
-\label{sec:ml_feature_selection}
-\medskip
-\noindent\textbf{Background.}
-The primary features are insufficient to predict the network attacks with very high precision. Derived features are generated by applying some statistical functions or transformations to the primary features. These derived features give us greater insight into the behavior of the network in case of an attack. ASNM dataset provides a large set of derived features. Generating a large number of derived features increases the complexity of the model. Hence feature selection techniques become important~\cite{ml_features2023}.
 
-\medskip
-\noindent\textbf{Proposed scheme.}
-We apply Chi-squared Test feature selection technique on the Advanced Security Network Metrics dataset to choose highly dependent features and remove features independent of the classifier output.
-
-We build a Logistic Regression based and a Neural Network based IDS on this dataset and obtain a highly accurate Network attack detection model.
-
-We perform a 5-fold cross validation on all the three datasets, where each dataset is split into 5 stratified sets and the mean of the individual performance metrics are recorded.
-
-
-\medskip
-\noindent\textbf{Feature-selection and classifier equations.}
-\emph{Source: Eqs.~(1) and (2) in~\cite{ml_features2023}.}
-\begin{align}
- \chi_c^2&=\sum_{\forall i}\frac{(O_i-E_i)^2}{E_i},\\
- \phi(z)&=\frac{1}{1+e^{-z}}.
-\end{align}
-Here, $O_i$ is the observed frequency of a unique sample that results in an attack. $E_i$ is the expected count of the unique sample that results in attack.
-The activation function used is a sigmoid. Sigmoid function softens the boundary in case of binary classification.
-
-\medskip
-\noindent\textbf{Major outcomes.}
-After use of Chi-squared test, we obtain a good performance result and the classifier trains much faster. The number of nodes in the input layer reduces, so the number of computations also reduces greatly.
-
-Flow based features and their derived features give us better performance over the primary features, but the flow based features have a larger memory footprint. Feature Selection methods in combination with Deep Learning algorithms is one of the best solutions to intrusion detection systems. We can compromise on number of features in case of timing constraints.
+The price of this protection is paid by eMBB traffic, as Fig.~\ref{fig:ml_dqn_tradeoff} shows. As $\lambda_u$ increases, the agent shifts resources towards URLLC: URLLC throughput rises until it saturates, while eMBB throughput declines gradually rather than collapsing. Even the DQN scheduler eventually saturates at very high loads, where the total bandwidth simply cannot serve all requests.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.54\textwidth,height=5.2cm,keepaspectratio]{ML_chapter_figures/ids_feature_selection.png}
-\caption{Selection of hidden-layer size.}
-\label{fig:ml_ids_feature_selection}
+\includegraphics[width=0.62\textwidth]{ML_chapter_figures/dqn_tradeoff.png}
+\caption{eMBB and URLLC throughput under the DQN scheduler for increasing URLLC arrival rate.}
+\label{fig:ml_dqn_tradeoff}
 \end{figure}
-\section{Hybrid Deep Models for Automatic Modulation Classification}
+
+% ============================================================
+\section{Hybrid Deep Networks for Automatic Modulation Classification}
 \label{sec:ml_amc}
-\medskip
-\noindent\textbf{Background.}
-Automatic Modulation Classification (AMC) plays a pivotal role in modern wireless communication systems, enabling receivers to autonomously identify modulation schemes without requiring prior knowledge of the transmitter's settings. This capability is essential for enhancing the efficiency, robustness, and adaptability of real-time applications such as 5G networks, dynamic spectrum allocation, and interference mitigation~\cite{ml_amc2024}.
+% ============================================================
 
-\medskip
-\noindent\textbf{Proposed scheme.}
-The Hybrid 1 model integrates the strengths of the RanNet and VGG architectures to create a novel hybrid approach. The core idea is to enhance the feature extraction capabilities of RanNet by incorporating additional layers from VGG. Specifically, a convolutional layer with a maxpooling layer and a skip connection is added between the two Ranblocks, aimed at retaining critical information during initial processing.
+\subsection{Background}
+\emph{Automatic modulation classification} (AMC) is the task of identifying the modulation scheme of a received signal without prior knowledge of the transmitter's settings. It is a key enabler of cognitive radio, dynamic spectrum access and interference management. Classical AMC is either likelihood-based, which is optimal but computationally heavy and sensitive to model mismatch, or feature-based, relying on hand-crafted statistics such as cumulants. Deep learning replaces hand-crafted features by features learnt directly from the raw in-phase and quadrature (I/Q) samples. Two CNN families have been particularly successful. VGG-style networks~\cite{ml_oshea2018} use stacks of small convolutions. RanNet~\cite{ml_rannet2022} adds \emph{residual} and \emph{attention} structures. Each has weaknesses across the full range of signal-to-noise ratios (SNRs). Prajapati \emph{et al.}~\cite{ml_amc2024} designed hybrid architectures that combine their strengths.
 
-Inspired by the Chain Residual Pooling block from RefineNet, the X block improves the model's ability to capture contextual information from large input regions.
+\subsection{Building Blocks}
+Three ideas underlie the hybrid models.
 
-In this architecture, two Ranblocks are employed, each incorporating an X block in place of the traditional Feablock.
-
-
-\medskip
-\noindent\textbf{Classification-accuracy equation.}
-\emph{Source: Eq.~(1) in~\cite{ml_amc2024}.}
-The classification accuracy of the model can be calculated using the following formula:
+\textbf{Skip (residual) connections.} Very deep networks are hard to train because gradients shrink as they propagate back through many layers. A residual block learns a correction $\mathcal{F}(\mathbf{x})$ to its input and outputs
 \begin{equation}
- \mathrm{Accuracy}=\frac{TN+TP}{TN+TP+FN+FP}.
+  \mathbf{y}=\mathcal{F}(\mathbf{x})+\mathbf{x},
 \end{equation}
-\noindent\emph{Notation:} $TN$, $TP$, $FN$ and $FP$ denote true negatives, true positives, false negatives and false positives, respectively, as defined in the paper's confusion-matrix discussion.
+so that information and gradients can bypass the block whenever the correction is not useful.
 
-\medskip
-\noindent\textbf{Major outcomes.}
-At an SNR of 18 dB, the Hybrid 2 model achieves an accuracy of 87.69\%, as shown in Fig. 10.
+\textbf{Channel attention.} RanNet's RanBlock first extracts fine features $\mathbf{F}$ with parallel $1\times1$, $1\times3$ and $1\times5$ convolutions (the FeaBlock). An attention module then computes one weight per feature channel by global average pooling, $1\times1$ convolutions and a sigmoid, and rescales the features with these weights. Informative channels are thereby strengthened and irrelevant ones suppressed:
+\begin{equation}
+  \mathbf{a}=\sigma\bigl(\mathrm{Conv}_{1\times1}(\mathrm{GAP}(\mathbf{F}))\bigr),\qquad
+  \mathbf{y}=\mathbf{a}\odot\mathbf{F}+\mathbf{x}.
+\end{equation}
 
-The comparison shows that Hybrid 1 and Hybrid 2 models achieve higher classification accuracies at most SNR levels, with Hybrid 1 slightly outperforming Hybrid 2 at very low SNR values. Hybrid 3, while still competitive, demonstrates lower accuracy, indicating that the architectural enhancements in Hybrid 1 and Hybrid 2 are more effective in improving classification performance.
+\textbf{The X block.} Inspired by the chained residual pooling of RefineNet~\cite{ml_refinenet2017}, the X block (Fig.~\ref{fig:ml_amc_xblock}) is a chain of $3\times3$ convolutions in which each convolution acts on the output of the previous one and every output is added back to the main path:
+\begin{equation}
+  \mathbf{c}_0=\mathrm{ReLU}(\mathbf{x}),\qquad
+  \mathbf{c}_j=\mathrm{Conv}_j(\mathbf{c}_{j-1}),\qquad
+  \mathbf{y}=\mathbf{c}_0+\sum_{j=1}^{4}\mathbf{c}_j.
+\end{equation}
+Each successive convolution sees a wider region of the input, so the block gathers context from large regions without a large pooling window.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.42\textwidth]{ML_chapter_figures/amc_xblock.png}
+\caption{The X block: a chain of $3\times3$ convolutions whose outputs are summed with residual connections.}
+\label{fig:ml_amc_xblock}
+\end{figure}
+
+\subsection{Hybrid Architectures}
+Three hybrids were constructed, each starting from the RanNet pre-processing block (two strided convolutions with batch normalisation):
+\begin{itemize}
+  \item \textbf{Hybrid~1} inserts a VGG-style convolution and max-pooling layer, with a skip connection, between two RanBlocks, and ends with a further convolution and pooling stage. The extra VGG layers retain information during early processing (145,322 parameters).
+  \item \textbf{Hybrid~2} keeps one RanBlock and appends an X block, combining channel attention with chained residual convolutions (209,578 parameters).
+  \item \textbf{Hybrid~3} replaces the FeaBlock inside both RanBlocks by X blocks, which gives the richest but also the largest model (332,074 parameters).
+\end{itemize}
+All models were trained on the RadioML 2016.10b dataset, which contains ten modulation schemes (including BPSK, QPSK, 8PSK, 16-QAM, 64-QAM, PAM4, GFSK and WBFM), using SNRs from $-10$ to $+18$\,dB, a 70:30 train--test split, the Adam optimiser and the cross-entropy loss~\eqref{eq:ml_crossentropy}. Accuracy is the fraction of test frames whose modulation is correctly identified.
+
+\subsection{Performance}
+Fig.~\ref{fig:ml_amc_hybrid_comparison} compares the three hybrids across SNR, and Table~\ref{tab:ml_amc_results} lists accuracy at 18\,dB together with model size. Hybrid~1 and Hybrid~2 track RanNet closely and clearly outperform VGG, particularly at low SNR, while using far fewer parameters than VGG. Hybrid~1 is slightly better than Hybrid~2 at very low SNR. Hybrid~3, despite having the most parameters, is the least accurate. Additional depth beyond a point leads to overfitting rather than better features, so architectural balance matters more than size. The confusion matrices of the paper show that the remaining errors are concentrated in 16-QAM versus 64-QAM, two dense constellations that look alike in noise.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.53\textwidth,height=5.3cm,keepaspectratio]{ML_chapter_figures/amc_hybrid_comparison.png}
-\caption{Comparison of hybrid architectures.}
+\caption{Classification accuracy of Hybrid~1, 2 and 3 as a function of SNR.}
 \label{fig:ml_amc_hybrid_comparison}
 \end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Accuracy at 18\,dB SNR and model size (data from~\cite{ml_amc2024}).}
+\label{tab:ml_amc_results}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Model} & \textbf{Accuracy at 18\,dB (\%)} & \textbf{Learnable parameters} \\
+\midrule
+VGG      & 84.70 & 186,570 \\
+RanNet   & 88.96 & 114,746 \\
+Hybrid 1 & 87.89 & 145,322 \\
+Hybrid 2 & 87.69 & 209,578 \\
+Hybrid 3 & 81.32 & 332,074 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{Intrusion Detection with Efficient Feature Selection}
+\label{sec:ml_features}
+% ============================================================
+
+\subsection{Background}
+A network intrusion detection system (NIDS) monitors traffic and raises an alarm when it detects malicious activity. Conventional NIDS use signatures of known attacks or hand-built statistical rules, and every attack class must be handled separately. Machine learning recasts intrusion detection as a classification problem: given the features of a traffic flow, decide whether it is benign or an attack. The model is learnt from data rather than written by hand.
+
+The quality of such a classifier depends heavily on its features. Widely used datasets such as KDD Cup 99, NSL-KDD and UNSW-NB15 consist mostly of \emph{primary} features, which are read directly from packets: protocol, service, bytes transferred, flags and so on. \emph{Derived} features are obtained by applying statistical transformations to primary features over time. Examples are the standard deviation of packet sizes, the Fourier transform of inbound packet sizes, and the number of inbound packets in each of several time intervals. They describe the \emph{behaviour} of a flow and are far more revealing. The Advanced Security Network Metrics (ASNM) datasets provide close to 900 such features. The difficulty is that so many features make the classifier slow to train and prone to overfitting. Desai and Venkatesh~\cite{ml_features2023} showed that a simple statistical filter can remove most of them without loss of accuracy.
+
+\subsection{Chi-Square Feature Selection}
+After pre-processing (removing spoofable identifiers such as IP and MAC addresses, encoding categorical fields numerically, discarding constant features, and min--max normalising every feature to $[0,1]$), each feature is tested for statistical dependence on the class label with Pearson's chi-square test. For a given feature,
+\begin{equation}
+  \chi^{2}=\sum_{i}\frac{(O_i-E_i)^{2}}{E_i},
+  \label{eq:ml_chi2}
+\end{equation}
+where $O_i$ is the observed number of attack samples taking the $i$-th value of the feature, and $E_i$ is the number expected if the feature and the label were independent. A large $\chi^{2}$ (equivalently, a small $p$-value) indicates that the feature carries information about the label. Features are ranked by $p$-value, and only the most dependent ones are kept, about 400 out of roughly 900. The top-ranked features turn out to be derived rather than primary features, mostly counts of inbound packets in particular time intervals and the count of inbound TCP SYN packets. This confirms that flow behaviour is what distinguishes attacks from normal traffic.
+
+\subsection{Classifiers}
+Two classifiers were built on the selected features. The first is logistic regression, which passes a weighted sum of the features through the sigmoid $\phi(z)=1/(1+e^{-z})$ to obtain the probability of an attack. The second is a multilayer perceptron with a single hidden layer and sigmoid activations, trained with the Adam optimiser at learning rate $10^{-5}$. The size of the hidden layer was chosen by grid search (Fig.~\ref{fig:ml_ids_feature_selection}). For the ASNM-NBPO dataset, seven hidden nodes already reach the best accuracy. Performance is reported as precision $TP/(TP+FP)$, recall $TP/(TP+FN)$ and their harmonic mean, the F1 score, averaged over 5-fold stratified cross-validation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.50\textwidth,height=5.0cm,keepaspectratio]{ML_chapter_figures/ids_feature_selection.png}
+\caption{Classification accuracy against the number of hidden-layer nodes (ASNM-NBPO dataset).}
+\label{fig:ml_ids_feature_selection}
+\end{figure}
+
+\subsection{Performance}
+Table~\ref{tab:ml_ids_results} shows that, after feature selection, both classifiers achieve F1 scores above 99\% on all three ASNM datasets, well above the na\"ive Bayes classifier with forward feature selection proposed by the creators of ASNM. Feature selection costs almost nothing in accuracy, but it shrinks the input layer and therefore the computation per sample. The neural network trains 2.6$\times$ faster on ASNM-CDX-2009 and 5.6$\times$ faster on ASNM-NBPO. The lesson is that flow-based derived features give better detection than primary features, and that a simple filter such as the chi-square test makes them affordable.
+
+\begin{table}[H]
+\centering
+\caption{F1 score (\%) with feature selection for logistic regression (LR), the neural network (NN) and the na\"ive Bayes baseline (NB), and NN training time (s) without and with feature selection (data from~\cite{ml_features2023}).}
+\label{tab:ml_ids_results}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+& \multicolumn{3}{c}{\textbf{F1 score (\%)}} & \multicolumn{2}{c}{\textbf{NN training time (s)}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-6}
+\textbf{Dataset} & \textbf{LR} & \textbf{NN} & \textbf{NB} & \textbf{All feat.} & \textbf{Selected} \\
+\midrule
+ASNM-CDX-2009 & 99.79 & 99.72 & 88.48 & 16.75 & 6.35 \\
+ASNM-NBPO     & 99.56 & 99.31 & 97.39 & 34.36 & 6.17 \\
+ASNM-TUN      & 99.39 & 98.99 & 95.57 & 1.84  & 1.17 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
 \section{Robust Intrusion Detection for Previously Unseen Attacks}
 \label{sec:ml_rnids}
-\medskip
-\noindent\textbf{Background.}
-However, whether an ML-based NIDS can successfully handle a new type of attack is an open question. CNN-based IDS can classify these types of attacks to a certain extent but they classify most unknown attacks as benign. Due to this problem, a robust outlier detection in the NIDS system becomes necessary. The purpose of this paper is to address this vital issue~\cite{ml_rnids2022}.
+% ============================================================
 
-\medskip
-\noindent\textbf{Proposed scheme.}
-We put forward a Robust NIDS model, called RNIDS, which is a combination of CNN followed by an outlier detection system. The combined system classifies known attacks and identifies new outliers with high accuracy. We further analyze the prediction probabilities of the neural network using nearest neighbor approximation. This information helps us decide if a new adversary was attempting a malicious attack on the network. If the average distance is beyond a certain threshold dth, then the point is classified as a new adversary.
+\subsection{Background}
+A classifier can only recognise the classes it was trained on. When a genuinely new attack appears (in recent years, for example, the Mirai botnet and new UDP amplification attacks), a CNN-based NIDS must still assign it to one of its known classes, and in practice it labels most unseen attacks as \emph{benign}. This is the worst possible failure for a security system. Detecting such \emph{outliers} is usually treated as a separate problem from classifying known attacks. Approaches such as zero-shot learning require side information (attributes) that a new adversary does not provide. Desai and Venkatesh~\cite{ml_rnids2022} proposed a unified model, the Robust NIDS (RNIDS), that both classifies known attacks and flags unknown ones.
 
-
-\medskip
-\begin{samepage}
-\noindent\textbf{Classification and outlier-detection equations.}
-\emph{Source: Eqs.~(1) and (2) in~\cite{ml_rnids2022}.}
-\begin{align}
- \sigma(Z_i)&=\frac{e^{Z_i}}{\sum_{j=1}^{N}e^{Z_j}},\\
- d_{avg}&=\frac{d_1+d_2+\cdots+d_K}{K}.
-\end{align}
-\end{samepage}
-\noindent\emph{Notation:} The softmax output forms the class-probability vector. Each $d_j$ is a Euclidean distance to one of the $K$ nearest neighbors in that probability space. The second equation supplies the distance compared with $d_{th}$ in the source decision rule.
-
-\medskip
-\noindent\textbf{Major outcomes.}
-The CNN model with 13 attack classes has classified different attacks with an overall accuracy of 98.3\%.
-
-Compared to the results in Table V, Botnet, Port scan and SSH Patator are predicted as a new adversary with an accuracy of 74.96\%, 88.03\% and 90.08\%.
-
-Retraining the CNN model with an appropriate balance of initial dataset and real time data will be a difficult task. There is a high chance that the CNN may forget the patterns from the initial data if we feed it a large set of newer samples.
+\subsection{The RNIDS Model}
+RNIDS operates in two phases (Fig.~\ref{fig:ml_rnids_architecture}). In the \emph{training phase}, a compact CNN is trained on labelled traffic. In the \emph{deployment phase}, live traffic is classified by the CNN, and an outlier detector examines the CNN's output to decide whether the sample belongs to any known class at all. Samples flagged as new adversaries are stored and fed back for retraining, which closes the loop without human intervention.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=1.00\textwidth,height=5.2cm,keepaspectratio]{ML_chapter_figures/rnids_architecture.png}
-\caption{RNIDS training and deployment.}
+\caption{The RNIDS model: training phase and real-time deployment phase.}
 \label{fig:ml_rnids_architecture}
 \end{figure}
-\section{BIOS: Biogeography-Inspired Scheduling for TSCH}
-\label{sec:ml_bios}
-\medskip
-\noindent\textbf{Background.}
-The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours~\cite{ml_bios2021}. In TSCH, the time is divided into slots and the bandwidth is divided into orthogonal channels [4]. The nodes in TSCH network communicate in a scheduling matrix composed of cells. The cells are the basic resource units for communication in TSCH network which are designated by its time slot index and the channel index. IEEE 802.15.4e standard does not define the algorithm for computing the scheduling matrix and is open to implementation. Hence the problem of designing efficient schedule in TSCH networks has gained importance in networking research community.
 
+\textbf{The classifier.} The model is trained on the CICIDS2017 dataset~\cite{ml_sharafaldin2018}, which contains about 2.8 million labelled flows with 78 features each and covers attacks such as DDoS, several DoS variants, botnet, port scan, brute-force (FTP- and SSH-Patator) and web attacks. Each feature vector is min--max normalised, zero-padded to length 128 and reshaped into an $8\times16$ ``image''. Two convolutional layers ($3\times3$ kernels, 16 and 64 filters) with max pooling are followed by dense layers with SELU activations and a softmax output~\eqref{eq:ml_softmax}. The whole network has only 70,252 trainable parameters, which keeps inference fast. Classes were rebalanced by up- and down-sampling so that rare attacks are not ignored.
 
-\medskip
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.92\textwidth]{ML_chapter_figures/bios_topology_schedule.png}
-\caption{An example RPL DODAG TSCH network with $n_0$ as border router (left) and its sample slotframe schedule (right).}
-\label{fig:ml_bios_topology_schedule}
-\end{figure}
-We consider the TSCH network consists of a set of $N$ nodes communicating to a single border router that collects data from the nodes in multiple hops. The routing protocol for low power lossy networks (RPL) is employed to create a routing topology among the nodes. TSCH scheduling is a process of assigning cells to the nodes in the TSCH network for communication as shown in Fig.~\ref{fig:ml_bios_topology_schedule}. Schedule is a $T\times M$ matrix in which each entry of the matrix is a subset of edges of the network tree~\cite{ml_bios2021}.
-
-\medskip
-\noindent\textbf{Proposed scheme.}
-In initiation stage, a set of random schedules are generated. To improve the existing set of scheduling algorithms, we employ the migration and mutation operations. Migration operation shares the good features from best scheduling algorithm to the poor ones by appropriately modelling the immigration and emigration of each node in the network. Mutation operation maintains the diversity in the candidate schedules to tackle the sporadic changes in the network.
-
-
-\medskip
-\clearpage
-\noindent\textbf{Schedule-penalty and migration equations.}
-\emph{Source: Eqs.~(3)--(5) in~\cite{ml_bios2021}.}
-\begin{align}
- F_{SC2}&=\sum_i\log\left(\frac{q_i}{c_i}\right),\\
- F(S)&=F_{SC1}+F_{SC2}+F_{SC3},\\
- \lambda_i&=I\left(1-\frac{R_i}{R_{max}}\right),
- &\mu_i&=E\left(\frac{R_i}{R_{max}}\right).
-\end{align}
-\noindent\emph{Notation:} $q_i$ is queue occupancy and $c_i$ is the number of allocated cells. The three penalties concern interference, fairness and buffering delay. $R_i$ is the candidate's rank, $R_{max}$ the maximum rank, and $I,E$ the maximum immigration and emigration rates.
-
-\medskip
-\noindent\textbf{Major outcomes.}
-It has been shown through simulations that the proposed BIOS scheduling algorithm achieves an improvement of 60\% in delay performance and upto 40\% of energy efficiency compared to MSF.
-
-In the mobile TSCH networks, the topology changes frequently forcing BIOS to explore more solutions by mutation operation which makes the solution convergence slower.
+\textbf{The outlier detector.} For an input sample, the softmax output $\mathbf{p}=[p_1,\dots,p_C]$ is a point in a $C$-dimensional probability space. Samples of a known class form tight clusters in this space, because the CNN assigns them confident and consistent probabilities. A sample of an unseen attack produces an unusual probability vector that lies far from every cluster, as illustrated in Fig.~\ref{fig:ml_rnids_knn}. RNIDS stores the probability vectors of correctly classified training samples. For a new sample it finds the $K$ nearest stored points, with Euclidean distances $d_1,\dots,d_K$, and computes the average distance
+\begin{equation}
+  d_{avg}=\frac{1}{K}\sum_{j=1}^{K}d_j.
+\end{equation}
+The sample is declared a \emph{new adversary} if $d_{avg}>d_{th}$, and is otherwise assigned the class predicted by the CNN. Tuning on a large sample set gave $K=12$ and $d_{th}=10^{-6}$.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.59\textwidth,height=5.2cm,keepaspectratio]{ML_chapter_figures/bios_mobile_convergence.png}
-\caption{BIOS convergence with mobile nodes.}
-\label{fig:ml_bios_mobile_convergence}
+\includegraphics[width=0.38\textwidth]{ML_chapter_figures/rnids_knn.png}
+\caption{Outlier detection by $K$ nearest neighbours in the space of CNN output probabilities. Known attack classes form clusters, and an anomaly $a_1$ lies far from its neighbours.}
+\label{fig:ml_rnids_knn}
 \end{figure}
-\clearpage
-\printbibliography[heading=subbibliography,title={References for the Paper Summaries}]
+
+\subsection{Performance}
+On known attacks, the CNN achieves an overall accuracy of 98.3\%. To test robustness, each attack class was removed in turn from the training set and presented only at test time. Table~\ref{tab:ml_rnids_results} compares the fraction of such unseen samples that the CNN alone still flags as some attack with the fraction that RNIDS flags as a new adversary. The CNN alone recognises an unseen attack only when it resembles a known one: a missing DoS variant is often caught as another DoS attack, but botnet, port-scan and SSH-Patator traffic are almost entirely passed as benign. With the outlier detector, these attacks are flagged in 75\%, 88\% and 90\% of cases, and most DoS variants in more than 99\% of cases. The main open issue is retraining. When new samples are fed back, the CNN must learn the new class without forgetting the old ones, and achieving this balance remains difficult.
+
+\begin{table}[H]
+\centering
+\caption{Detection of attacks absent from the training set: CNN alone versus RNIDS (data from~\cite{ml_rnids2022}).}
+\label{tab:ml_rnids_results}
+\small
+\begin{tabular}{@{}lp{0.25\textwidth}p{0.25\textwidth}@{}}
+\toprule
+\textbf{Unseen attack} & \textbf{CNN alone: flagged as an attack (\%)} & \textbf{RNIDS: flagged as new adversary (\%)} \\
+\midrule
+Botnet             & 0  & 74.96 \\
+DDoS               & 47 & 99.18 \\
+DoS GoldenEye      & 46 & 99.98 \\
+DoS Hulk           & 42 & 77.36 \\
+DoS Slowhttptest   & 26 & 99.96 \\
+DoS Slowloris      & 75 & 99.98 \\
+Port scan          & 16 & 88.03 \\
+FTP-Patator        & 50 & 99.98 \\
+SSH-Patator        & 1  & 90.08 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{Summary}
+\label{sec:ml_summary}
+% ============================================================
+
+The six case studies show machine learning entering network design at several layers. For scheduling and resource allocation, the decision problems are combinatorial and their environments change over time. Population-based search (BIOS) yields conflict-free TSCH schedules with lower delay and energy use. Deep RL learns allocation policies directly from experience, whether by phasic policy gradient for IIoT cell and power allocation or by a lightweight DQN that adapts the URLLC reservation in 5G to the instantaneous load. For classification, carefully designed hybrid CNNs identify modulation formats accurately with modest model size. In intrusion detection, statistically selected derived features give highly accurate and fast classifiers, and an outlier detector placed on top of a CNN lets the system recognise attacks it has never seen.
+
+Several themes recur. Domain knowledge remains essential: the constraints of the TSCH schedule, the structure of the 5G frame and the choice of traffic features all shape what the learner can achieve. Model size must be kept small enough for real-time operation, and several of the designs above deliberately trade a little accuracy for speed. Finally, adaptivity, whether through mutation, continual policy updates or feedback of new attack samples, is what allows learning-based methods to cope with the changing conditions that defeat static protocols.
+
+\printbibliography[heading=subbibliography,title={References}]
 \end{refsection}
