@@ -1,8 +1,7 @@
 \chapter{Machine Learning Applications}
 \label{sec:chapter_ml}
 \begin{refsection}[sections/chapter_ml_references.bib]
-\noindent\emph{Editorial note: The six paper summaries retain the cited papers' wording. PDF line wrapping and typographic formatting are normalized. Figure, table and bracketed reference numbers within an excerpt refer to the original paper. Figure captions, equation headings and italicized notation explanations are editorial. Equations are transcribed from the cited papers and renumbered for this chapter.}
-\medskip
+% 
 
 Next-generation wireless networks are increasingly characterized by extreme densification, diverse Quality of Service (QoS) requirements, dynamic topology changes, and highly non-stationary propagation environments. Conventional Medium Access Control (MAC) protocols rely predominantly on static rules, pre-configured backoff parameters, or idealized heuristic policies designed for stationary conditions. Consequently, traditional approaches struggle to adapt in complex, unpredictable scenarios such as industrial automation, massive machine-type communications (mMTC), and high-mobility vehicular swarms.
 
@@ -248,11 +247,7 @@ However, whether an ML-based NIDS can successfully handle a new type of attack i
 
 \medskip
 \noindent\textbf{Proposed scheme.}
-We put forward a Robust NIDS model, called RNIDS, which is a combination of CNN followed by an outlier detection system. The combined system classifies known attacks and identifies new outliers with high accuracy.
-
-We further analyze the prediction probabilities of the neural network using nearest neighbor approximation. This information helps us decide if a new adversary was attempting a malicious attack on the network.
-
-If the average distance is beyond a certain threshold dth, then the point is classified as a new adversary.
+We put forward a Robust NIDS model, called RNIDS, which is a combination of CNN followed by an outlier detection system. The combined system classifies known attacks and identifies new outliers with high accuracy. We further analyze the prediction probabilities of the neural network using nearest neighbor approximation. This information helps us decide if a new adversary was attempting a malicious attack on the network. If the average distance is beyond a certain threshold dth, then the point is classified as a new adversary.
 
 
 \medskip
@@ -284,11 +279,7 @@ Retraining the CNN model with an appropriate balance of initial dataset and real
 \label{sec:ml_bios}
 \medskip
 \noindent\textbf{Background.}
-The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours~\cite{ml_bios2021}.
-
-In TSCH, the time is divided into slots and the bandwidth is divided into orthogonal channels [4]. The nodes in TSCH network communicate in a scheduling matrix composed of cells. The cells are the basic resource units for communication in TSCH network which are designated by its time slot index and the channel index.
-
-IEEE 802.15.4e standard does not define the algorithm for computing the scheduling matrix and is open to implementation. Hence the problem of designing efficient schedule in TSCH networks has gained importance in networking research community.
+The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours~\cite{ml_bios2021}. In TSCH, the time is divided into slots and the bandwidth is divided into orthogonal channels [4]. The nodes in TSCH network communicate in a scheduling matrix composed of cells. The cells are the basic resource units for communication in TSCH network which are designated by its time slot index and the channel index. IEEE 802.15.4e standard does not define the algorithm for computing the scheduling matrix and is open to implementation. Hence the problem of designing efficient schedule in TSCH networks has gained importance in networking research community.
 
 
 \medskip
