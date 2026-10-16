@@ -1,12 +1,22 @@
 \chapter{Machine Learning Applications}
 \label{sec:chapter_ml}
 \begin{refsection}[sections/chapter_ml_references.bib]
-\noindent\emph{Editorial note: The six paper summaries identified as source excerpts retain the papers' wording. PDF line wrapping and typographic formatting are normalized. Figure, table and bracketed reference numbers within an excerpt refer to the original paper. Screenshot captions are editorial.}
+\noindent\emph{Editorial note: The six paper summaries retain the cited papers' wording. PDF line wrapping and typographic formatting are normalized. Figure, table and bracketed reference numbers within an excerpt refer to the original paper. Figure captions, equation headings and italicized notation explanations are editorial. Equations are transcribed from the cited papers and renumbered for this chapter.}
 \medskip
 
 Next-generation wireless networks are increasingly characterized by extreme densification, diverse Quality of Service (QoS) requirements, dynamic topology changes, and highly non-stationary propagation environments. Conventional Medium Access Control (MAC) protocols rely predominantly on static rules, pre-configured backoff parameters, or idealized heuristic policies designed for stationary conditions. Consequently, traditional approaches struggle to adapt in complex, unpredictable scenarios such as industrial automation, massive machine-type communications (mMTC), and high-mobility vehicular swarms.
 
 To address these limitations, machine learning (ML)---particularly Reinforcement Learning (RL) and Multi-Armed Bandit (MAB) frameworks---has emerged as a foundational methodology for intelligent protocol design. By framing radio resource allocation, scheduling, and channel access as learning problems, wireless nodes can autonomously optimize their transmission strategies through continuous interaction with the physical environment. This chapter explores key machine learning applications in modern wireless MAC design, focusing on Phasic Policy Gradient reinforcement learning for Industrial IoT, contextual bandits for 5G New Radio initial access, and deep reinforcement learning for dynamic wireless environments.
+
+Most existing approaches either focus solely on orthogonal multiplexing or rely heavily on puncturing-based methods without adaptively balancing the trade-off under varying network loads. Moreover, the application of lightweight, scalable reinforcement learning models for real-time joint scheduling in massive URLLC-eMBB coexistence remains underexplored~\cite{ml_dqn2025}.
+
+To save their energy, nodes keep their radio off at all times except when the node is transmitting, receiving or listening to a broadcast message in the network. To enable this to happen, nodes should have an idea of the cells in which its communications are scheduled. IEEE 802.15.4e standard does not define the algorithm for computing the scheduling matrix and is open to implementation. Hence the problem of designing efficient schedule in TSCH networks has gained importance in networking research community~\cite{ml_bios2021}.
+
+ML classifiers take quite a lot of time to train and learn from real-world datasets. The training suffers from over-fitting and very few attack samples in existing networks. Due to these issues, network datasets are built in a simulated environment. Many of these attacks are introduced into the system to create better datasets. The ratio of malicious traffic to benign traffic is kept close to a real-world network. The learning rate of the classifiers is highly dependent on the algorithms used, the hardware, and the choice of features. Feature selection is one such aspect that makes the classifier learn faster [9]~\cite{ml_features2023}.
+
+The current literature has a different implementation for the classification of attacks and outlier detection. The unique contribution of this paper is to bridge these two systems and to develop a unified model that will detect not only known attacks but also outliers~\cite{ml_rnids2022}.
+
+We aim to address the limitations of current deep learning models for AMC, which often exhibit suboptimal accuracy across diverse modulation schemes and varying signal conditions, by developing robust architectures. Additionally, we seek to overcome the inflexibility of existing models to adapt to new modulation schemes, thereby creating scalable and adaptable solutions~\cite{ml_amc2024}.
 
 % ============================================================
 \section{Reinforcement Learning in Wireless Medium Access}
@@ -32,17 +42,32 @@ The learning objective is to discover an optimal policy $\pi^*(a | s)$ that maxi
 \clearpage
 \section{Phasic Policy Gradient for Industrial IoT}
 \label{sec:ppg_tsch_networks}
-\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_ppg2022}.
-
 \medskip
 \noindent\textbf{Background.}
-The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours. Hence the transmission, reception and sleep routines of nodes has to be scheduled to save their energy and to provide a synchronized connection in the network. The nodes in TSCH network communicate using a scheduling matrix composed of cells which are designated by its time slot index and the channel index. Recently, learning algorithms such as machine learning (ML) and reinforcement learning (RL) methods are being adopted to address resource allocation problems in wireless networks [2]. Cobbe et al. proposed the PPG, by modifying the traditional actor-critic policy gradient method [3]. In PPG, the policy and the value functions are learnt independently so that the sharing of network parameters between the value optimization and the policy optimization networks can be regulated.
+The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours. Hence the transmission, reception and sleep routines of nodes has to be scheduled to save their energy and to provide a synchronized connection in the network. The nodes in TSCH network communicate using a scheduling matrix composed of cells which are designated by its time slot index and the channel index. Recently, learning algorithms such as machine learning (ML) and reinforcement learning (RL) methods are being adopted to address resource allocation problems in wireless networks [2]. Cobbe et al. proposed the PPG, by modifying the traditional actor-critic policy gradient method [3]. In PPG, the policy and the value functions are learnt independently so that the sharing of network parameters between the value optimization and the policy optimization networks can be regulated~\cite{ml_ppg2022}.
 
 \medskip
 \noindent\textbf{Proposed scheme.}
 During policy phase, the agent is trained using proximal policy optimization (PPO) [5]. During auxiliary phase, the features from the value function are distilled into the policy network, so that the future policy phases improve.
 
 In auxiliary phase, the joint objective function that includes behavioral cloning loss and an arbitrary auxiliary loss is used to optimized the policy network.
+
+
+\medskip
+\noindent\textbf{Resource-allocation and learning equations.}
+\emph{Source: Eqs.~(1)--(3), (8) and (9) in~\cite{ml_ppg2022}.}
+\begin{align}
+ Th &= \sum_{i=1}^{N}\sum_{k=1}^{M}P^i_{k,suc}, \\
+ \eta &= \frac{\sum_{i=1}^{N}\sum_{k=1}^{M}P^i_{k,suc}}
+ {\sum_{i=1}^{N}\sum_{k=1}^{M}p^i X^i_{(t,k)}}, \\
+ \max_{\mathbf{P},\mathbf{X},\theta_1,\theta_2}\;U &= \theta_1 Th+\theta_2\eta.
+\end{align}
+\noindent\emph{Notation:} $P^i_{k,suc}$ is packet-success probability, $X^i_{(t,k)}$ indicates cell allocation, and $p^i$ is transmission power. The weights $\theta_1,\theta_2$ balance throughput and energy efficiency.
+\begin{align}
+ \mathcal{L}^{value}(\phi)&=\mathbb{E}\!\left[\frac{\lVert V_\phi(s_t)-\hat V(s_t)\rVert^2}{2}\right],\\
+ \mathcal{L}^{joint}&=\mathcal{L}^{aux}+\mu_{clone}D_{KL}(\pi_{\theta_{old}}\Vert\pi_\theta).
+\end{align}
+\noindent\emph{Notation:} $V_\phi$ and $\hat V$ are the value functions in the source formulation; $\mu_{clone}$ regulates the policy-preservation penalty during auxiliary learning.
 
 \medskip
 \noindent\textbf{Major outcomes.}
@@ -54,11 +79,10 @@ We show that the PPG improves the system throughput by 58\% compared to the defa
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.76\textwidth,height=4.6cm,keepaspectratio]{ML_chapter_figures/ppg_results.png}
-\caption{PPG convergence and system throughput. Screenshot of Fig.~1 in~\cite{ml_ppg2022}.}
+\includegraphics[width=0.90\textwidth,height=5.3cm,keepaspectratio]{ML_chapter_figures/ppg_results.png}
+\caption{PPG convergence and system throughput.}
 \label{fig:ml_ppg_results}
 \end{figure}
-\clearpage
 \section{Contextual Bandits for 5G NR Initial Access}
 \label{sec:contextual_bandits_5gnr}
 % ============================================================
@@ -105,14 +129,11 @@ Beyond scheduling and initial access, Deep Reinforcement Learning (DRL) algorith
 
 Through modern reinforcement learning and bandit algorithms, wireless MAC protocols transition from rigid, handcrafted heuristics to intelligent, self-optimizing architectures capable of delivering robust performance across diverse 5G-Advanced and 6G communication environments.
 
-\clearpage
 \section{DQN-Based Joint Scheduling of eMBB and Massive URLLC}
 \label{sec:ml_dqn_joint}
-\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_dqn2025}.
-
 \medskip
 \noindent\textbf{Background.}
-In 5G, the most popular approach to accomodate low latency users in the same network is through puncturing. The high data rate eMBB users are punctured and a minislot worth of resource is used by URLLC user.
+In 5G, the most popular approach to accomodate low latency users in the same network is through puncturing. The high data rate eMBB users are punctured and a minislot worth of resource is used by URLLC user~\cite{ml_dqn2025}.
 
 The punctured EMBB users experience a degradation in reliability [14]. As more resource blocks are punctured, the error probability in decoding the block becomes difficult.
 
@@ -122,6 +143,18 @@ To circumvent this, we introduce a hybrid scheme that switches to orthogonal mul
 
 Let K be the number of RBs dedicated to URLLC data and N be the total number of resource blocks in a minislot.
 
+
+\medskip
+\noindent\textbf{Reward and DQN training equations.}
+\emph{Source: Eqs.~(7)--(9) in~\cite{ml_dqn2025}.}
+\begin{align}
+ R &= c_1R_e+c_2L_t(\lambda)+c_3,\\
+ y &= r+\gamma\max_{a'}Q(s',a';\theta^-),\\
+ L(\theta)&=\mathbb{E}_{(s,a,r,s')\sim\mathcal{D}}
+ \left[\bigl(y-Q(s,a;\theta)\bigr)^2\right].
+\end{align}
+\noindent\emph{Notation:} $R_e$ is cumulative eMBB throughput, $L_t(\lambda)$ is URLLC queue occupancy, and $c_1,c_2,c_3$ are the source reward parameters. The replay buffer is $\mathcal{D}$, $\gamma$ is the discount factor, and $\theta^-$ denotes target-network parameters. The second equation gives the nonterminal target; Algorithm~1 uses $y=r$ for a terminal transition.
+
 \medskip
 \noindent\textbf{Major outcomes.}
 The results highlight that the baseline puncturing strategy experiences performance degradation much earlier under increasing traffic load. In contrast, the DQN agent maintains superior performance by dynamically adapting its actions at each time slot, effectively addressing the reliability demands of both URLLC and eMBB services. However, even the DQN approach reaches a saturation point at very high arrival rates, constrained by the system's total available bandwidth and throughput.
@@ -130,18 +163,15 @@ The DQN-based approach consistently outperforms the baseline, keeping latency si
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.49\textwidth,height=4.6cm,keepaspectratio]{ML_chapter_figures/dqn_latency.png}
-\caption{Average URLLC latency. Screenshot of Fig.~6 in~\cite{ml_dqn2025}.}
+\includegraphics[width=0.60\textwidth,height=5.3cm,keepaspectratio]{ML_chapter_figures/dqn_latency.png}
+\caption{Average URLLC latency.}
 \label{fig:ml_dqn_latency}
 \end{figure}
-\clearpage
 \section{Intrusion Detection with Efficient Feature Selection}
 \label{sec:ml_feature_selection}
-\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_features2023}.
-
 \medskip
 \noindent\textbf{Background.}
-The primary features are insufficient to predict the network attacks with very high precision. Derived features are generated by applying some statistical functions or transformations to the primary features. These derived features give us greater insight into the behavior of the network in case of an attack. ASNM dataset provides a large set of derived features. Generating a large number of derived features increases the complexity of the model. Hence feature selection techniques become important.
+The primary features are insufficient to predict the network attacks with very high precision. Derived features are generated by applying some statistical functions or transformations to the primary features. These derived features give us greater insight into the behavior of the network in case of an attack. ASNM dataset provides a large set of derived features. Generating a large number of derived features increases the complexity of the model. Hence feature selection techniques become important~\cite{ml_features2023}.
 
 \medskip
 \noindent\textbf{Proposed scheme.}
@@ -151,6 +181,17 @@ We build a Logistic Regression based and a Neural Network based IDS on this data
 
 We perform a 5-fold cross validation on all the three datasets, where each dataset is split into 5 stratified sets and the mean of the individual performance metrics are recorded.
 
+
+\medskip
+\noindent\textbf{Feature-selection and classifier equations.}
+\emph{Source: Eqs.~(1) and (2) in~\cite{ml_features2023}.}
+\begin{align}
+ \chi_c^2&=\sum_{\forall i}\frac{(O_i-E_i)^2}{E_i},\\
+ \phi(z)&=\frac{1}{1+e^{-z}}.
+\end{align}
+Here, $O_i$ is the observed frequency of a unique sample that results in an attack. $E_i$ is the expected count of the unique sample that results in attack.
+The activation function used is a sigmoid. Sigmoid function softens the boundary in case of binary classification.
+
 \medskip
 \noindent\textbf{Major outcomes.}
 After use of Chi-squared test, we obtain a good performance result and the classifier trains much faster. The number of nodes in the input layer reduces, so the number of computations also reduces greatly.
@@ -159,18 +200,15 @@ Flow based features and their derived features give us better performance over t
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.44\textwidth,height=4.5cm,keepaspectratio]{ML_chapter_figures/ids_feature_selection.png}
-\caption{Selection of hidden-layer size. Screenshot of Fig.~2 in~\cite{ml_features2023}.}
+\includegraphics[width=0.54\textwidth,height=5.2cm,keepaspectratio]{ML_chapter_figures/ids_feature_selection.png}
+\caption{Selection of hidden-layer size.}
 \label{fig:ml_ids_feature_selection}
 \end{figure}
-\clearpage
 \section{Hybrid Deep Models for Automatic Modulation Classification}
 \label{sec:ml_amc}
-\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_amc2024}.
-
 \medskip
 \noindent\textbf{Background.}
-Automatic Modulation Classification (AMC) plays a pivotal role in modern wireless communication systems, enabling receivers to autonomously identify modulation schemes without requiring prior knowledge of the transmitter's settings. This capability is essential for enhancing the efficiency, robustness, and adaptability of real-time applications such as 5G networks, dynamic spectrum allocation, and interference mitigation.
+Automatic Modulation Classification (AMC) plays a pivotal role in modern wireless communication systems, enabling receivers to autonomously identify modulation schemes without requiring prior knowledge of the transmitter's settings. This capability is essential for enhancing the efficiency, robustness, and adaptability of real-time applications such as 5G networks, dynamic spectrum allocation, and interference mitigation~\cite{ml_amc2024}.
 
 \medskip
 \noindent\textbf{Proposed scheme.}
@@ -180,6 +218,16 @@ Inspired by the Chain Residual Pooling block from RefineNet, the X block improve
 
 In this architecture, two Ranblocks are employed, each incorporating an X block in place of the traditional Feablock.
 
+
+\medskip
+\noindent\textbf{Classification-accuracy equation.}
+\emph{Source: Eq.~(1) in~\cite{ml_amc2024}.}
+The classification accuracy of the model can be calculated using the following formula:
+\begin{equation}
+ \mathrm{Accuracy}=\frac{TN+TP}{TN+TP+FN+FP}.
+\end{equation}
+\noindent\emph{Notation:} $TN$, $TP$, $FN$ and $FP$ denote true negatives, true positives, false negatives and false positives, respectively, as defined in the paper's confusion-matrix discussion.
+
 \medskip
 \noindent\textbf{Major outcomes.}
 At an SNR of 18 dB, the Hybrid 2 model achieves an accuracy of 87.69\%, as shown in Fig. 10.
@@ -188,18 +236,15 @@ The comparison shows that Hybrid 1 and Hybrid 2 models achieve higher classifica
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.43\textwidth,height=4.6cm,keepaspectratio]{ML_chapter_figures/amc_hybrid_comparison.png}
-\caption{Comparison of hybrid architectures. Screenshot of Fig.~17 in~\cite{ml_amc2024}.}
+\includegraphics[width=0.53\textwidth,height=5.3cm,keepaspectratio]{ML_chapter_figures/amc_hybrid_comparison.png}
+\caption{Comparison of hybrid architectures.}
 \label{fig:ml_amc_hybrid_comparison}
 \end{figure}
-\clearpage
 \section{Robust Intrusion Detection for Previously Unseen Attacks}
 \label{sec:ml_rnids}
-\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_rnids2022}.
-
 \medskip
 \noindent\textbf{Background.}
-However, whether an ML-based NIDS can successfully handle a new type of attack is an open question. CNN-based IDS can classify these types of attacks to a certain extent but they classify most unknown attacks as benign. Due to this problem, a robust outlier detection in the NIDS system becomes necessary. The purpose of this paper is to address this vital issue.
+However, whether an ML-based NIDS can successfully handle a new type of attack is an open question. CNN-based IDS can classify these types of attacks to a certain extent but they classify most unknown attacks as benign. Due to this problem, a robust outlier detection in the NIDS system becomes necessary. The purpose of this paper is to address this vital issue~\cite{ml_rnids2022}.
 
 \medskip
 \noindent\textbf{Proposed scheme.}
@@ -208,6 +253,18 @@ We put forward a Robust NIDS model, called RNIDS, which is a combination of CNN 
 We further analyze the prediction probabilities of the neural network using nearest neighbor approximation. This information helps us decide if a new adversary was attempting a malicious attack on the network.
 
 If the average distance is beyond a certain threshold dth, then the point is classified as a new adversary.
+
+
+\medskip
+\begin{samepage}
+\noindent\textbf{Classification and outlier-detection equations.}
+\emph{Source: Eqs.~(1) and (2) in~\cite{ml_rnids2022}.}
+\begin{align}
+ \sigma(Z_i)&=\frac{e^{Z_i}}{\sum_{j=1}^{N}e^{Z_j}},\\
+ d_{avg}&=\frac{d_1+d_2+\cdots+d_K}{K}.
+\end{align}
+\end{samepage}
+\noindent\emph{Notation:} The softmax output forms the class-probability vector. Each $d_j$ is a Euclidean distance to one of the $K$ nearest neighbors in that probability space. The second equation supplies the distance compared with $d_{th}$ in the source decision rule.
 
 \medskip
 \noindent\textbf{Major outcomes.}
@@ -219,26 +276,46 @@ Retraining the CNN model with an appropriate balance of initial dataset and real
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.96\textwidth,height=4.5cm,keepaspectratio]{ML_chapter_figures/rnids_architecture.png}
-\caption{RNIDS training and deployment. Screenshot of Fig.~1 in~\cite{ml_rnids2022}.}
+\includegraphics[width=1.00\textwidth,height=5.2cm,keepaspectratio]{ML_chapter_figures/rnids_architecture.png}
+\caption{RNIDS training and deployment.}
 \label{fig:ml_rnids_architecture}
 \end{figure}
-\clearpage
 \section{BIOS: Biogeography-Inspired Scheduling for TSCH}
 \label{sec:ml_bios}
-\noindent\emph{Selected verbatim excerpts from the paper}~\cite{ml_bios2021}.
-
 \medskip
 \noindent\textbf{Background.}
-The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours.
+The devices in IIoT are mostly battery operated and hence cannot afford to keep their radio on for long hours~\cite{ml_bios2021}.
 
 In TSCH, the time is divided into slots and the bandwidth is divided into orthogonal channels [4]. The nodes in TSCH network communicate in a scheduling matrix composed of cells. The cells are the basic resource units for communication in TSCH network which are designated by its time slot index and the channel index.
 
 IEEE 802.15.4e standard does not define the algorithm for computing the scheduling matrix and is open to implementation. Hence the problem of designing efficient schedule in TSCH networks has gained importance in networking research community.
 
+
+\medskip
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{ML_chapter_figures/bios_topology_schedule.png}
+\caption{An example RPL DODAG TSCH network with $n_0$ as border router (left) and its sample slotframe schedule (right).}
+\label{fig:ml_bios_topology_schedule}
+\end{figure}
+We consider the TSCH network consists of a set of $N$ nodes communicating to a single border router that collects data from the nodes in multiple hops. The routing protocol for low power lossy networks (RPL) is employed to create a routing topology among the nodes. TSCH scheduling is a process of assigning cells to the nodes in the TSCH network for communication as shown in Fig.~\ref{fig:ml_bios_topology_schedule}. Schedule is a $T\times M$ matrix in which each entry of the matrix is a subset of edges of the network tree~\cite{ml_bios2021}.
+
 \medskip
 \noindent\textbf{Proposed scheme.}
 In initiation stage, a set of random schedules are generated. To improve the existing set of scheduling algorithms, we employ the migration and mutation operations. Migration operation shares the good features from best scheduling algorithm to the poor ones by appropriately modelling the immigration and emigration of each node in the network. Mutation operation maintains the diversity in the candidate schedules to tackle the sporadic changes in the network.
+
+
+\medskip
+\clearpage
+\noindent\textbf{Schedule-penalty and migration equations.}
+\emph{Source: Eqs.~(3)--(5) in~\cite{ml_bios2021}.}
+\begin{align}
+ F_{SC2}&=\sum_i\log\left(\frac{q_i}{c_i}\right),\\
+ F(S)&=F_{SC1}+F_{SC2}+F_{SC3},\\
+ \lambda_i&=I\left(1-\frac{R_i}{R_{max}}\right),
+ &\mu_i&=E\left(\frac{R_i}{R_{max}}\right).
+\end{align}
+\noindent\emph{Notation:} $q_i$ is queue occupancy and $c_i$ is the number of allocated cells. The three penalties concern interference, fairness and buffering delay. $R_i$ is the candidate's rank, $R_{max}$ the maximum rank, and $I,E$ the maximum immigration and emigration rates.
 
 \medskip
 \noindent\textbf{Major outcomes.}
@@ -248,8 +325,8 @@ In the mobile TSCH networks, the topology changes frequently forcing BIOS to exp
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.48\textwidth,height=4.5cm,keepaspectratio]{ML_chapter_figures/bios_mobile_convergence.png}
-\caption{BIOS convergence with mobile nodes. Screenshot of Fig.~3 in~\cite{ml_bios2021}.}
+\includegraphics[width=0.59\textwidth,height=5.2cm,keepaspectratio]{ML_chapter_figures/bios_mobile_convergence.png}
+\caption{BIOS convergence with mobile nodes.}
 \label{fig:ml_bios_mobile_convergence}
 \end{figure}
 \clearpage
