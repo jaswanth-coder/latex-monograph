@@ -891,130 +891,634 @@ The closed-form delay expression reveals that the system remains stable as long 
 As $\lambda \to \lambda^*$, queue lengths grow asymptotically and packet delay becomes unbounded. This critical arrival rate provides a rigorous closed-form criterion for admission control and dynamic SP duration allocation in IEEE 802.11ad millimeter-wave networks~\cite{hemanth2014iet, hemanth2019tett}.
 
 \section{Physical Layer Enhancements: Multi-Packet Reception (MPR) MAC}
-Advancements in the physical layer---such as Multi-User MIMO (MU-MIMO) and Successive Interference Cancellation (SIC)---enable wireless receivers to decode multiple overlapping packet transmissions simultaneously, known as \textbf{Multi-Packet Reception (MPR)}.
+Traditional wireless Medium Access Control protocols are premised on the physical-layer abstraction of the \textbf{collision channel}. In a collision channel, simultaneous transmissions by two or more nodes result in complete mutual interference, yielding a destructive collision and ternary feedback $(0, 1, e)$ denoting idle, success, or error. However, modern physical-layer technologies---including Multi-User Detection (MUD), Direct-Sequence Code Division Multiple Access (DS-CDMA), Multi-User MIMO (MU-MIMO), and Successive Interference Cancellation (SIC)---fundamentally dismantle this bottleneck by enabling a receiver to decode multiple overlapping packets simultaneously. This capability is designated as \textbf{Multi-Packet Reception (MPR)}.
+
+In an ideal $K$-MPR channel, the receiver successfully decodes up to $K$ concurrent packets without error; if more than $K$ packets overlap in the channel, all packets are corrupted. In a \textbf{Generalized MPR} channel, the reception capability is defined by a reception matrix $\mathbf{C} = [R_{n,k}]$, where $R_{n,k}$ denotes the probability that $k$ packets are successfully resolved given $n$ concurrent transmissions. To exploit this capability at the network layer, Venkatesh and Arun \cite{arun2013order, balan2015analysis, arun2017design} developed a comprehensive family of random-access protocols tailored for MPR channels.
 
 \subsection{Order Statistics Analysis of Pure ALOHA under MPR}
-Under a $K$-MPR channel model, up to $K$ concurrent packet transmissions can be decoded without error. Using order statistics, the arrival times of $N$ packets arriving within a frame window are evaluated. The probability of capturing $j \le K$ packets is obtained in closed form from the joint distribution of arrival order statistics, demonstrating significant throughput gains over standard single-packet capture ALOHA.
+To determine the fundamental capacity limits of uncoordinated channel access, Arun and Venkatesh \cite{arun2013order} formulated an exact throughput analysis of Pure ALOHA under a $K$-MPR channel model using order statistics. 
+
+Consider an infinite-user network with Poisson packet arrivals of aggregate rate $\Lambda$ and fixed packet durations normalized to 1. The throughput $S$ is defined as the time-average number of successful packet deliveries: $S = \Lambda \Pr(\text{Success of a tagged packet})$.
+
+Let a tagged packet start transmission at time $t=0$, occupying the unit interval $[0, 1]$. Any other transmission initiating in the \textit{vulnerable interval} $[-1, 1]$ will overlap with the tagged packet. This interval is partitioned into two sub-intervals: $I_1 = [-1, 0]$ (with $A_1 = a_1$ arrivals) and $I_2 = [0, 1]$ (with $A_2 = a_2$ arrivals), with total overlapping arrivals $A = A_1 + A_2 = a_1 + a_2 = a$.
+
+\subsubsection{Throughput Bounds}
+Conditioning on total arrivals $A$ within $[-1, 1]$, universal bounds on Pure ALOHA throughput under $K$-MPR are established:
+\begin{align}
+    S_{\text{ALOHA}}^{\text{lower}} &= \Lambda \sum_{i=0}^{K-1} \frac{(2\Lambda)^i e^{-2\Lambda}}{i!} \label{eq:mpr_aloha_lower} \\
+    S_{\text{ALOHA}}^{\text{upper}} &= \Lambda \left[ \sum_{i=0}^{K-1} \frac{\Lambda^i e^{-\Lambda}}{i!} \right]^2 \le S_{\text{slotted}} = \Lambda \sum_{i=0}^{K-1} \frac{\Lambda^i e^{-\Lambda}}{i!} \label{eq:mpr_aloha_upper}
+\end{align}
+The lower bound corresponds to the pessimistic assumption that any arrival in $[-1, 1]$ interferes with every other arrival, while the upper bound assumes perfect independence across $I_1$ and $I_2$.
+
+\subsubsection{Order Statistics Formulation}
+Conditioned on $A_1 = a_1$ and $A_2 = a_2$, the arrival instants in $I_1$ and $I_2$ are uniformly and independently distributed over $[0, 1]$ when measured from the start of their respective intervals. Let $X_{(i)}$ denote the $i$-th smallest arrival time in $I_1$ ($i$-th order statistic from $a_1$ uniform random variables), and let $Y_{(j)}$ denote the $j$-th smallest arrival time in $I_2$ ($j$-th order statistic from $a_2$ uniform random variables).
+
+Let $S_1 = \{X_{(1)}, \dots, X_{(a_1)}\}$ and $S_2 = \{Y_{(1)}, \dots, Y_{(a_2)}\}$ be the ordered sets of arrival instants. A transmission originating in $I_1$ at $X_{(i)}$ and another in $I_2$ at $Y_{(j)}$ do not overlap with each other if the elapsed time between them exceeds 1:
+\begin{equation}
+    (1 - X_{(i)}) + Y_{(j)} > 1 \iff X_{(i)} < Y_{(j)}
+\end{equation}
+Any non-overlapping pair can be denoted as $\langle l, m \rangle$ where $l \in S_1$ and $m \in S_2$.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_mpr_vulnerable_order_stats.png}
+    \caption{Order statistics formulation of vulnerable interval $[-1, 1]$: ordered arrivals $S_1$ in $I_1$ and $S_2$ in $I_2$, non-overlapping pairs $\mathcal{D} = \{\langle 1, 3 \rangle, \langle 2, 4 \rangle\}$, and effective interfering transmissions $W = A - D = 5$ \cite{arun2013order}.}
+    \label{fig:mpr_vulnerable_order_stats}
+\end{figure}
+
+Let $\mathcal{D}$ denote the maximal set of distinct non-overlapping pairs, with cardinality $D = |\mathcal{D}|$. Each non-overlapping pair reduces the effective concurrent interference experienced by the tagged packet by one. Consequently, the maximum number of overlapping transmissions $W$ interfering with the tagged packet at any instant in $[0, 1]$ is:
+\begin{equation}
+    W = A - D
+\end{equation}
+The tagged packet is decoded successfully if and only if $W \le K - 1$.
+
+The cumulative mass function (CMF) of $W$ conditioned on $(a_1, a_2)$ is derived from the joint order statistics:
+\begin{equation}
+    F_W(w \mid a_1, a_2) = \Pr(W \le w \mid a_1, a_2) = \Pr\left( \bigcap_{i=1}^{a-w} \{ X_{(i)} < Y_{(w - a_1 + i)} \} \right)
+\end{equation}
+The probability of success given total arrivals $A = a$ (where $K-1 < a < 2K-1$) is:
+\begin{equation}
+    P_{\text{suc}}(a) = \frac{1}{2^a} \sum_{i=a-(K-1)}^{K-1} \binom{a}{i} F_W(K - 1 \mid i, a - i)
+\end{equation}
+
+\begin{theorem}[\textbf{Pure ALOHA Throughput under $K$-MPR} \cite{arun2013order}]
+The exact throughput of Pure ALOHA in a channel with $K$-MPR capability is:
+\begin{equation}
+    S = \Lambda \left[ \sum_{i=0}^{K-1} \frac{(2\Lambda)^i e^{-2\Lambda}}{i!} + \sum_{i=K}^{2K-2} \frac{\Lambda^i e^{-2\Lambda}}{i!} \sum_{j=i-(K-1)}^{K-1} \binom{i}{j} F_W(K - 1 \mid j, i - j) \right]
+    \label{eq:pure_aloha_mpr_exact}
+\end{equation}
+\end{theorem}
+
+Evaluating \cref{eq:pure_aloha_mpr_exact} yields explicit closed-form throughput polynomials $S = \Lambda e^{-2\Lambda} P_K(\Lambda)$:
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|c|l|}
+\hline
+\textbf{MPR Limit $K$} & \textbf{Pure ALOHA Throughput Polynomial $P_K(\Lambda)$ where $S = \Lambda e^{-2\Lambda} P_K(\Lambda)$} \\ \hline
+$K = 1$ & $1$ \\ \hline
+$K = 2$ & $1 + 2\Lambda + \frac{1}{2}\Lambda^2$ \\ \hline
+$K = 3$ & $1 + 2\Lambda + 2\Lambda^2 + \frac{2}{3}\Lambda^3 + \frac{1}{12}\Lambda^4$ \\ \hline
+$K = 4$ & $1 + 2\Lambda + 2\Lambda^2 + \frac{4}{3}\Lambda^3 + \frac{11}{24}\Lambda^4 + \frac{1}{12}\Lambda^5 + \frac{1}{144}\Lambda^6$ \\ \hline
+$K = 5$ & $1 + 2\Lambda + 2\Lambda^2 + \frac{4}{3}\Lambda^3 + \frac{2}{3}\Lambda^4 + \frac{13}{60}\Lambda^5 + \frac{2}{45}\Lambda^6 + \frac{1}{180}\Lambda^7 + \frac{1}{2880}\Lambda^8$ \\ \hline
+$K = 6$ & $1 + 2\Lambda + 2\Lambda^2 + \frac{4}{3}\Lambda^3 + \frac{2}{3}\Lambda^4 + \frac{4}{15}\Lambda^5 + \frac{19}{240}\Lambda^6 + \frac{1}{60}\Lambda^7 + \frac{7}{2880}\Lambda^8 + \frac{1}{4320}\Lambda^9 + \frac{1}{86400}\Lambda^{10}$ \\ \hline
+\end{tabular}
+\caption{Closed-form Pure ALOHA throughput polynomials under $K$-MPR \cite{arun2013order}.}
+\label{tab:aloha_mpr_polynomials}
+\end{table}
+
+For a network of $N$ finite nodes, the throughput is scaled as:
+\begin{equation}
+    S(\Lambda, K, N) = \frac{N}{N - 1} S\left( \frac{N - 1}{N}\Lambda, K \right)
+\end{equation}
+Under Generalized MPR with reception matrix $\mathbf{C} = [R_{n,k}]$, the throughput is:
+\begin{equation}
+    S = \sum_{a=0}^{2K-2} \frac{\Lambda^a e^{-2\Lambda}}{a!} \sum_{i=0}^a \binom{a}{i} \sum_{j=\min(i, a-i)}^{K-1} \frac{\bar{R}_{j+1}}{j+1} f_W(j \mid i, a - i)
+\end{equation}
+where $\bar{R}_{j+1}$ is the expected number of successfully decoded packets out of $j+1$ concurrent transmissions.
 
 \subsection{Analytical Modeling of CSMA under MPR}
-Balan and Venkatesh \cite{balan2015analysis} developed an exact throughput analysis for unslotted carrier sense multiple access protocols under a $K$-MPR channel model. In this model, up to $K$ overlapping packets can be successfully received. If the number of concurrent transmissions exceeds $K$, all packets in the slot fail.
+Carrier Sense Multiple Access (CSMA) protocol designs are evaluated under MPR by Balan and Venkatesh \cite{balan2015analysis}.
 
-For an unslotted Non-Persistent CSMA (NP-CSMA) protocol, the average duration of the idle time is $1/\Lambda$, where $\Lambda$ is the Poisson arrival rate of new and rescheduled packets. The channel timeline alternates between idle and busy periods. A busy period is initiated by the first packet arrival at some time $t$. Any subsequent packets that arrive within the carrier sensing delay $a$ (representing the signal propagation delay) will also be transmitted immediately because the busy channel state has not yet been sensed by those nodes. The interval $[t, t+a]$ is the vulnerable interval.
+\subsubsection{Non-Persistent CSMA (NP-CSMA) under MPR}
+In unslotted NP-CSMA, stations sense the channel before transmitting. If the channel is sensed idle, transmission starts immediately; if sensed busy, the packet is rescheduled after a random back-off.
 
-Let $Y$ be the random variable denoting the duration between the start of the first transmission ($t$) and the last arrival in the vulnerable interval $[t, t+a]$. The cumulative distribution function (CDF) of $Y$ is given by:
-\begin{equation}
-    F_Y(y) = e^{-\Lambda(a - y)}, \quad 0 \le y \le a
-\end{equation}
-The mean busy duration $\bar{B}$ (with packet duration normalized to 1) is:
+The channel timeline alternates between idle periods of mean $1/\Lambda$ and busy periods initiated by an arrival at $t$. During the carrier sensing delay $a$ (propagation delay), any arriving packet will also begin transmission. The cumulative distribution of the last arrival $Y$ in $[t, t+a]$ is $F_Y(y) = e^{-\Lambda(a - y)}$ for $0 \le y \le a$. The mean busy period duration is:
 \begin{equation}
     \bar{B} = 1 + 2a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})
 \end{equation}
-Under $K$-MPR, all transmissions are successful if and only if the total number of packets transmitted during the busy interval is at most $K$. Applying the renewal reward theorem, the normalized system throughput $S$ of NP-CSMA under MPR is:
+Applying the renewal-reward theorem, the normalized throughput of NP-CSMA under $K$-MPR is:
 \begin{equation}
-    S = \frac{\Lambda e^{-\Lambda a} \sum_{i=0}^{K-1} \frac{(i+1)(\Lambda a)^i}{i!}}{1 + (2a + 1)\Lambda - (1 - e^{-a\Lambda})}
+    S = \frac{\sum_{i=0}^{K-1} (i+1)\frac{(\Lambda a)^i}{i!} e^{-\Lambda a}}{\frac{1}{\Lambda} + 1 + 2a - \frac{1}{\Lambda}(1 - e^{-a\Lambda})} = \frac{\Lambda e^{-\Lambda a} \sum_{i=0}^{K-1} \frac{(i+1)(\Lambda a)^i}{i!}}{1 + (2a + 1)\Lambda - (1 - e^{-a\Lambda})}
 \end{equation}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig_balan_2015_1.png}
-    \caption{Channel state over time for unslotted NP-CSMA under MPR}
+    \includegraphics[width=0.8\textwidth]{figures/fig_balan_2015_1.png}
+    \caption{Channel state over time for unslotted NP-CSMA under MPR \cite{balan2015analysis}.}
     \label{fig:balan_2015_fig1}
 \end{figure}
 
-In 1-Persistent CSMA (1P-CSMA), packets finding the medium busy defer and transmit immediately upon channel clearance. Balan and Venkatesh modeled 1P-CSMA busy periods via a discrete-time Markov chain, where states denote packet backlog:
+Carrier sensing delay $a$ dictates the optimal arrival rate $\Lambda^*$: as $a \to 0$, the optimal throughput scales linearly with $K$.
+
+\subsubsection{1-Persistent CSMA (1P-CSMA) under MPR}
+In 1-Persistent CSMA, packets arriving during a busy channel persist and transmit immediately upon channel clearance. Balan and Venkatesh \cite{balan2015analysis} classify the transmission periods (TP) into three types:
+\begin{itemize}
+    \item \textbf{Type 0 (Idle):} The channel is idle between transmission periods.
+    \item \textbf{Type 1:} A transmission period initiating with a single packet following an idle period (Type 0).
+    \item \textbf{Type 2:} A transmission period following arrivals during a busy channel, potentially initiating with multiple accumulated packets.
+\end{itemize}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig_balan_2015_5.png}
-    \caption{Channel timeline of 1-Persistent CSMA}
+    \includegraphics[width=0.8\textwidth]{figures/fig_balan_2015_5.png}
+    \caption{Channel timeline of 1-Persistent CSMA showing Type 0, 1, and 2 transmission periods \cite{balan2015analysis}.}
     \label{fig:balan_2015_fig5}
 \end{figure}
+
+The sequence of transmission periods forms a 3-state Discrete-Time Markov Chain with stationary distribution:
+\begin{align}
+    \pi_0 = \pi_1 &= \frac{(1 + a\Lambda)e^{-\Lambda(1+a)}}{1 + (1 + a\Lambda)e^{-\Lambda(1+a)}} \\
+    \pi_2 &= 1 - \frac{2(1 + a\Lambda)e^{-\Lambda(1+a)}}{1 + (1 + a\Lambda)e^{-\Lambda(1+a)}}
+\end{align}
+The normalized throughput is given by the renewal-reward formula:
+\begin{equation}
+    S = \frac{\sum_{i=0}^2 \pi_i \hat{S}_i}{\sum_{i=0}^2 \pi_i \mathbb{E}[T_i]}
+\end{equation}
+where $\hat{S}_1 = \sum_{i=0}^{K-1} (i+1) \frac{(a\Lambda)^i}{i!} e^{-a\Lambda}$ and $\mathbb{E}[\hat{S}_2]$ incorporates integration over the arrival duration $y \in [0, a]$.
+
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig_balan_2015_6.png}
-    \caption{Transition probability Markov chain for 1P-CSMA}
+    \includegraphics[width=0.6\textwidth]{figures/fig_balan_2015_6.png}
+    \caption{Markov chain governing transmission period transitions in 1P-CSMA \cite{balan2015analysis}.}
     \label{fig:balan_2015_fig6}
 \end{figure}
 
 \subsection{Adaptive Backoff DCF Protocol under MPR}
-To translate physical-layer MPR capacity into MAC efficiency, Balan and Venkatesh \cite{arun2017design} designed an \textbf{adaptive backoff DCF protocol}. 
+In IEEE 802.11 DCF, nodes freeze their back-off counters whenever the channel is sensed busy ($i \ge 1$). While necessary in collision channels, this freezing behavior severely throttles medium efficiency in MPR-capable networks, where up to $K$ concurrent transmissions can be accommodated.
 
-Unlike standard DCF, which freezes the backoff counter whenever any transmission is active, the adaptive MPR-DCF protocol allows the backoff counter to continue decrementing as long as the number of concurrent transmissions $i$ is below a threshold $K_t \le K$:
+To overcome this, Arun and Venkatesh \cite{arun2017design} designed an \textbf{adaptive back-off DCF protocol}. Rather than freezing, nodes dynamically adjust their back-off counter decrement step size $d(i)$ based on the number of ongoing transmissions $i$:
 \begin{equation}
     d(i) = \begin{cases}
         K - i, & \text{if } i \le K_t \\
         0, & \text{otherwise}
     \end{cases}
+    \label{eq:mpr_dcf_decrement}
 \end{equation}
-The protocol is solved using a coupled 3-D discrete-time Markov chain capturing backoff stage, counter value, and channel status:
+where $K_t < K$ is an operational threshold. When channel utilization is low, back-off counters decrement rapidly ($K - i$), allowing nodes to transmit sooner and boosting channel utilization. Nodes defer only when ongoing transmissions exceed $K_t$.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig_balan_2017_1.png}
-    \caption{3-D Markov chain model for the adaptive backoff protocol}
-    \label{fig:balan_2017_fig1}
-\end{figure}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig_balan_2017_2.png}
-    \caption{Backoff process Markov chain for uniform counter decrements $d \ge 1$}
-    \label{fig:balan_2017_fig2}
-\end{figure}
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig_balan_2017_3.png}
-    \caption{Markov chain model for MPR channel states}
-    \label{fig:balan_2017_fig3}
-\end{figure}
+\subsubsection{Generalized Counter Decrements and Channel State Markov Chain}
+The protocol is analyzed via a coupled analytical framework:
+\begin{enumerate}
+    \item \textbf{Back-off Process DTMC:} For uniform decrements by $d \ge 1$, the back-off stages are partitioned into sub-states $S_k = \{(k-1)d+1, \dots, kd\}$ for $k \in [0, J_i - 1]$ with $J_i - 1 = \lfloor (W_i - 1) / d \rfloor$. Solving the balance equations yields the per-slot transmission probability $\tau_d$.
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{figures/fig_balan_2017_2.png}
+        \caption{Back-off process Markov chain for uniform counter decrements $d \ge 1$ \cite{arun2017design}.}
+        \label{fig:balan_2017_fig2}
+    \end{figure}
+    
+    \item \textbf{Channel State DTMC:} A discrete-time Markov chain tracks the number of ongoing transmissions $i \in \{0, 1, \dots, N\}$. 
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.85\textwidth]{figures/fig_balan_2017_3.png}
+        \caption{Channel state DTMC tracking the number of ongoing concurrent transmissions $i \in \{0, 1, \dots, N\}$ \cite{arun2017design}.}
+        \label{fig:balan_2017_fig3}
+    \end{figure}
+    Let $q(i, j) = \binom{N-i}{j} \tau(i)^j (1 - \tau(i))^{N-i-j}$ denote the probability that $j$ new nodes begin transmitting, and let $r(i, j) = \binom{i}{j} (1/L)^j (1 - 1/L)^{i-j}$ denote the probability that $j$ out of $i$ transmissions conclude (with packet length geometrically distributed with mean $L$). The transition probabilities are:
+    \begin{align}
+        p_{i, i+m} &= \sum_{j=0}^{\min(i, N-i)} q(i, m+j) r(i, j), \quad i \le K_t \\
+        p_{i, i-m} &= \sum_{j=0}^{\min(i, N-i)} r(i, m+j) q(i, j), \quad i \le K_t \\
+        p_{i, i-m} &= r(i, m), \quad i > K_t
+    \end{align}
+    Solving $\boldsymbol{\pi} = \boldsymbol{\pi}\mathbf{P}$ yields the stationary channel distribution $\pi_i$.
+\end{enumerate}
+
+The collision probability is $p_c = \frac{\sum_{i=0}^K \sum_{j=K+1}^N \pi_i p_{i,j}}{\sum_{i=0}^K \pi_i}$, and the busy probability is $p_b = \sum_{i=K_t}^N \pi_i$. The conditional collision probability is $p = 1 - (1 - p_c)^L$. The saturation throughput is:
+\begin{equation}
+    S = \frac{N \tau (1 - p)}{\sigma}
+\end{equation}
+where $\sigma$ is the average slot duration. Compared to standard IEEE 802.11 DCF, the adaptive MPR protocol achieves over $3\times$ higher throughput and dramatically reduces MAC delay.
 
 \subsection{Adaptive EDCA for Prioritized MPR Channels}
-Extending the adaptive backoff philosophy to QoS networks, Adaptive EDCA dynamically adjusts the decrement step size $d_{AC}(i)$ according to the traffic Access Category. High-priority voice and video frames decrement aggressively even under moderate MPR channel loads, ensuring that priority traffic retains low delay bounds while low-priority best-effort traffic yields airtime.
+To deliver differentiated Quality of Service (QoS) in IEEE 802.11ac/ax networks supporting MPR, Arun and Venkatesh extended the adaptive back-off mechanism to EDCA. In addition to traditional parameters ($CW_{min}$, $CW_{max}$, and $AIFSN$), two parameters provide cross-layer QoS differentiation: the \textbf{channel threshold $K_t$} and the \textbf{counter decrement function $d_{AC}(i)$}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Access Category} & \textbf{Traffic Type} & \textbf{MPR Backoff Decrement \& Threshold Parameters} \\ \hline
+$\text{AC}_0$ & Real-time Voice & $K_t = K - 1$, Adaptive countdown $d(i) = K - i$ \\ \hline
+$\text{AC}_1$ & Video Playback & $K_t = \lceil K / 2 \rceil$, Adaptive countdown $d(i) = K - i$ \\ \hline
+$\text{AC}_2$ & Best Effort & $K_t = \lceil K / 4 \rceil$, Non-adaptive countdown ($d = 1$) \\ \hline
+$\text{AC}_3$ & File Transfer / Background & $K_t = 1$, Non-adaptive countdown ($d = 1$) \\ \hline
+\end{tabular}
+\caption{Access categories and service differentiation parameters under MPR EDCA \cite{arun2017design}.}
+\label{tab:mpr_edca_parameters}
+\end{table}
+
+High-priority Access Categories ($\text{AC}_0$ and $\text{AC}_1$) maintain high thresholds ($K_t = K-1$ and $\lceil K/2 \rceil$) and decrement their back-off counters rapidly in proportion to spare channel headroom ($K - i$). Consequently, voice and video streams seize immediate transmission opportunities whenever the medium is lightly loaded, preserving ultra-low latency bounds even under heavy aggregate offered traffic. Best-effort and background traffic ($\text{AC}_2$ and $\text{AC}_3$) operate with restrictive thresholds and unit decrements, yielding medium airtime to urgent traffic while maintaining high overall MPR channel utilization.
 
 \section{IEEE 802.11ax Multi-User Enhancements}
-IEEE 802.11ax represents a major milestone in WLAN evolution, designed to achieve at least four times higher average per-station (STA) throughput in dense deployments compared to legacy standards. To address dynamic scenarios where STAs frequently join and leave the network while supporting diverse QoS requirements, the standard introduces key Physical (PHY) and Medium Access Control (MAC) layer enhancements.
+IEEE 802.11ax (marketed as Wi-Fi 6) represents a paradigm shift in WLAN design, explicitly architected to overcome the performance degradation encountered in ultra-dense use-case environments such as smart homes, corporate enterprises, airports, and sports stadiums. Rather than prioritizing peak single-link data rates under idealized conditions, the central objective of IEEE 802.11ax is to achieve a four-fold ($4\times$) increase in average per-station (STA) throughput under dense, heterogeneous deployments compared to legacy IEEE 802.11ac systems.
+
+To fulfill these demands, the standard introduces key Physical (PHY) and Medium Access Control (MAC) layer enhancements: Multi-User Orthogonal Frequency Division Multiple Access (MU-OFDMA), Multi-User MIMO (MU-MIMO), Target Wake Time (TWT), Basic Service Set (BSS) Coloring, and Multi-TID frame aggregation. Venkatesh and Behara \cite{behara2022fluid, behara2023performance} formulated an extensive mathematical framework capturing the performance of these multi-user enhancements under both ideal and error-prone physical channel environments.
 
 \subsection{OBSS Interference Mitigation and Frequency Reuse}
-In high-density scenarios (e.g., smart homes, enterprise environments, and auditoriums), numerous Access Points (APs) are deployed in close proximity, causing severe Overlapping Basic Service Set (OBSS) interference. To mitigate this interference, the standard leverages:
+In dense WLAN deployments, multiple overlapping Basic Service Sets (OBSS) share the available RF spectrum, causing severe co-channel contention and packet deferrals. IEEE 802.11ax mitigates OBSS interference through coordinated spectral subdivision and spatial reuse:
 \begin{enumerate}
-    \item \textbf{Frequency Reuse:} Operating across the 2.4~GHz and 5~GHz ISM bands (and extending to 6~GHz in Wi-Fi 6E). While 2.4~GHz provides up to 3 non-overlapping 20~MHz channels, 5~GHz supports up to 23 non-overlapping channels, mitigating co-channel interference at the cost of higher path loss through physical obstacles.
-    \item \textbf{MU-OFDMA Resource Units:} Subdividing channel bandwidth into orthogonal subcarriers grouped into Resource Units (RUs) of varying sizes (e.g., RU-26, RU-52, RU-106, RU-242).
+    \item \textbf{Spectrum Utilization:} Operates across the 2.4~GHz band (offering 3 non-overlapping 20~MHz channels), the 5~GHz band (offering up to 23 non-overlapping 20~MHz channels), and the 6~GHz band (Wi-Fi 6E/7), providing abundant contiguous spectrum for wideband operations.
+    \item \textbf{MU-OFDMA Resource Units (RUs):} The overall channel bandwidth $B$ is subdivided into orthogonal subcarriers grouped into Resource Units (RUs) of standardized sizes: RU-26 (2~MHz bandwidth, 24 data + 2 pilot subcarriers), RU-52, RU-106, RU-242 (20~MHz full band), RU-484, and RU-996.
+    \item \textbf{BSS Coloring and Spatial Reuse:} Each BSS is allocated a 6-bit numerical color advertised in the preamble HE-SIG-A field. Client STAs differentiate between intra-BSS transmissions (matching color) and inter-BSS transmissions (differing color). Under dynamic OBSS Packet Detect (OBSS-PD) rules, STAs adjust their clear channel assessment (CCA) threshold from $-82$~dBm up to $-62$~dBm, transmitting concurrently with OBSS transmissions when received interference is sufficiently low. NS-3 network simulations demonstrate an average 20\% throughput improvement per BSS when BSS coloring is enabled compared to legacy single-threshold networks.
 \end{enumerate}
 
-\subsection{Hybrid Access (HA) Methodology}
+\subsection{Hybrid Access (HA) Methodology and System Model}
 \label{sec:ha_proc}
-In scheduled access (SA) mechanisms, RUs are planned and assigned deterministically by the Access Point (AP), eliminating collisions and maximizing throughput. However, centralized SA requires the AP to periodically poll uplink requirements, incurring signaling overhead and latency. In contrast, pure random access (RA) achieves low access delay for newly joined STAs at the expense of collision-induced throughput degradation under high load.
+In pure Scheduled Access (SA), the Access Point (AP) deterministically allocates RUs to active STAs, eliminating collisions and maximizing data packing efficiency. However, centralized polling of station queue backlogs introduces significant signaling latency, penalizing newly arriving stations. Conversely, pure Random Access (RA) provides low joining latency for sporadic traffic, but suffers devastating collision overhead and throughput collapse under dense station populations.
 
-To achieve an optimal operating balance, IEEE 802.11ax implements a \textbf{Hybrid Access (HA)} mechanism integrating scheduled access and distributed random access:
+To achieve an optimal operational equilibrium, IEEE 802.11ax implements a \textbf{Hybrid Access (HA)} mechanism integrating scheduled access and random access:
 \begin{enumerate}
-    \item The AP broadcasts RU availability and allocation parameters using a Trigger Frame-Request (TF-R) frame.
-    \item Contending STAs decrement their backoff counters by the number of random access RUs ($N_{\text{RA}}$). When a counter reaches zero, the STA transmits its Buffer Status Report (BSR) on a randomly selected RA RU.
-    \item The state of each RA RU is classified into:
+    \item The total available RUs $N_{RU}$ are partitioned into $N_{SA}$ Scheduled Access RUs and $N_{RA}$ Random Access RUs ($N_{RU} = N_{SA} + N_{RA}$).
+    \item The AP initiates the transmission epoch by broadcasting a Trigger Frame-Request (TF-R), advertising RU availability and allocation parameters.
+    \item Contending STAs decrement their OFDMA Back-Off (OBO) counter by the number of advertised random access RUs ($N_{RA}$) in each slot. When the OBO counter drops to $\le 0$, the STA randomly selects one of the $N_{RA}$ RUs to transmit its Buffer Status Report (BSR).
+    \item The state of each RA RU is classified as:
     \begin{itemize}
         \item \emph{Success:} Exactly one STA transmits its BSR on the RU.
-        \item \emph{Collision/Failure:} Two or more STAs transmit simultaneously on the RU.
+        \item \emph{Collision:} Two or more STAs transmit simultaneously on the RU.
         \item \emph{Idle:} No STA selects the RU.
     \end{itemize}
-    \item The AP decodes successful BSRs and schedules uplink data transmissions via a Trigger Frame (TF). Scheduled STAs then transmit aggregated payloads (A-MPDUs), which are acknowledged by the AP using a Multi-Station Block Acknowledgement (MS-BACK) frame.
+    \item Contending STAs whose BSR encounters collision increment their back-off stage $i \in [0, m+f]$ up to retry limit $m+f$, doubling their contention window $W_i = 2^i W$ for $i \le m$, and capping at $W_i = 2^m W$ for $m+1 \le i \le m+f$.
+    \item The AP decodes successful BSRs and broadcasts a scheduling Trigger Frame (TF). The scheduled STAs (both existing SA STAs and newly successful RA STAs) transmit aggregated uplink payloads (A-MPDUs) in parallel over their assigned RUs.
+    \item The AP acknowledges all received transmissions simultaneously using a Multi-STA Block Acknowledgement (MS-BACK) frame.
 \end{enumerate}
-The complete duration of this exchange cycle is given by:
+The complete duration of this operational epoch, termed a \textit{TF-cycle} ($t_s$), is given by:
 \begin{equation}
-    t_s = T_{\text{TF-R}} + 4 T_{\text{SIFS}} + T_{\text{BSR}} + T_{\text{TF}} + T_{\text{data}} + T_{\text{MS-BACK}}.
+    t_s = T_{\text{TF-R}} + 4 T_{\text{SIFS}} + T_{\text{BSR}} + T_{\text{TF}} + T_{\text{data}} + T_{\text{MS-BACK}}
 \end{equation}
 
-\subsection{Packet Aggregation and Air-Time Efficiency}
-\label{sec:aggr}
-To maximize air-time efficiency in dense networks, scheduled STAs aggregate multiple MAC Protocol Data Units (MPDUs) into an Aggregate MPDU (A-MPDU) during their allocated TXOP duration ($T_{\text{data}}$). Each MPDU combines payload data with MAC headers and tail bits, sharing a single Physical Layer Convergence Procedure (PLCP) header ($T_{\text{PHY}}^{\text{he}}$), thereby substantially reducing control overhead.
+\subsection{Markov Chain Modeling and Fixed-Point Analysis (FPA)}
+Venkatesh and Behara model this access mechanism using a 2D discrete-time Markov chain $\{s(t), b(t)\}$, where $s(t) \in [0, m+f]$ represents the back-off stage and $b(t)$ represents the back-off counter.
 
-\subsection{Multi-User MIMO and Channel Sounding}
-In addition to frequency-domain multiplexing via MU-OFDMA, IEEE 802.11ax supports Multi-User MIMO (MU-MIMO) across RUs comprising 106 subcarriers or more. Using multi-antenna arrays (up to 8 antennas at the AP and 4 antennas at user STAs), the AP steers spatial beams to multiple STAs concurrently. To decode MU-MIMO transmissions, accurate Channel State Information (CSI) is maintained through periodic channel sounding, providing the spatial channel matrices required for beamforming precoding.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_80211ax_markov_chain.png}
+    \caption{2D Discrete-Time Markov Chain model of the IEEE 802.11ax MU-OFDMA random access back-off process with decrements by $N_{RA}$ \cite{behara2023performance}.}
+    \label{fig:80211ax_markov_chain}
+\end{figure}
+
+Let $b(i, k) = \lim_{t \to \infty} \Pr\{s(t) = i, b(t) = k\}$ denote the stationary distribution. Because back-off counters decrement by $N_{RA}$ in each step, the normalization equation across all stages is:
+\begin{equation}
+    \sum_{i=0}^{m+f} \left( \gamma^i + \frac{\gamma^i}{W_i} + \sum_{k=1}^{W_i-1} \frac{\gamma^i}{W_i} \left\lceil \frac{W_i - k}{N_{RA}} \right\rceil \right) b(0, \le 0) = 1
+    \label{eq:ax_normalization}
+\end{equation}
+The per-slot transmission probability $\tau$ and conditional collision probability $\gamma$ for $N$ contending stations are coupled non-linearly:
+\begin{align}
+    \tau &= \sum_{i=0}^{m+f} b(i, \le 0) = \frac{1 - \gamma^{m+f+1}}{1 - \gamma} b(0, \le 0) \label{eq:ax_tau} \\
+    \gamma &= 1 - \left(1 - \frac{\tau}{N_{RA}}\right)^{N-1} \label{eq:ax_gamma}
+\end{align}
+
+Under Fixed-Point Analysis (FPA), this equilibrium is obtained by evaluating the renewal cycle: let $E(R)$ be the expected transmission attempts until success or drop ($E(R) = \sum_{i=0}^{m+f} \gamma^i$), and let $E(X)$ be the expected total back-off duration ($E(X) = \sum_{i=0}^{m+f} b_i \gamma^i$, where $b_i = \frac{1}{W_i} [1 + \sum_{k=1}^{W_i-1} \lceil k / N_{RA} \rceil]$). The transmission probability satisfies $\tau = E(R) / E(X)$, converging rapidly via numerical fixed-point iteration.
+
+\subsection{Key Performance Metrics under Ideal Channel Conditions}
+\begin{enumerate}
+    \item \textbf{Aggregate Uplink Throughput ($S_{Total}^{ul}$):} Defined as the average data bits successfully transmitted across all RA and SA RUs per TF-cycle:
+    \begin{equation}
+        S_{Total}^{ul} = \frac{N_a L}{t_s} \left[ N \tau \left(1 - \frac{\tau}{N_{RA}}\right)^{N-1} + N_{SA} \right]
+        \label{eq:ax_throughput_ideal}
+    \end{equation}
+    where $L$ is packet payload size and $N_a$ is the number of aggregated packets:
+    \begin{equation}
+        N_a = \min\left( N_a^M, \left\lfloor \frac{R_b (T_{\text{data}} - T_{\text{PHY}}^{\text{he}})}{L_{TB} + L_{MH} + L} \right\rfloor \right)
+    \end{equation}
+    The physical data rate of the station is $R_b = \frac{b_m c_r B}{\sigma N_{RU} f_{sc}}$, where $b_m$ is constellation bits per symbol, $c_r$ is coding rate, $\sigma$ is OFDM symbol duration, and $f_{sc}$ is subcarrier spacing.
+    
+    \item \textbf{Random Access (RA) Capability ($\beta$):} Defined as the fraction of contending RA STAs successfully gaining system access per time slot:
+    \begin{equation}
+        \beta = \tau \left(1 - \frac{\tau}{N_{RA}}\right)^{N-1}
+        \label{eq:ax_ra_capability}
+    \end{equation}
+    Higher $\beta$ ensures that new STAs experience minimal joining latency.
+    
+    \item \textbf{Delay Moments and Delay Jitter:} Let $B_i$ denote the number of back-off slots experienced in stage $i$, with Probability Generating Function (PGF) $E[z^{B_i}]$. The PGF of the total TF-cycles $T$ required for successful transmission is $P_T(z) = \sum_{q=0}^{m+f} p_q \prod_{i=0}^q E[z^{B_i}]$. The mean packet delay $T_D = \mathbb{E}[D]$ in seconds is:
+    \begin{equation}
+        T_D = t_s \sum_{q=0}^{m+f} p_q \sum_{i=0}^q \mathbb{E}[B_i]
+    \end{equation}
+    The delay jitter $J_D$ is the standard deviation of delay: $J_D = \sqrt{\text{Var}(D)} = \sqrt{\mathbb{E}[D^2] - (\mathbb{E}[D])^2}$, derived from the second moment $\mathbb{E}[D^2]$ via the law of total moments.
+    
+    \item \textbf{Packet Drop Probability ($p_d$):} A BSR packet is discarded if it experiences more than $m+f$ collisions:
+    \begin{equation}
+        p_d = \gamma^{m+f+1}
+    \end{equation}
+    
+    \item \textbf{Fairness Index ($J$):} Resource sharing equity across STAs is evaluated using Jain's fairness index:
+    \begin{equation}
+        J = \frac{\left(\sum_{i=1}^N S_{iP}\right)^2}{N \sum_{i=1}^N S_{iP}^2}
+    \end{equation}
+    where $S_{iP}$ is the per-STA throughput of station $i$.
+\end{enumerate}
+
+\subsection{Non-Ideal PHY Channel Modeling: Fading, Path Loss, and Coverage}
+In practical deployments, physical signals experience distance-dependent attenuation and multipath fading. Venkatesh and Behara model a single BSS with $N$ stations distributed within a circular cell of radius $R$ around the central AP according to a spatial distribution $f(r)$:
+\begin{equation}
+    f(r) = \frac{2r}{R^2}, \quad 0 \le r \le R \quad \text{(Triangular / 2D Uniform Spatial Density)}
+\end{equation}
+Each wireless link undergoes Rayleigh fading with gain parameter $\mu$ and free-space path loss $l(r) = (4\pi F_c / c)^2 r^\alpha$, where $F_c$ is carrier frequency, $c$ is speed of light, and $\alpha$ is path loss exponent. The receiver thermal noise power is $\sigma_n^2 = K_B T_0 B$.
+
+The **Coverage Probability** $P_{cov}(r)$ that the AP successfully decodes a transmission from an STA at distance $r$ is:
+\begin{equation}
+    P_{cov}(r) = \Pr(\text{SINR} > T_{min}) = \Pr\left( G > \frac{T_{min} \sigma_n^2 l(r)}{P_s} \right) = \exp\left( -\frac{\mu T_{min} l(r) \sigma_n^2}{P_s} \right)
+\end{equation}
+where $P_s$ is STA transmit power and $T_{min}$ is the capture SINR threshold.
+
+Given an STA at distance $r$ transmits, the probability that no other STA transmits on the same RU across the cell is $p_{nt} = \prod_{r_1=0}^R (1 - \tau_e(r_1)/N_{RA})^{N f(r_1) dr_1}$. The location-dependent collision probability is:
+\begin{equation}
+    \gamma_e(r) = 1 - p_{nt} P_{cov}(r)
+\end{equation}
+The mean number of successful transmissions per slot across the cell is:
+\begin{equation}
+    n_{se} = \int_0^R N f(r) \tau_e(r) p_{nt} P_{cov}(r) dr
+\end{equation}
+yielding the non-ideal aggregate throughput $S_e = \frac{N_a L n_{se}}{t_s}$, spatial RA capability $\beta_e = \int_0^R \beta(r) f(r) dr$, mean delay $T_{De} = \int_0^R T_D(r) f(r) dr$, and packet drop probability $p_{de} = \int_0^R p_d(r) f(r) dr$.
+
+Channel errors elevate packet drops and latency while depressing aggregate throughput compared to ideal channels.
+
+\subsection{Integration with Target Wake Time, MU-MIMO, and Non-Saturated Traffic}
+\begin{enumerate}
+    \item \textbf{Target Wake Time (TWT):} To prolong battery life, stations negotiate periodic wake intervals $t_i$. The average number of active STAs per TWT service period is $n_a = \sum_{i=1}^{n_t} (1/t_i)$. As the mean wake interval $t_{Mean}$ increases, the number of contending stations in any single TF-cycle drops, dramatically reducing contention collisions and boosting energy efficiency.
+    
+    \item \textbf{MU-MIMO and Channel Sounding:} Across RUs with $\ge 106$ subcarriers, the AP multiplexes $M$ spatial streams. Due to channel aging, the AP executes periodic channel sounding with rate $\lambda_{csi}$, introducing an overhead fraction $O_{vf} = 1 - \lambda_{csi} T_{csi}$. The effective throughput is:
+    \begin{equation}
+        S_{ul}^{CSI} = O_{vf} S_{MU} = (1 - \lambda_{csi} T_{csi}) \frac{N_a (s_{RA} + N_{SA} M) L}{t_s}
+    \end{equation}
+    Overly frequent sounding ($\lambda_{csi} \uparrow$) severely degrades airtime efficiency, highlighting the trade-off between spatial multiplexing and protocol overhead.
+    
+    \item \textbf{Non-Saturated Traffic:} Under Poisson packet arrivals with rate $\lambda$, let $q = \min(1, \lambda \mathbb{E}[D])$ be the probability of non-empty queue, and $r = 1 - e^{-\lambda t_s}$ be the arrival probability during back-off. Applying the renewal-reward theorem, the attempt rate becomes:
+    \begin{equation}
+        \tau = \frac{\sum_{i=0}^{m+f} \gamma^i}{\sum_{i=0}^{m+f} b_i \gamma^i + \frac{1 - q}{r}}
+    \end{equation}
+    Throughput scales dynamically with $\lambda$, transitioning smoothly from contention-free operation to full saturation.
+\end{enumerate}
 
 \section{Physical Layer Enhancements: SIC and Full-Duplex MAC}
-Further physical-layer integrations include Successive Interference Cancellation (SIC) and in-band Full-Duplex (FD) communications.
+\label{sec:sic_fd_mac}
+In dense wireless networks and massive machine-type communications (mMTC), random access protocols encounter severe throughput degradation and unbounded packet collision rates when operating under classical collision models. To break through the fundamental capacity limits of conventional ALOHA and Carrier Sense Multiple Access (CSMA), multi-packet reception techniques such as Successive Interference Cancellation (SIC) and in-band Full-Duplex (FD) wireless communications have emerged as transformative physical-layer enhancements. This section develops the comprehensive theoretical frameworks pioneered by Gupta and Venkatesh \cite{gupta2022sic, gupta2022design}, spanning order-statistics-based SIC Slotted ALOHA (SIC-SA), imperfect channel state information (CSI) and cancellation impairments, power-domain non-orthogonal multiple access (PD-NOMA), and synchronized Full-Duplex MAC protocols.
+
+\subsection{Successive Interference Cancellation: Motivation and Principles}
+The primary objective of next-generation wireless local area networks (WLANs) and cellular IoT systems is to simultaneously satisfy three conflicting imperatives: (i) massive connectivity of uncoordinated nodes, (ii) high area spectral efficiency and throughput, and (iii) strict energy efficiency for battery-limited devices. Conventional random access schemes discard all concurrent packet transmissions in a slot as lost collisions. In contrast, \textbf{Successive Interference Cancellation (SIC)} is a physical-layer non-orthogonal multiple access (NOMA) technique that allows a receiver to decode multiple overlapping packets arriving in the same frequency-time slot.
+
+The fundamental operational principle of SIC is to decode signals sequentially in descending order of their received powers:
+\begin{enumerate}
+    \item The receiver locks onto the strongest signal among the superposed waveforms, treating all concurrent weaker signals alongside thermal noise as aggregate interference.
+    \item Provided the Signal-to-Interference-plus-Noise Ratio (SINR) exceeds a required physical-layer decoding threshold $\theta$, the strongest packet is successfully decoded.
+    \item The receiver reconstructs the analog waveform of the decoded packet using its estimated channel state information (CSI) and subtracts it from the composite received signal.
+    \item This cancellation process is repeated iteratively for the second strongest signal, the third strongest signal, and so forth, peeling off interference layer by layer until either all packets are decoded or an intermediate packet fails the SINR threshold.
+\end{enumerate}
+
+The practical viability of SIC has been corroborated extensively across multiple physical communication media:
+\begin{itemize}
+    \item \textbf{Underwater Acoustic Experiments:} Field deployments in deep water (120~m depth over a 20~km range) demonstrated simultaneous multi-user decoding of 16-QAM and 8-QAM symbols over 3--4~kHz and 9--21~kHz acoustic bands, achieving bit-error rates (BER) as low as $8.8 \times 10^{-4}$.
+    \item \textbf{Software-Defined Radio (USRP) Testbeds:} Real-time implementations on Universal Software Radio Peripheral (USRP) platforms have established that digital signal processors can execute multi-stage cancellation within microsecond-level MAC slot durations, paving the way for standard cellular (e.g., IS-95 CDMA and 5G NOMA) and IEEE 802.11 WLAN integration.
+\end{itemize}
+
+\subsection{System and Channel Model of SIC-Based Slotted ALOHA (SIC-SA)}
+Consider an uplink wireless network consisting of $N$ uncoordinated nodes communicating with a central Access Point (AP) over slotted time. Each node operates according to the Slotted ALOHA discipline, transmitting an acquired packet with probability $p$ in any given slot. 
+
+Let $M$ ($0 \le M \le N$) denote the random number of packets transmitted in a generic slot. Because nodes transmit independently, the number of active packets $M$ is governed by a binomial distribution:
+\begin{equation}
+    P(M \mid N) = \binom{N}{M} p^M (1 - p)^{N - M}
+\end{equation}
+
+\subsubsection{Path Loss and Multipath Fading Model}
+When node $i$ transmits from a distance $D_i$ to the central AP, the received signal amplitude $S_i$ is given by:
+\begin{equation}
+    S_i = D_i^{-\alpha/2} \sqrt{P_i} \, h_i
+\end{equation}
+where $\alpha \ge 2$ is the path-loss exponent, $P_i$ is the transmit power, and $h_i$ is the small-scale multipath fading coefficient. Assuming a flat Rayleigh fading environment with zero mean and variance $\sigma_i^2$, the channel power gain $|h_i|^2$ is exponentially distributed. Consequently, the instantaneous received signal power $X_i = S_i^2$ follows an exponential distribution:
+\begin{equation}
+    X_i = D_i^{-\alpha} P_i |h_i|^2 \sim \text{Exp}(\lambda_i), \qquad \lambda_i = \frac{1}{D_i^{-\alpha} P_i \sigma_i^2}
+\end{equation}
+
+\subsubsection{Order Statistics Formulation of Received Powers}
+In a contention slot with $M$ transmitting nodes ($M \ge 1$), let $\{X_1, X_2, \dots, X_M\}$ represent the unordered set of received signal powers at the AP. To facilitate successive cancellation, the AP sorts the received powers in ascending order:
+\begin{equation}
+    \Theta = \left\{ X_{(1)}, X_{(2)}, \dots, X_{(M)} \right\}, \quad \text{such that } X_{(1)} < X_{(2)} < \dots < X_{(M)}
+\end{equation}
+Figure~\ref{fig:sic_ordering} illustrates the ordering and the sequential peeling mechanism. The strongest arriving signal is $X_{(M)}$, followed by $X_{(M-1)}$, with the $k$-th strongest signal being $X_{(M-k+1)}$.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/fig_sic_ordering.png}
+    \caption{Ascending order statistics of received signal powers $\Theta = \{X_{(1)}, \dots, X_{(M)}\}$ at the Access Point and the successive interference cancellation peeling process.}
+    \label{fig:sic_ordering}
+\end{figure}
+
+Under ideal SIC, when attempting to decode the $k$-th strongest packet $X_{(M-k+1)}$, the previous $k - 1$ stronger packets $\{X_{(M)}, X_{(M-1)}, \dots, X_{(M-k+2)}\}$ have already been successfully decoded, reconstructed, and subtracted from the aggregate waveform. The remaining interference consists solely of the $M - k$ weaker unresolved packets $\{X_{(1)}, \dots, X_{(M-k)}\}$. 
+
+Accordingly, the instantaneous Signal-to-Interference-plus-Noise Ratio (SINR) for the $k$-th decoded packet is expressed as:
+\begin{equation}
+    \text{SINR}_k = \frac{X_{(M-k+1)}}{\sum_{i=1}^{M-k} X_{(i)} + N_0}
+\end{equation}
+where $N_0$ denotes background thermal noise. In interference-limited environments, aggregate co-channel interference dominates background noise ($\sum_{i=1}^{M-k} X_{(i)} \gg N_0$), permitting $N_0$ to be neglected. The $k$-th packet is decodable if $\text{SINR}_k \ge \theta_k$, where $\theta_k$ is the modulation-and-coding threshold.
+
+\subsection{Analytical Results for SIC-SA with Fixed-Distance Model}
+To isolate the intrinsic power diversity induced by multipath fading from spatial path-loss variations, consider first the scenario where all $N$ nodes are located at an equidistant radius from the AP ($D_i = D, P_i = P, \sigma_i^2 = \sigma^2$), so that $\lambda_i = \lambda$ for all $i$.
+
+The joint probability density function of the $M - k$ lowest order statistics $X_{(1)} < X_{(2)} < \dots < X_{(M-k)}$ drawn from an exponential distribution with rate parameter $\lambda$ is given by \cite{gupta2022sic}:
+\begin{equation}
+    p_{X_{(1)}, \dots, X_{(M-k)}}(x_1, \dots, x_{M-k}) = \frac{M!}{k!} \lambda^{M-k} \exp\left( -\lambda \left[ \sum_{i=1}^{M-k} x_i + k x_{M-k} \right] \right)
+\end{equation}
+
+Let $I_k$ denote the aggregate unresolved interference power confronting the $k$-th packet:
+\begin{equation}
+    I_k = \sum_{i=1}^{M-k} X_{(i)}
+\end{equation}
+Because order statistics are mutually dependent, deriving the distribution of their sum directly is non-trivial. By applying Sukhatme's normalized spacing transformations to transform the dependent order statistics into independent exponential variables, Gupta and Venkatesh derived the Moment Generating Function (MGF) of $I_k$ as:
+\begin{equation}
+    M_{I_k}(s) = \sum_{n=1}^{M-k} (-1)^{n-1} \binom{M}{M-k} \binom{M-k-1}{n-1} \left( \frac{M-k-n+1}{M-n+1} \right) \left[ 1 - \frac{s}{\lambda} \left( \frac{M-k-n+1}{M-n+1} \right) \right]^{-(M-k)}
+\end{equation}
+Applying the inverse Laplace transform to $M_{I_k}(s)$ yields the closed-form Probability Density Function (PDF) of the aggregate interference $I_k$:
+\begin{equation}
+    f_{I_k}(s) = \lambda \sum_{n=1}^{M-k} (-1)^{n-1} \binom{M}{M-k} \binom{M-k-1}{n-1} \left( \frac{M-k-n+1}{k} \right)^{M-k} \exp\left( -\frac{\lambda s (M-n+1)}{M-k-n+1} \right)
+\end{equation}
+
+\subsubsection{Closed-Form Packet-Decoding Probability}
+Define the signal-to-interference ratio random variable:
+\begin{equation}
+    \Delta_k \triangleq \frac{X_{(M-k+1)}}{I_k + N_0} \approx \frac{X_{(M-k+1)}}{I_k}
+\end{equation}
+Since the Signal of Interest (SoI) $X_{(M-k+1)}$ conditioned on spacing has PDF $f_{X_{(M-k+1)}}(x) = \lambda e^{-\lambda x}$, the PDF of the ratio $\Delta_k$ is obtained via the ratio distribution integral:
+\begin{align}
+    f_{\Delta_k}(r) &= \int_0^\infty s f_{X_{(M-k+1)}}(r s) f_{I_k}(s) \, ds \nonumber \\
+    &= \binom{M}{M-k} \sum_{n=1}^{M-k} \binom{M-1}{n-1} \frac{(-1)^{n-1} (M-k-n+1)^{M-k+1}}{k^{M-k-1} \left[ r(M-k-n+1) + (M-n+1) \right]^2}
+\end{align}
+The conditional probability of successfully decoding at least the $k$-th packet, given that the $k - 1$ stronger packets have been canceled, corresponds to $P(\Delta_k > \theta_k)$:
+\begin{equation}
+    P_{k,M} = \int_{\theta_k}^\infty f_{\Delta_k}(r) \, dr
+\end{equation}
+Evaluating this integral yields the remarkable closed-form expression:
+\begin{equation}
+    \label{eq:P_k_M_closed}
+    P_{k,M} = \binom{M}{M-k} \sum_{n=1}^{M-k} \binom{M-1}{n-1} \frac{(-1)^{n-1} (M-k-n+1)^{M-k}}{k^{M-k-1} \left[ \theta_k (M-k-n+1) + (M-n+1) \right]}
+\end{equation}
+
+The cumulative probability of successfully decoding all top $k$ packets through the entire SIC cascade in a slot with $M$ contenders is:
+\begin{equation}
+    P_{k,M,\text{SIC}} = \prod_{i=1}^k P_{i,M}
+\end{equation}
+Consequently, the conditional expected number of decoded packets in a slot with $M$ active packets is:
+\begin{equation}
+    \mathbb{E}[k \mid M] = \sum_{i=1}^M i \, P_{i,M,\text{SIC}}
+\end{equation}
+Table~\ref{tab:sic_expected_packets} lists the expected number of decoded packets for various contention levels $M$ and SINR thresholds $\theta$.
+
+\begin{table}[htbp]
+\centering
+\caption{Expected Number of Packets Decoded via SIC ($\mathbb{E}[k \mid M]$) for Different Values of $M$ and SINR Threshold $\theta$}
+\label{tab:sic_expected_packets}
+\begin{tabular}{cccc}
+\toprule
+\textbf{Contenders ($M$)} & $\theta = 0.4$ & $\theta = 0.5$ & $\theta = 0.6$ \\
+\midrule
+4 & 3.070 & 2.364 & 1.837 \\
+5 & 2.290 & 1.510 & 1.010 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Network-Wide Decoding Probabilities}
+In a network of $N$ uncoordinated nodes, the unconditional probability of decoding at least $k$ packets in a slot given prior cancellation is obtained by averaging over the binomial distribution of active contenders $M$:
+\begin{equation}
+    P_{k,\text{IC}} = \sum_{M=k}^N \binom{N}{M} p^M (1 - p)^{N - M} P_{k,M}
+\end{equation}
+The probability of successfully decoding at least $k$ packets through successive interference cancellation across the network is:
+\begin{equation}
+    P_{k,\text{SIC}} = \prod_{i=1}^k P_{i,\text{IC}}, \qquad 1 \le k \le N
+\end{equation}
+From $P_{k,\text{SIC}}$, the probability $P_k$ of decoding \emph{exactly} $k$ packets (the $k$ strongest packets and no more) in a slot is:
+\begin{equation}
+    P_k = P_{k,\text{SIC}} - P_{k+1,\text{SIC}} = \left( \prod_{i=1}^k P_{i,\text{IC}} \right) (1 - P_{k+1,\text{IC}}), \quad 1 \le k \le N - 1
+\end{equation}
+and for $k = N$:
+\begin{equation}
+    P_N = P_{N,\text{SIC}} = \prod_{i=1}^N P_{i,\text{IC}}
+\end{equation}
+
+\subsection{Key Performance Metrics: Throughput, Delay, and Energy Efficiency}
+With the exact packet-decoding probabilities established, the key MAC layer performance metrics are derived in closed form.
+
+\subsubsection{System Throughput ($S$)}
+Throughput $S$ represents the average number of successfully decoded packets per slot at the AP. Defining $\kappa$ as the random variable representing decoded packets per slot, $S = \mathbb{E}[\kappa]$:
+\begin{align}
+    S &= \sum_{i=1}^N i \, P_i \nonumber \\
+    &= \sum_{i=1}^{N-1} i \left( \prod_{n=1}^i P_{n,\text{IC}} \right) (1 - P_{i+1,\text{IC}}) + N \prod_{n=1}^N P_{n,\text{IC}}
+\end{align}
+Numerical evaluations show that while classical Slotted ALOHA collapses once the offered load $G = N p$ exceeds $1.0$ (with peak throughput $1/e \approx 0.368$), SIC-SA maintains stable throughput exceeding $1.4$ packets/slot at offered loads $G \approx 2.6$, achieving a nearly four-fold capacity multiplication.
+
+\subsubsection{Packet Transmission Delay ($D$)}
+Let $T_{\text{node}}$ represent a tagged node under renewal analysis. The probability that $T_{\text{node}}$ transmits alongside $M - 1$ other contending nodes in a slot is:
+\begin{equation}
+    P(M - 1, T_{\text{node}} \mid N) = p \binom{N - 1}{M - 1} p^{M - 1} (1 - p)^{N - M}
+\end{equation}
+Because any of the $M$ active packets has an equal probability $1/M$ of occupying the $k$-th position in the power ordering, the conditional decoding probability of $T_{\text{node}}$ given $M - 1$ interferers is:
+\begin{equation}
+    P(T_{\text{node}} \text{ decoded} \mid T_{\text{node}}, M - 1) = \sum_{k=1}^M \frac{1}{M} \prod_{i=1}^k P_{i,M}
+\end{equation}
+The unconditional probability $P_{\text{ST}}$ that the tagged node transmits in a slot and successfully gets decoded is:
+\begin{equation}
+    P_{\text{ST}} = p \sum_{M=1}^N \left[ \frac{1}{M} \sum_{k=1}^M \prod_{n=1}^k P_{n,M} \right] \binom{N - 1}{M - 1} p^{M - 1} (1 - p)^{N - M}
+\end{equation}
+Because transmission attempts across slots form a sequence of independent Bernoulli trials with success parameter $P_{\text{ST}}$, the number of slots required for successful reception follows a geometric distribution with mean:
+\begin{equation}
+    D = \mathbb{E}[n] = \sum_{i=1}^\infty i (1 - P_{\text{ST}})^{i - 1} P_{\text{ST}} = \frac{1}{P_{\text{ST}}}
+\end{equation}
+
+\subsubsection{Energy Efficiency ($\varepsilon$)}
+In energy-harvesting and battery-constrained IoT devices, energy is consumed almost exclusively during active radio transmission rather than idle deferral. Conditioning exclusively on transmission slots, the probability $P_A$ that a transmission attempt by $T_{\text{node}}$ succeeds is:
+\begin{equation}
+    P_A = \frac{P_{\text{ST}}}{p} = \sum_{M=1}^N \left[ \frac{1}{M} \sum_{k=1}^M \prod_{n=1}^k P_{n,M} \right] \binom{N - 1}{M - 1} p^{M - 1} (1 - p)^{N - M}
+\end{equation}
+The average number of transmission attempts $T$ required until successful packet delivery is:
+\begin{equation}
+    T = \mathbb{E}[t] = \frac{1}{P_A}
+\end{equation}
+If transmitting a packet consumes $\xi$ units of energy per attempt, the average energy expended per successfully delivered packet in SIC-SA is:
+\begin{equation}
+    \varepsilon = \xi \, T = \frac{\xi}{P_A}
+\end{equation}
+
+\subsubsection{Optimal Network Operating Regime}
+Table~\ref{tab:sic_optimal_params} presents the optimal transmission probabilities $p_{\text{opt}}$, offered load $G_{\text{opt}} = N p_{\text{opt}}$, maximum achievable throughput $S_{\text{opt}}$, minimum delay $D_{\text{opt}}$, and average energy consumption $\varepsilon_{\text{opt}}$ across different capture thresholds $\theta$ and network populations $N$.
+
+\begin{table}[htbp]
+\centering
+\caption{Optimal Parameters ($p_{\text{opt}}, G_{\text{opt}}, S_{\text{opt}}, D_{\text{opt}}, \varepsilon_{\text{opt}}$) for SIC-SA under Fixed-Distance Rayleigh Fading ($\xi = 1$)}
+\label{tab:sic_optimal_params}
+\begin{tabular}{ccccccc}
+\toprule
+$\theta$ & $N$ & $p_{\text{opt}}$ & $G_{\text{opt}}$ & $S_{\text{opt}}$ & $D_{\text{opt}}$ (slots) & $\varepsilon_{\text{opt}}$ (energy units) \\
+\midrule
+1 & 15 & 0.176 & 2.640 & 1.416 & 10.54 & 1.682 \\
+1 & 20 & 0.132 & 2.640 & 1.412 & 13.94 & 1.700 \\
+2 & 15 & 0.121 & 1.815 & 0.819 & 18.93 & 2.172 \\
+2 & 20 & 0.091 & 1.820 & 0.817 & 25.23 & 2.202 \\
+3 & 15 & 0.115 & 1.725 & 0.661 & 23.69 & 2.602 \\
+3 & 20 & 0.086 & 1.720 & 0.661 & 31.79 & 2.737 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{SIC-SA with Random Distribution of Nodes (InID Channel Powers)}
+In practical ad-hoc networks and WLAN cells, nodes are distributed randomly across the coverage area (e.g., following a spatial Poisson Point Process), resulting in heterogeneous distances $\{D_1, \dots, D_N\}$. Consequently, the received signal powers $\{X_1, \dots, X_M\}$ are \textbf{Independent and non-Identically Distributed (InID)} exponential random variables with distinct rate parameters $\Theta_\lambda = \{\lambda_{(1)}, \lambda_{(2)}, \dots, \lambda_{(M)}\}$.
+
+To analyze the sum of lower order statistics under InID variables, Gupta and Venkatesh adopted Nagaraja's top order statistics framework \cite{gupta2022sic}. Define the sum of the $M - i$ highest order statistics:
+\begin{equation}
+    T_i \triangleq \sum_{j=i+1}^M X_{(j)}, \qquad 1 \le i \le M - 1
+\end{equation}
+and the total aggregate power:
+\begin{equation}
+    T_0 \triangleq \sum_{j=1}^M X_{(j)} = \sum_{j=1}^M X_j
+\end{equation}
+The Complementary Cumulative Distribution Function (CCDF) of $T_0$ is given by:
+\begin{equation}
+    P(T_0 > t) = \sum_{r=1}^M \omega_r e^{-\lambda_{(r)} t}, \qquad \omega_r = \prod_{s \ne r} \frac{1}{1 - \frac{\lambda_{(r)}}{\lambda_{(s)}}}
+\end{equation}
+Differentiating yields the PDF of the total received power:
+\begin{equation}
+    f_{T_0}(t) = \sum_{r=1}^M \lambda_{(r)} \omega_r e^{-\lambda_{(r)} t}
+\end{equation}
+The unresolved interference confronting the $k$-th decoded packet is expressed as:
+\begin{equation}
+    I_k = \sum_{i=1}^{M-k} X_{(i)} = T_0 - T_{M-k}
+\end{equation}
+Because $I_k$ is the difference of two correlated sums, its PDF is evaluated using the continuous convolution operator:
+\begin{equation}
+    f_{I_k}(t) = f_{T_{M-k}}(-t) \ast f_{T_0}(t)
+\end{equation}
+where $f_{T_{M-k}}(t)$ is derived using the combinatorial partition sums across subsets $\Upsilon(j)$ formulated in \cite{gupta2022sic}. Following the ratio integral $f_{\Delta_k}(r) = \int_0^\infty s f_{X_{(M-k+1)}}(r s) f_{I_k}(s) \, ds$, the decoding probability $P_{k,M} = \int_{\theta_k}^\infty f_{\Delta_k}(r) \, dr$ and throughput $S$ are evaluated numerically.
+
+\subsubsection{Path Loss Exponent and Power-Domain NOMA (PD-NOMA)}
+Analytical and simulation studies reveal two critical physical-layer insights:
+\begin{enumerate}
+    \item \textbf{Path Loss Exponent Scaling:} As the path loss exponent $\alpha$ increases from $2$ to $4$, the throughput $S$ increases monotonically. Higher path loss steepens the disparity in received signal powers from nodes at varying distances, creating natural power segregation that enhances the capture effect and accelerates SIC decoding success.
+    \item \textbf{Power-Domain NOMA Allocation:} By intentionally assigning transmit power levels according to a structured geometric power set (e.g., $\{1, 3, 5\}$ or $\{1, 5, 9\}$ units), nodes artificially emulate distance disparity. This deliberate power asymmetry guarantees sufficient SINR separation even when nodes are clustered equidistant from the AP, maximizing the probability of decoding up to $M$ packets concurrently.
+\end{enumerate}
+
+\subsection{Impact of Imperfect CSI and Imperfect SIC}
+In real hardware implementations, two fundamental physical impairments degrade multi-packet reception: channel estimation error at the transceivers and incomplete analog/digital cancellation at the AP.
+
+\subsubsection{Imperfect CSI Modeling}
+The estimated channel coefficient $\hat{h}_i$ between node $i$ and the AP differs from the true channel $h_i$ due to noisy pilot sounding:
+\begin{equation}
+    h_i = \hat{h}_i + e_i, \qquad e_i \sim \mathcal{CN}(0, \sigma_{ei}^2)
+\end{equation}
+where $e_i$ is a complex Gaussian channel estimation error with variance $\sigma_{ei}^2$.
+
+\subsubsection{Residual Interference under Imperfect SIC}
+When the $j$-th packet ($j \in \{M-k+2, \dots, M\}$) is canceled, residual signal power remains due to imperfect waveform reconstruction, clock jitter, and channel estimation inaccuracies. Let $\epsilon_j \in [0, 1]$ represent the residual interference cancellation factor (where $\epsilon_j = 0$ corresponds to ideal cancellation and $\epsilon_j = 1$ implies no cancellation). The instantaneous SINR at the $k$-th decoding stage becomes:
+\begin{equation}
+    \text{SINR}_k = \frac{X_{(M-k+1)}}{\sum_{i=1}^{M-k} X_{(i)} + \sum_{j=M-k+2}^M \epsilon_j X_{(j)} + N_0}
+\end{equation}
+The conditional decoding probability under imperfect SIC, $P_{k,M,\text{ImSIC}}$, is given by:
+\begin{equation}
+    P_{k,M,\text{ImSIC}} = \begin{cases}
+        P\left( \frac{X_{(M)}}{\sum_{i=1}^{M-1} X_{(i)} + N_0} \ge \theta_1 \right), & k = 1 \\[1ex]
+        P\left( \frac{X_{(M-k+1)}}{\sum_{i=1}^{M-k} X_{(i)} + \sum_{j=M-k+2}^M \epsilon_j X_{(j)} + N_0} \ge \theta_k \right), & 2 \le k \le M
+    \end{cases}
+\end{equation}
+Notice that for $k = 1$, no prior cancellations have taken place; hence the first packet suffers only from raw multi-user interference. For subsequent packets ($k \ge 2$), residual interference terms accumulate.
+
+The network-wide packet decoding probability and throughput under imperfect cancellation become:
+\begin{equation}
+    P_{k,\text{ImSIC}} = \sum_{M=k}^N \binom{N}{M} p^M (1 - p)^{N - M} \prod_{i=1}^k P_{i,M,\text{ImSIC}}
+\end{equation}
+\begin{equation}
+    S_{\text{ImSIC}} = \sum_{i=1}^N i \, P_{i,\text{ImSIC}}
+\end{equation}
+Sensitivity investigations indicate that while single-packet capture ($k=1$) is immune to SIC imperfections, the probability of decoding three or more packets ($k \ge 3$) drops precipitously if the residual error $\epsilon$ exceeds $0.01$ (i.e., less than 20~dB cancellation depth) or channel estimation variance $\sigma_{ei}^2 > 0.003$. This underscores the indispensable need for highly accurate channel estimation algorithms in high-throughput NOMA-ALOHA protocols.
 
 \subsection{SIC-Based Slotted ALOHA with Signal Diversity}
-Successive Interference Cancellation (SIC) allows a receiver to decode overlapping packets sequentially by decoding the strongest packet first, reconstructing its analog waveform, subtracting it from the composite signal, and decoding the remaining packets. 
-
-Combining Slotted ALOHA with signal transmission diversity and SIC enables nodes to transmit multiple packet replicas across time slots. Collisions in earlier slots are iteratively resolved backwards once an uncollided replica is decoded in a subsequent slot, doubling the theoretical throughput limit of ALOHA.
+Building on single-slot successive cancellation, Gupta and Venkatesh extended SIC-SA to incorporate \textbf{Signal Transmission Diversity}. In this protocol, each contending node transmits multiple packet replicas across randomly chosen time slots within a frame. Collisions in earlier slots that cannot be resolved immediately are stored in baseband memory. Once an uncollided packet replica is decoded in a later slot, its waveform is subtracted retrospectively from all earlier collision slots in which its copies participated. This iterative forward-backward graph-based message-passing decoding breaks the deadlock of severe contention, virtually doubling the throughput limit of traditional random access.
 
 \subsection{Synchronized Mode Full-Duplex MAC (SM-FD MAC)}
 In-band Full-Duplex communication allows a node to transmit and receive simultaneously on the same frequency band. Gupta and Venkatesh \cite{gupta2022design} developed the \textbf{Synchronized Mode Full-Duplex (SM-FD)} MAC protocol, compatible with legacy Half-Duplex (HD) stations.
