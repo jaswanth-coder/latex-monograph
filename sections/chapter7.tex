@@ -3,10 +3,197 @@
 
 This chapter details structural and coordination challenges in Heterogeneous Networks (HetNets) consisting of macrocells, microcells, picocells, and femtocells.
 
-\section{Overview of Contributions}
+
+
+
+\section{Mobile Data Offloading (MDO)\& Internetworking}
+We review techniques to offload cellular network traffic onto local networks (such as Wi-Fi) to mitigate congestion, examining traffic steering, vertical handoffs, and resource optimization.
+
+There are two types of mobile data offloading. When is user in Wi-Fi coverage, we transfer data over Wi-Fi.
+When the user leaves theWi-Fi coverage, then we transfer data immediately over cellular networks. This is called the  On-The-Spot MDO.
+
+The other type is the DElayed Mobile data offloading.  Here we assume that the data transfer is given a “deadline” up to which delay is tolerated.
+If data is not sent out before deadline, the data transfer is finished using the cellular networks. The crucial decision to make is then to how long can we wait to utilize the delayed MDO.
+
+\begin{figure}
+\includegraphics[height=.6\textheight,width=10cm]{offload.png}
+\newline \hspace{-9cm}
+\end{figure}
+
+The system model assumes the following. 
 \begin{itemize}
-    \item \textbf{Anusree:} Internetworking and mobile data offloading strategies.
+    
+
+\item ON periods $\sim$ Exponential with mean $T_{ON}$ (rate $\alpha$)
+\item OFF periods $\sim$ Exponential with mean $T_{OFF}$ (rate $\beta$) 
+\item Wi-Fi availability ratio is defined as
+\begin{equation}\label{eq:2}
+AR=\frac{T_{ON}}{T_{ON}+T_{OFF}}=\frac{\beta}{\alpha+\beta}
+ \nonumber 
+\end{equation}
+Packet deadline, $d$ $\sim$ exponential with rate $\gamma$. 
+\item Cellular connectivity is assumed to be always available.  Negligible waiting time over the cellular network.
+\item Mobile node maintains a buffer for packets to be transmitted over WiFi. The arrival rate, is assumed to be Poisson with rate $\lambda$
+\item Modelled as an M/M/1 queue with reneging and server breakdown.\\
+\begin{figure}
+\includegraphics[height=4cm,width=6.5cm]{MDO_BP_IP.pdf}
+\caption{Realization of K(t) and V(t)\\ showing BP and IP}
+\end{figure}
+
+\item WLAN Data rate $\sim$ const, $R_{W}$  
+\item Packet size $\sim$ Exponential with mean, $\kappa$.
+\item Service rate,
+$\mu=\frac{R_{W}}{\kappa}$
 \end{itemize}
 
-\section{Mobile Data Offloading \& Internetworking}
-We review techniques to offload cellular network traffic onto local networks (such as Wi-Fi) to mitigate congestion, examining traffic steering, vertical handoffs, and resource optimization.
+\begin{enumerate}
+\item $E[BP]$- Mean duration of BP\\
+\begin{equation}\label{eq:6}
+\begin{split}
+E&[BP]=\textit{ }E[\tau_1]\frac{\lambda}{\lambda+\alpha}+\\
+& \bigg[E[Y]\frac{\beta}{\lambda+\beta}+(E[Y]+E[\tau_1])\frac{\lambda}{\lambda+\beta}\bigg]\frac{\alpha}{\lambda+\alpha}
+\end{split}
+\end{equation}
+\item  $E[SP]$- Mean duration for which Wi-Fi is serving in a BP\\
+\begin{equation}\label{eq:7}
+E[SP]=E[BP]\frac{\beta}{\beta+\alpha}
+\end{equation}
+\item  $E[IP]$- Mean duration of IP\\
+\begin{equation}
+E[IP]=\frac{1}{\lambda+\alpha}
+\end{equation}
+\end{enumerate}
+Offloading Efficiency ($\eta$) and Transmission Delay ($T$) are given by,
+\begin{equation}\label{eq:9}
+P_S\textit{ }=\textit{ }\frac{E[SP]}{E[IP]+E[BP]}
+\end{equation}
+Reneging rate, $R$ is the mean number of packets that get reneged from queue per unit time due to deadline expiration, is given by,
+\begin{equation}\label{eq:10}
+R=\lambda-\mu P_S
+\end{equation}
+%Let efficiency of mobile data offloading be denoted as $\eta_{MDO}$.
+Reneging Probability
+\begin{equation}\label{eq:10}
+P_R=\frac{R}{\lambda}
+\end{equation}
+Offloading Efficiency  
+\begin{equation}\label{eq:11}
+\eta\textit{ }=\textit{ }1-P_R
+\end{equation}
+%Let $T_{MDO}$ indicates the transmission delay of the packets in mobile data offloading scheme. It is equal to the average queueing delay of packets in M/G/1 queue with reneging, which according to \cite{stanford} is calculated as
+Transmission Delay 
+\begin{equation}\label{eq:12}
+T\textit{ }=\textit{ }\frac{1-\eta}{\gamma} 
+\end{equation}
+We can balk the packets with a balking probability,
+Balking probability:
+\begin{equation}\label{eq:18}
+b_{(n, k)} =  1-F_{V}(d|(N(t')=n,K(t')=k))
+\end{equation}
+where, The conditional CDF of $V$ can be derived as
+\begin{equation}\label{eq:17}
+F_{V}(v|(N(t')=n,K(t')=k))=\frac{L_{V}(s|(N(t')=n,K(t')=k))}{s} \Big\rvert_{s=v}
+\end{equation}
+\begin{eqnarray}\label{eq:18}
+b_{(n, k)} &=&  1-F_{V}(d|(N(t')=n,K(t')=k))
+\end{eqnarray}
+
+M/M/1 queue with balking, reneging and server breakdown. 
+\item  Wi-Fi queue of delayed offloading with balking modeled as a Markov chain with state $(n,k)$\\
+ $n$ $\in$ $\{0,1,...\}$ = Number of packets waiting in the queue\\
+  $k$ $\in \{0,1\}$ = Status of Wi-Fi service ($0$ for OFF, $1$ for ON).
+
+  
+\end{itemize}
+\begin{figure}[h]
+\vspace{-5mm}
+\begin{tikzpicture}[->, >=stealth', auto, semithick, line width=1pt]
+\tikzstyle{every state}=[fill=white,draw=black,thick,text=black,scale=1]
+\node[state]    (A)              {\scriptsize $0,0$};
+\node[draw=none,node distance=2.5cm] (Q)[right of=A]  {\scriptsize ...};
+\node[state,node distance=2.5cm]    (D)[right of=Q]   {\scriptsize  $n-1,0$};
+\node[state,node distance=2.5cm]    (E)[right of=D]   {\scriptsize $n,0$};
+\node[state,node distance=2.5cm]    (F)[right of=E]   {\scriptsize $n+1,0$};
+\node[state,node distance=2cm]    (AA) [below of=A]  {\scriptsize $0,1$};           
+\node[draw=none,node distance=2cm]   (QQ)[below of=Q] {\scriptsize ...};
+\node[state,node distance=2cm]    (DD)[below of=D]   {\scriptsize $n-1,1$};
+\node[state,node distance=2cm]    (EE)[below of=E]   {\scriptsize $n,1$};
+\node[state,node distance=2cm]    (FF)[below of=F]   {\scriptsize $n+1,1$};
+\path
+(A) edge[bend left]     node[above =-.1 cm]{\scriptsize \hspace{3mm} $\lambda(1-b_{0,0}) $}    (Q)
+    edge[bend left]     node[right =0 cm]{\scriptsize $\beta $}    (AA)
+    
+(Q)   edge[bend left]     node[above =0 cm]{\scriptsize  $\gamma$}   (A)
+      edge[bend left]     node[above =0 cm]{\scriptsize $ $}   (D)
+(D)  edge[bend left]     node[above =-.1 cm]{\scriptsize $\lambda(1-b_{n-1,0}) $}    (E)
+     edge[bend left]     node[above =0 cm]{\scriptsize $ $}    (Q)
+     edge[bend left]     node[above =-2mm]{\scriptsize \hspace{2mm} $\beta $}    (DD)
+      
+(E)    edge[bend left]     node[above =-.1 cm]{\scriptsize $\lambda(1-b_{n,0}) $}   (F)
+        edge[bend left]    node[above =0 cm]{\scriptsize $n\gamma$}   (D)
+        edge[bend left]     node[above =-2mm]{\scriptsize \hspace{2mm} $\beta $}    (EE)
+      
+(F)      edge[bend left]     node[above =0 cm]{\scriptsize $(n+1)\gamma$}   (E)
+         edge[bend left]     node[above =-2mm]{\scriptsize \hspace{2mm} $\beta $}    (FF)
+         
+(AA) edge[bend left]     node[above =-.1 cm]{\scriptsize \hspace{5mm} $\lambda(1-b_{0,1}) $}    (QQ)
+   edge[bend left]     node{\scriptsize $\alpha$}    (A)
+(QQ)   edge[bend left]     node[below =0 cm]{\scriptsize $\mu+\gamma$}   (AA)
+      edge[bend left]     node[above =-.1 cm]{\scriptsize $ $}   (DD)     
+    
+(DD)  edge[bend left]     node[above =-.15 cm]{\scriptsize $\lambda(1-b_{n-1,1}) $}    (EE)
+     edge[bend left]     node[below =0 cm]{\scriptsize $ $}    (QQ)
+      edge[bend left]     node{\scriptsize $\alpha$}    (D)
+      
+(EE)    edge[bend left]     node[above =-.1 cm]{\scriptsize $\lambda(1-b_{n,1}) $}   (FF)
+        edge[bend left]    node[below =-.1 cm]{\scriptsize $\mu+n\gamma$}   (DD)
+         edge[bend left]     node{\scriptsize $\alpha$}    (E)
+      
+(FF)     
+         edge[bend left]     node[below =-.1 cm]{\scriptsize $\mu+(n+1)\gamma$}   (EE)
+          edge[bend left]     node{\scriptsize $\alpha$}    (F);
+\end{tikzpicture}
+\end{figure}
+
+\item Reneging rate, $R$ 
+\begin{equation} \label{eq:8}
+R= \sum_{k=0,1}^{ }\sum_{n=1}^{\infty}n \gamma \textit{   } \pi_{(n,k)} = E[N_{Q}] \gamma \nonumber 
+\end{equation}
+\item Balking rate, $B$
+\begin{equation}\label{eq:9}
+B= \sum_{k=0,1}^{ }\sum_{n=0}^{\infty} \lambda\hspace{1mm}b_{(n,k)}\hspace{1mm}\pi_{(n,k)} 
+  \nonumber 
+\end{equation}
+\item Reneging rate, $R$ 
+\begin{equation} \label{eq:8}
+R= \sum_{k=0,1}^{ }\sum_{n=1}^{\infty}n \gamma \textit{   } \pi_{(n,k)} = E[N_{Q}] \gamma \nonumber 
+\end{equation}
+\item Balking rate, $B$
+\begin{equation}\label{eq:9}
+B= \sum_{k=0,1}^{ }\sum_{n=0}^{\infty} \lambda\hspace{1mm}b_{(n,k)}\hspace{1mm}\pi_{(n,k)} 
+  \nonumber 
+\end{equation}
+\item Probability that a packet gets reneged from queue, $P_{R}$ 
+\begin{equation}\label{eq:10}
+P_{R}=\frac{R}{\lambda}  \nonumber
+\end{equation}
+\item Probability that a packet do not join the queue, $P_{B}$
+\begin{equation}\label{eq:10}
+P_{B}=\frac{B}{\lambda}  \nonumber 
+\end{equation}
+\item Offloading efficiency, $\eta$
+\begin{equation}\label{eq:12}
+\eta=1-P_{R}-P_{B}  \nonumber 
+\end{equation}
+\item Transmission delay, $T$ (using Little's Law)
+\begin{equation}\label{eq:11}
+T=\frac{E[N_{Q}]}{(\lambda-B)}  \nonumber 
+\end{equation}
+\end{itemize}
+
+on Comparing Simulation  results with the analytical results along with numerical computation shows that the mobile data offloading with balking offers a significant improvement in the offloading efficiency.
+
+
+
+
+

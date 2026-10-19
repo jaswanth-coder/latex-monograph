@@ -52,6 +52,17 @@ The explosion of mobile data traffic driven by high-definition video streaming, 
 However, uncoordinated offloading can lead to herd behavior: when numerous mobile devices simultaneously offload their traffic to a nearby Wi-Fi Access Point (AP), severe contention and collisions degrade Wi-Fi throughput below that of the cellular network. Conversely, if too few devices offload, cellular spectrum remains heavily congested while Wi-Fi resources are underutilized.
 
 \subsection{The Minority Game (MG) Formulation}
+
+Minority Game (MG) is a type of non-cooperative games, which has recently gained 
+the research community's attention to model distributed resource allocation based problems. 
+The original version of MG was mathematically conceptualized by Challet and Zhang \cite{Challet23}, 
+being inspired by the famous El Farol bar problem \cite{Arthur22} by Arthur. 
+In the binary version of MG, an odd number of agents select between two alternatives in 
+each round of the game. The group of agents, which is minority in strength, is declared as 
+the winner of that round. Therefore, the aim of each agent is to fall into the minority group, in each round.
+The enriched literature of MG includes several variants of MG like, Evolutionary Minority Game, Minority Game with exponential learning, Multiple-choice Minority Game, and so on. There has been a growing interest in the statistical mechanics-based analysis of MG to study its dynamics. Over the last decade, extensive research related to MG has been carried out by researchers from the econophysics community } \cite{MGBook_33}. 
+
+{To motivate the reader on how the framework of MG can be used to solve distributed resource allocation problem, we take the example of mobile data offloading. Consider a set of cellular users in the vicinity of a WiFi hotspot, attempting to offload some of its traffic through WLAN, since it is not only free of cost but it offers high bandwidth. If a minority of the users attempt to offload, they get a good share of offered bandwidth and hence considered as winners. On the other hand, if at any given time, a majority of users attempt to offload, they not only get poor QoS but also lose energy due to contention. Here again the minority group that differ to offload win by at least  conserving the energy. Thus, the goal of every user in a group that contend for scarce resource is to be a part of the minority group. Therefore, the resource allocation problem can be suitably formulated as a Minority game.
 To achieve decentralized, self-organizing load balancing without continuous central signaling, the offloading process can be modeled using the \emph{Minority Game} (MG) paradigm. Originally introduced in econophysics, the minority game models systems where $N$ players repeatedly choose between two alternative actions, and those who choose the less crowded (minority) option win a payoff.
 
 In the context of mobile data offloading, let $N$ mobile users choose between two transmission technologies:
@@ -59,6 +70,54 @@ In the context of mobile data offloading, let $N$ mobile users choose between tw
     a_i \in \{-1, +1\},
 \end{equation}
 where $a_i = -1$ corresponds to retaining the transmission on the cellular link, and $a_i = +1$ corresponds to offloading to Wi-Fi. Let $A(t) = \sum_{i=1}^N a_i(t)$ denote the aggregate action sum at decision round $t$. The minority outcome occurs when the chosen alternative has fewer occupants than a defined capacity threshold.
+
+A detailed description of the mechanism involved in Exponential Minority Game-Mobile data offloading ( EMG-MDO) is given below:
+\begin{enumerate}
+    \item Each of $N$ nodes independently takes a decision whether to send their packets via BS, or WiFi AP in each cycle \textit{t} using Algorithm 1. Let us denote the action of transmission via AP by \textit{bit 1}, whereas \textit{bit 0} denotes choosing BS.
+    \item Nodes use strategies, that suggest the action to follow
+in any given round, based on past outcomes of the game
+(denoted by history string, $\mathbf{h_t}$, to be defined later). A
+strategy can be represented in the form of a table as
+shown in Table 1.
+\item Before the game begins, each node $i$ independently selects
+$s$ such tables (or strategies), forming the collection $S_i$. Each table is drawn randomly, where 1 or 0 is equiprobable to appear as the suggested action against each of the rows of the tables.
+Tables for
+a player remain unchanged during the upcoming series of
+rounds.
+\item Each node $i$ selects in every slot $t$ an action denoted as ${\hat{\beta}}_{i,t}$, following the procedure outlined in step 9.
+\item Based on the actions selected by all the players in a given
+round, a feedback of the winning action is sent to all
+nodes at the end of each cycle. 
+%Since K��MPR channel
+%model is being followed,
+Winning Action is 1, if number  of nodes which have selected WiFi AP for packet transmission $\leq N_{Threshold}$, otherwise 0 is the winning action.
+
+\item \textit{History String}- All nodes maintain a record of past
+$M$ latest occurrences of winning actions in the form of
+history string $\mathbf{h_t}$, and update the same after receiving
+feedback information $W(t)$.
+\item Each node $i$ maintains for each strategy $j$ a score  representing the accumulated reward points, denoted as $V_{i,j}$.
+\item After the declaration of winning action $W(t)$, each strategy $j$
+belonging to player $i$ is awarded a positive reward point
+(say, +1) if the strategy’s prediction $\beta_{(i,j)}(\mathbf{h_t})$
+matches the winning
+action $W(t)$, irrespective of the fact that whether the strategy
+was being followed or not in the given round. Otherwise,
+no point is being awarded. 
+Following this step, each node
+ranks all its strategies based on their current scores, i.e.,
+the sum of accumulated reward points by each strategy.
+\item When the next cycle begins, node $i$
+selects 
+ a strategy ${\hat{\beta}}_{i,t}$, from the distribution $\{P_{i,j}(t)\}$, $j\in[1,s]$, where 
+ \begin{equation}
+ P_{i,j}(t)=\frac{e^{{\gamma} V_{i,j}(t)}}{\sum_{\forall l\in S_i}^{} e^{{\gamma} V_{i,l}(t)}}
+  %${\beta}_i(t)= \arg\max_{\beta \in S} V_{i,s}$
+  \end{equation}
+, and follows the action corresponding
+to the row (matching with its current $h_t$) of the table/strategy chosen.
+In the case of pure MG , each nodes chooses its best strategy (one with the highest score). In contrast, the exponential MG chooses the strategy using a Boltzmann-like distribution, where parameter $\gamma$ is the inverse of temperature.   
+\end{enumerate}
 
 \subsection{Exponential Learning Dynamics and Target Pricing}
 To adapt their decisions under non-stationary traffic, nodes implement an exponential learning reinforcement scheme. Each node maintains virtual scores $U_{i, k}(t)$ for a portfolio of heuristic decision strategies $k \in \mathcal{K}_i$. At each round, the strategy is selected according to a Gibbs-Boltzmann soft-max probability distribution:
