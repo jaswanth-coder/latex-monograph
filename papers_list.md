@@ -150,8 +150,22 @@ Every entry includes:
 
 ---
 
-## Chapter 5: Personal Area Networks & Device-to-Device Communication
-*Focus: Short-range communication paradigms, Device-to-Device (D2D) underlay/overlay spectrum reuse, interference management, and content distribution.*
+## Chapter 5: Personal Area Networks & Machine-to-Machine (M2M) Communication
+*Focus: Short-range communication paradigms, M2M data collection networks, Dynamic Frame-Slotted ALOHA (DFSA), Multi-Packet Reception (MPR-DFSA), Karp-Upfal-Wigderson (KUW) algorithm bounds, energy efficiency, and pure ALOHA order statistics.*
+
+### Journals
+- **Performance Analysis of M2M Data Collection Networks Using Dynamic Frame-Slotted ALOHA**
+  - *Authors:* Arun George and T. G. Venkatesh
+  - *Mapped Topic:* Massive Machine-to-Machine (M2M) data collection, Dynamic Frame-Slotted ALOHA (DFSA), Karp-Upfal-Wigderson (KUW) inequality, average round bound $\mathbb{E}[R_n] \le e \ln n$, geometric backlog decay $\mathbb{E}[N_i] \approx n(1-e^{-1})^{i-1}$, IEEE 802.15.4 energy model, throughput lower bounds, and battery life maximization.
+  - *Venue / File:* IEEE Transactions on Green Communications and Networking, Vol. 2, No. 2, pp. 493–501 (2018) / `papers/Performance_Analysis_of_M2M_Data_Collection_Networks_Using_Dynamic_Frame-Slotted_ALOHA.pdf`
+- **Multi-packet reception dynamic frame-slotted ALOHA for IoT: Design and analysis**
+  - *Authors:* Arun George and T. G. Venkatesh
+  - *Mapped Topic:* IoT sensor networks with Multi-Packet Reception (MPR) capabilities under DFSA, optimal frame scaling factor $\beta_K$ ($\frac{1}{K} < \beta_K < \frac{1}{(K!)^{1/K}}$), success probability $B_K$, stopping time distribution, and maximum achievable throughput $\mathrm{TP}_K^* = B_K / \beta_K$.
+  - *Venue / File:* Internet of Things, Elsevier, Vol. 11, 100256 (2020) / `papers/Multi-packet reception dynamic frame-slotted ALOHA for IoT: Design and analysis.pdf`
+- **Order Statistics Based Analysis of Pure ALOHA in Channels with Multipacket Reception**
+  - *Authors:* Arun I. B. and T. G. Venkatesh
+  - *Mapped Topic:* Pure ALOHA with MPR, order statistics of packet arrival epochs, signal-to-interference ratio (SIR) distribution, capture effect, and spatial throughput scaling.
+  - *Venue / File:* IEEE Communications Letters, Vol. 17, No. 10, pp. 1964–1967 (2013) / `papers/Order_Statistics_Based_Analysis_of_Pure_ALOHA_in_Channels_with_Multipacket_Reception.pdf`
 
 ### Papers in Archive
 - **Minority Game based Content Distribution using Device-to-Device communication in IoT Networks**
@@ -170,13 +184,14 @@ Every entry includes:
   - *Mapped Topic:* Primary-secondary spectrum leasing contracts, cooperative relaying, and reward-maximization MAC frameworks.
   - *Venue / File:* Computer Networks, Elsevier (2018) / `papers/An analytical framework for cooperative cognitive radio network for spectrum leasingsharing.pdf`
 - **Analysis of Quiet Period Scheduling in QP-CSMA-CA Cognitive Radio MAC Protocol**
-  - *Authors:* Bhasker Dappuri and T. G. Venkatesh
+  - *Authors:* S. Senthilmurugan and T. G. Venkatesh
   - *Mapped Topic:* Quiet Period (QP) duration optimization, secondary user sensing intervals, and collision probability bounds with primary users.
-  - *Venue / File:* IEEE Transactions on Cognitive Communications and Networking, Vol. 4, No. 3, pp. 574–586 (2018) / `papers/Analysis of Quiet Period Scheduling in QP-CSMA-CA Cognitive Radio MAC Protocol.pdf`
+  - *Venue / File:* Wireless Personal Communications, Vol. 92, No. 4, pp. 1625–1637 (2017) / `papers/Analysis of Quiet Period Scheduling in QP-CSMA-CA Cognitive Radio MAC Protocol.pdf`
 - **Channel Selection Algorithm for Cognitive Radio Networks with Heavy-Tailed Idle Times**
   - *Authors:* S. Senthilmurugan and T. G. Venkatesh
   - *Mapped Topic:* Pareto / heavy-tailed primary user idle channel distribution, residual channel holding times, and optimal secondary channel ranking.
-  - *Venue / File:* IEEE Systems Journal (2018) / `papers/Channel_Selection_Algorithm_for_Cognitive_Radio_Networks_with_Heavy-Tailed_Idle_Times.pdf`
+  - *Venue / File:* IEEE Transactions on Mobile Computing, Vol. 16, No. 5, pp. 1258–1269 (2017) / `papers/Channel_Selection_Algorithm_for_Cognitive_Radio_Networks_with_Heavy-Tailed_Idle_Times.pdf`
+
 - **Optimal Channel Sensing Strategy for Cognitive Radio Networks With Heavy-Tailed Idle Times**
   - *Authors:* S. Senthilmurugan and T. G. Venkatesh
   - *Mapped Topic:* Stopping-time formulation for primary channel vacancy detection under non-exponential, heavy-tailed idle durations.
