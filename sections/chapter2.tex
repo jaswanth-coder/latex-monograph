@@ -35,6 +35,16 @@ Prior to IEEE 802.11ax, frame aggregation was restricted to MPDUs belonging to t
 
 To support this aggregation, Wi-Fi 6 extends the negotiated Block ACK (BA) session buffer size and bitmap lengths (supporting 32, 64, 128, and 256 bits). The maximum A-MPDU aggregation limit is also increased up to 4 Megabytes by combining the maximum A-MPDU length exponent and exponent extension fields in the HE capabilities element.
 
+In practical WLAN deployments characterized by heterogeneous traffic, individual per-TID transmission queues frequently experience queue starvation under non-saturation conditions. Behara and Venkatesh \cite{behara2023performance} analytically model the performance of Multi-TID frame aggregation under both memoryless Poisson and heavy-tailed Pareto packet arrival processes. Let $B_{mcs}$ denote the number of bits transmitted per OFDM symbol, $C_{mcs}$ the channel coding rate, and $N_{sc}^{RU}$ the number of data sub-carriers within the allocated RU. The physical transmission data rate of a station dedicated $N_{SS}$ spatial streams is:
+\begin{equation}
+    D_r = N_{SS} \cdot B_{mcs} \cdot C_{mcs} \cdot N_{sc}^{RU} \quad \text{[bits/symbol]}
+\end{equation}
+With an OFDM symbol duration of $T_{sym}$, each packet of payload size $L$ bits is appended with MAC header ($l_h$) and trailer ($l_t$) bits. Over an allocated TXOP duration $t_d$, the actual number of aggregated packets accommodated under the common Multi-User physical preamble duration $T_{Phy}^{MU}$ is bounded by:
+\begin{equation}
+    P_{Agg}^{Act} = \min\left(P_{Agg}^{Max}, \left\lfloor \frac{t_d \cdot (D_r / T_{sym}) - T_{Phy}^{MU}}{L + l_h + l_t} \right\rfloor \right)
+\end{equation}
+where $P_{Agg}^{Max}$ is the standard-defined aggregation upper bound. Under bursty, self-similar Pareto traffic where packet inter-arrival times follow $F(t) = 1 - (\beta / (\beta + t))^\alpha$, single-TID aggregation severely underutilizes the granted airtime $t_d$ because any single TID rarely accumulates $P_{Agg}^{Max}$ packets before transmission. By dynamically aggregating across multiple active TIDs, the STA pools packet arrivals across disparate QoS streams, sustaining high airtime utilization, elevating aggregate throughput, and preventing transmission starvation without violating inter-AC priority guarantees \cite{behara2023performance}.
+
 \subsection{Duration-Based RTS-CTS Protection}
 In earlier Wi-Fi generations, the AP had no direct control over when client STAs applied RTS-CTS protection. Since client devices used vendor-specific thresholds, the network could not optimize collision protection. Wi-Fi 6 resolves this by introducing \textbf{Duration-Based RTS-CTS control} \cite{gulasekaran2021wifi6}.
 
@@ -84,6 +94,32 @@ Gulasekaran and Sankaran \cite{gulasekaran2021wifi6} classify TWT agreements int
 \end{figure}
 \end{itemize}
 
+\subsection{Analytical Modeling and Energy Efficiency of TWT in MU Systems}
+While qualitative operational modes explain TWT negotiation, Behara and Venkatesh \cite{behara2023performance} provide a rigorous mathematical framework quantifying the impact of TWT on power consumption, network throughput, and energy efficiency when integrated with MU-OFDMA and MU-MIMO.
+
+Let $T_{wake}$ denote the mean wake-up interval negotiated between the AP and the STA, and let $T_{SP}$ represent the duration of the scheduled Service Period (SP). The stationary probability that a given STA is in the awake state during a randomly chosen time slot is:
+\begin{equation}
+    P_{wake} = \frac{T_{SP}}{T_{wake}}
+\end{equation}
+Consequently, the probability of the STA residing in the low-power doze state is $P_{doze} = 1 - P_{wake}$. During the active service period, the station consumes power $P_{act}$, which incorporates carrier sensing, backoff counter decrementation, BSR frame transmission, TB-PPDU data transmission, and the reception of trigger frames and acknowledgments. During the doze period, power consumption drops to the leakage baseline $P_{doze} \ll P_{act}$. The overall average power consumed by a station is therefore given by:
+\begin{equation}
+    P_{total} = P_{wake} P_{act} + (1 - P_{wake}) P_{doze}
+\end{equation}
+
+The network Energy Efficiency ($\eta_{EE}$) is defined as the ratio of aggregate throughput ($S$) to the total power consumed across active stations:
+\begin{equation}
+    \eta_{EE} = \frac{S}{P_{total}} \quad \text{[Mbits/Joule]}
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/fig_behara_2023_7.png}
+    \caption{Impact of TWT interval on the MU-OFDMA hybrid access mechanism ($R_{ru}=16$): (a) Aggregate throughput, (b) Power consumed, and (c) Energy efficiency \cite{behara2023performance}.}
+    \label{fig:behara_2023_twt}
+\end{figure}
+
+As shown in \cref{fig:behara_2023_twt}, extending the TWT wake-up interval ($T_{wake}$) significantly reduces the average power consumed by client STAs. Although aggregate throughput exhibits a modest decrease due to fewer concurrent stations competing in any given TF-cycle, the dramatic order-of-magnitude reduction in power consumption leads to an exponential surge in energy efficiency (surpassing several thousand Mbits/Joule). This demonstrates that coupling MU-OFDMA with periodic TWT wake scheduling provides exceptional energy conservation for dense battery-constrained IoT devices without precipitating severe throughput degradation.
+
 \section{High Throughput PHY-MAC Integrations}
 To support multi-gigabit speeds and dense deployments, Wi-Fi 6 integrates PHY and MAC layers through spatial multiplexing and spectral subdivision:
 \begin{itemize}
@@ -107,6 +143,180 @@ In trigger-based uplink transmissions, the AP controls the transmit power of par
     \caption{Uplink MU operation timeline using Trigger Frame}
     \label{fig:susinder_book_fig3.8}
 \end{figure}
+
+\subsection{MU-OFDMA Uplink Hybrid Access (HA) Mechanism and Back-off Decrementation}
+To reconcile the conflicting demands of deterministic high-throughput scheduled data delivery and low-latency access for new or uncoordinated stations, IEEE 802.11ax incorporates a Multi-User Uplink Hybrid Access (HA) mechanism. Behara and Venkatesh \cite{behara2022fluid, behara2023performance} provide a comprehensive analytical treatment of this architecture, delineating the interplay between Random Access (RA) and Scheduled Access (SA).
+
+The complete uplink transmission epoch, designated as a \textit{TF-cycle} (serving as the discrete unit time slot $t_s$), is partitioned into an RA contention phase followed by an SA transmission phase:
+\begin{equation}
+    t_s = d_{tfr} + d_{bsr} + d_{tf} + d_{ppdu} + d_{mb} + 4 d_{sifs}
+\end{equation}
+where $d_{tfr}$, $d_{bsr}$, $d_{tf}$, $d_{ppdu}$, and $d_{mb}$ denote the transmission durations of the Trigger Frame-Request (TF-R), Buffer Status Report (BSR), Trigger Frame (TF), physical protocol data unit (TB-PPDU), and Multi-STA Block Acknowledgment (MS-BACK), respectively, separated by Short Inter-frame Spacings ($d_{sifs}$).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2023_1.png}
+    \caption{Multi-user (MU) based Uplink Hybrid Access (Random Access + Scheduled Access) System Model across the frequency-time domain \cite{behara2023performance}.}
+    \label{fig:behara_2023_ha}
+\end{figure}
+
+As depicted in \cref{fig:behara_2023_ha}, the total channel bandwidth $B$ is subdivided into $R_{ru}$ Resource Units (RUs). The Access Point allocates $R_{sa}$ RUs for Scheduled Access, where pre-associated stations with established queue reservations transmit data directly without contending. The remaining $R_{ra} = R_{ru} - R_{sa}$ RUs are advertised in the TF-R frame for OFDMA-based Random Access (UORA).
+
+Unlike legacy Distributed Coordination Function (DCF) where contending stations decrement their back-off counters by 1 for each idle physical slot, IEEE 802.11ax stations decrement their OFDMA Back-Off (OBO) counter by the number of available RA RUs ($R_{ra}$ or $N_{RA}$) in each TF-cycle:
+\begin{equation}
+    OBO(v+1) = OBO(v) - R_{ra}
+\end{equation}
+When a station's counter drops to $\le 0$, it randomly selects one of the $R_{ra}$ RUs to transmit its BSR packet.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/fig_behara_2022_2.png}
+    \caption{Back-off decrementation process in an MU-OFDMA system with $k = W_m - 1$ and $r = N_{RA}$ \cite{behara2022fluid}.}
+    \label{fig:behara_2022_backoff}
+\end{figure}
+
+The discrete nature of decrementing by $R_{ra}$ introduces floor and ceiling discontinuities. Behara and Venkatesh \cite{behara2022fluid} resolve this by introducing an error approximation term $\delta_{i,m} = \lceil i / N_{RA} \rceil - i / N_{RA}$ across back-off stage $m$ (with contention window $W_m = 2^m W_{min}$). Summing over $r^* = \lfloor (W_m - 1) / N_{RA} \rfloor$ intervals yields:
+\begin{equation}
+    \sum_{i=0}^{W_m - 1} \delta_{i,m} \approx \sum_{l=0}^{N_{RA}-1} \frac{N_{RA} - l}{N_{RA}} \cdot r^* = \frac{N_{RA} - 1}{2} \left\lfloor \frac{W_m - 1}{N_{RA}} \right\rfloor
+\end{equation}
+Substituting this closed-form approximation into the average back-off duration $b_m = \frac{1}{W_m} [1 + \sum_{i=1}^{W_m - 1} \lceil i / N_{RA} \rceil]$ yields the closed-form transmission probability $\tau_m$ for a station in back-off stage $m$:
+\begin{equation}
+    \tau_m \approx b_m^{-1} \approx \frac{2 N_{RA} W_m}{2 N_{RA} + W_m(W_m + N_{RA} - 2)}
+    \label{eq:behara_tau_m}
+\end{equation}
+This formulation captures the direct dependence of transmission aggressiveness on RU availability $N_{RA}$ and contention window size $W_m$.
+
+\subsection{Analytical Modeling of MU-OFDMA: Fixed-Point Analysis vs. Fluid-Limit Model}
+To determine the steady-state performance of the MU-OFDMA network, two distinct modeling methodologies have been established:
+
+\subsubsection{Fixed-Point Analysis}
+In moderate-density networks, the coupling between transmission attempts and collision probability can be modeled via fixed-point iterations \cite{behara2023performance}. Let $n_{ra}$ denote the number of contending RA stations. The conditional collision probability $\gamma$ that a BSR transmission encounters collision on a given RA RU is:
+\begin{equation}
+    \gamma = 1 - \left(1 - \frac{\tau}{R_{ra}}\right)^{n_{ra} - 1}
+    \label{eq:behara_gamma}
+\end{equation}
+Given maximum retry limit $m + f$ (where $m$ is the maximum back-off stage and $f$ is the additional persistence retry stage at $W_{max}$), the back-off stage distribution is $P_i = \gamma^i P_0$ for $0 \le i \le m+f$. Normalizing $\sum_{i=0}^{m+f} P_i = 1$ yields $P_0 = (1 - \gamma) / (1 - \gamma^{m+f+1})$. The aggregate transmission probability is:
+\begin{equation}
+    \tau = \sum_{i=0}^{m+f} P_i \tau_i
+    \label{eq:behara_tau_agg}
+\end{equation}
+The non-linear coupled system of \cref{eq:behara_gamma,eq:behara_tau_agg} is solved iteratively via numerical fixed-point iteration, converging rapidly to the equilibrium pair $(\tau^*, \gamma^*)$.
+
+\subsubsection{Fluid-Limit Model (FLM)}
+When the station density grows exceedingly large ($n \to \infty$), traditional multidimensional Markov chain state spaces explode combinatorially, rendering analytical solutions intractable. Behara and Venkatesh \cite{behara2022fluid} address this fundamental bottleneck by formulating a Fluid-Limit Model (FLM).
+
+The system state at discrete TF-cycle $v$ is represented by the occupancy measure vector:
+\begin{equation}
+    \tilde{\Phi}^{(n)}(v) = \left( \tilde{\xi}_0^{(n)}(v), \tilde{\xi}_1^{(n)}(v), \dots, \tilde{\xi}_K^{(n)}(v) \right), \quad \sum_{i=0}^K \tilde{\xi}_i^{(n)}(v) = 1
+\end{equation}
+where $\tilde{\xi}_i^{(n)}(v) = X_i^{(n)}(v) / n$ denotes the fraction of stations residing in back-off stage $i$. The idle probability on a given RU under asymptotic conditions is $I(\tilde{\Phi}) \approx \prod_{i=0}^K (1 - \tau_i / N_{RA})^{n \tilde{\xi}_i}$. The conditional expected drift of the occupancy process per time slot is:
+\begin{align}
+    \Delta_0(\tilde{\Phi}) &= \sum_{i=0}^{K-1} \tilde{\xi}_i \tau_i I(\tilde{\Phi}) + \tilde{\xi}_K \tau_K - \tilde{\xi}_0 \tau_0 \\
+    \Delta_i(\tilde{\Phi}) &= \tilde{\xi}_{i-1} \tau_{i-1}(1 - I(\tilde{\Phi})) - \tilde{\xi}_i \tau_i, \quad i \in [1, K) \\
+    \Delta_K(\tilde{\Phi}) &= \tilde{\xi}_{K-1} \tau_{K-1}(1 - I(\tilde{\Phi})) - \tilde{\xi}_K \tau_K
+\end{align}
+By time-scaling each time slot into $n$ mini-slots of duration $1/n$, the scaled continuous-time process $\Phi^{(n)}(t) := \tilde{\Phi}^{(n)}(\lfloor nt \rfloor)$ converges, via Kurtz's limit theorem, to the unique deterministic trajectory governed by the Ordinary Differential Equation (ODE):
+\begin{equation}
+    \frac{d\mu(t)}{dt} = F_i(\mu(t)), \quad F_i(\mu(t)) = \lim_{n \to \infty} \Delta_i(\Phi), \quad 0 \le i \le K
+\end{equation}
+The stationary point $\mu = (\mu_0, \dots, \mu_K)$ satisfies $F_i(\mu) = 0$, directly yielding the aggregate steady-state transmission probability $\tau = \sum_{m=0}^K \mu_m \tau_m$.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2022_4.png}
+    \caption{Time evolution of (a) the fraction of STAs in the maximum back-off stage ($\tilde{\xi}_K$) and (b) average throughput ($S_{avg}$) for the IEEE 802.11ax system comparing simulation ('S') and FLM analytical ('A') models \cite{behara2022fluid}.}
+    \label{fig:behara_2022_evolution}
+\end{figure}
+
+As exhibited in \cref{fig:behara_2022_evolution}, the fluid limit trajectory closely tracks discrete event simulations. Furthermore, increasing the available RA RUs ($N_{RA}$) accelerates back-off decrementation and forces the occupancy measure to reach stationarity within fewer time slots, justifying the quasi-stationary assumption required for fluid-limit approximations in dynamic Wi-Fi 6 networks.
+
+\subsection{Dynamic MU-OFDMA Resource Allocation and the Throughput--RA Capability Trade-off}
+In practical networks, client buffer occupancies fluctuate wildly over time. Rather than maintaining static partitioning of RUs, real-world Wi-Fi 6 APs employ dynamic scheduling, redistributing RUs between RA and SA based on Buffer Status Reports (BSRs).
+
+Behara and Venkatesh \cite{behara2022fluid, behara2023performance} model dynamic MU-OFDMA where stations request transmission of $\alpha$ aggregated frames, with $\alpha$ uniformly distributed over $[1, \alpha_{Max}]$. Stations with active reservations transmit during scheduled RUs. When a scheduled station exhausts its buffer ($\alpha = 1 \to 0$), its RU reverts to the RA pool in the subsequent TF-cycle ($N_{RA}(v+1)$ expands). Conversely, newly winning RA stations are transitioned into scheduled RUs ($N_{SA}(v+1)$ expands).
+
+The dynamic system is governed by a Discrete-Time Markov Chain (DTMC) with state vector $Z(v) = (N_s(v), N_{\alpha_{Max}}(v), \dots, N_2(v))$, where $N_s(v)$ is the number of scheduled RUs and $N_\alpha(v)$ is the count of RUs allocated to stations holding $\alpha$ remaining frames.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/fig_behara_2022_3.png}
+    \caption{Markov chain state transition diagram for dynamic MU-OFDMA with $\alpha_{Max} = 4$ and $N_{RU} = 2$ \cite{behara2022fluid}.}
+    \label{fig:behara_2022_dtmc}
+\end{figure}
+
+The transition probability $P(I, J)$ from state $I = (i_1, \dots, i_\varepsilon)$ to $J = (j_1, \dots, j_\varepsilon)$ follows a multinomial distribution:
+\begin{equation}
+    P(I, J) = \frac{(N_{RU} - \sum_{l=2}^\varepsilon i_l)!}{(N_{RU} - j_1)! (j_1 - \sum_{l=2}^\varepsilon j_l - i_\varepsilon)! \prod_{l=3}^\varepsilon (j_l - i_{l-1})! j_2!} (sp)^{r_s} f^{N_{RU} - j_1}
+\end{equation}
+where $r_s$ is the number of successful RUs, $s = \delta e^{-\delta}$ is the success probability per RA RU, $f = 1 - s$, and $p = 1 / \alpha_{Max}$.
+
+A fundamental operational trade-off identified by Behara and Venkatesh governs this hybrid access architecture:
+\begin{itemize}
+    \item \textbf{Random Access (RA) Capability ($\beta$):} Defined as the average number of new stations that successfully gain initial access to the medium per TF-cycle:
+    \begin{equation}
+        \beta = \sum_{I \in \mathcal{S}} \pi_I \sum_{J \in \mathcal{S}} P(I, J) b(I, J)
+    \end{equation}
+    where $b(I, J)$ is the count of newly admitted stations during transition $I \to J$.
+    \item \textbf{Aggregate Throughput ($S_u$):} Proportional to the number of scheduled bulk payload transmissions:
+    \begin{equation}
+        S_u = \frac{N_a L}{t_{tc}} \sum_{Z_i \in \mathcal{S}} i_1 \pi_{Z_i}
+    \end{equation}
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2023_5.png}
+    \caption{Impact of RU distribution between $R_{ra}$ and $R_{sa}$ for an MU-OFDMA hybrid access mechanism ($R_{ru} = 16$): (a) Throughput, (b) RA capability (semilog), (c) Delay, (d) Power consumed, and (e) Energy efficiency (semilog) \cite{behara2023performance}.}
+    \label{fig:behara_2023_tradeoff}
+\end{figure}
+
+As substantiated in \cref{fig:behara_2023_tradeoff}, increasing the proportion of random access RUs ($R_{ra}$) exponentially amplifies the RA capability $\beta$, dramatically reducing network access delay for unassociated and intermittent IoT stations. However, this comes at the expense of aggregate throughput, because scheduled RUs carrying dense multi-packet payloads are curtailed.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/fig_behara_2023_15.png}
+    \caption{BSR-based dynamic MU-OFDMA scheduling performance comparing Poisson and Pareto traffic arrivals \cite{behara2023performance}.}
+    \label{fig:behara_2023_bsr}
+\end{figure}
+
+\Cref{fig:behara_2023_bsr} illustrates that dynamic scheduling matches the channel capacity to bursty queue dynamics: under light load, dynamic allocation yields lower contention delay; under heavy load, it approaches the peak efficiency of dedicated scheduled access.
+
+\subsection{Channel Sounding Overhead in Synchronous Uplink MU-MIMO}
+In IEEE 802.11ax, Resource Units comprising 106 subcarriers or more can simultaneously support Multi-User MIMO (MU-MIMO), transmitting orthogonal spatial streams over the same spectral allocation. To decode concurrent spatial streams without inter-stream interference, the AP requires accurate Channel State Information at the Receiver (CSIR).
+
+Because wireless channels experience temporal decorrelation and mobility Doppler shift, the AP must periodically refresh CSI by executing channel sounding.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/fig_behara_2023_3.png}
+    \caption{Channel Sounding Operation timeline in IEEE 802.11ax MU systems \cite{behara2023performance}.}
+    \label{fig:behara_2023_sounding}
+\end{figure}
+
+The sounding procedure, illustrated in \cref{fig:behara_2023_sounding}, incurs substantial protocol overhead duration $T_{csi}$:
+\begin{equation}
+    T_{csi} = T_{NDPA} + T_{NDP} + \sum_{k=1}^{N_{sta}} (T_{BFRP} + T_{CSI\_Feedback}) + (2 N_{sta} + 1) T_{SIFS}
+\end{equation}
+If the channel coherence time is characterized by rate parameter $\lambda_{csi}$, sounding must be executed every $k^*$ stages. Behara and Venkatesh \cite{behara2023performance} derive the optimal sounding trigger condition:
+\begin{equation}
+    (k^* - 1) \frac{1}{\lambda_{csi}} < k^* T_{csi} + \mathbb{E}[D] < \frac{k^*}{\lambda_{csi}}
+\end{equation}
+yielding the overall average uplink packet delay inclusive of sounding overhead:
+\begin{equation}
+    \mathbb{E}[D]_{csi} = k^* T_{csi} + \mathbb{E}[D]
+\end{equation}
+This formulation highlights the trade-off between spatial multiplexing gain and physical airtime overhead: while MU-MIMO doubles or quadruples physical capacity, overly frequent sounding degrades net MAC throughput.
+
+\subsection{Multi-BSS Hand-Off and Mobility Modeling via Stochastic Geometry}
+In dense enterprise environments with overlapping Basic Service Sets (multi-BSS), client stations continuously move between AP coverage areas. Behara and Venkatesh \cite{behara2023performance} model the physical-MAC interactions of multi-BSS MU-OFDMA deployments using stochastic geometry.
+
+Access Points and stations are modeled as independent homogeneous Poisson Point Processes ($\Phi_{AP}$ and $\Phi_{STA}$) with spatial densities $\lambda_{AP}$ and $\lambda_{STA}$. Under Rayleigh fading and path loss exponent $\alpha$, the signal-to-interference-plus-noise ratio (SINR) for a station at distance $r$ from its associated AP $b_0$ is:
+\begin{equation}
+    \text{SINR} = \frac{P_{tx} h r^{-\alpha}}{P_{Th} + \sum_{j \in \Phi_{AP} \setminus \{b_0\}} P_{tx} g_j R_j^{-\alpha}}
+\end{equation}
+where $P_{tx}$ is transmit power, $h, g_j \sim \exp(1)$ represent small-scale channel fading gains, and $P_{Th}$ is thermal noise. The coverage probability is $P_{cov} = \mathbb{P}(\text{SINR} \ge T_{min})$.
+
+When stations traverse BSS boundaries with velocity $v$, the effective residence time within an individual BSS is severely curtailed. Because the binary exponential back-off (BEB) algorithm requires multiple contention rounds to adapt its contention window to the local STA density, mobile stations undergoing frequent hand-offs suffer elevated collision rates before the back-off counters stabilize, leading to transient throughput degradation compared to stationary deployments.
 
 \subsection{BSS Coloring and Color Collision Resolution}
 In dense deployments, Overlapping Basic Service Sets (OBSS) cause high contention overhead because STAs defer to transmissions from neighboring networks. Wi-Fi 6 addresses this by assigning a 6-bit identifier (value 1 to 63) called the \textbf{BSS Color} to each BSS. The BSS color is advertised by the AP in beacons and marked in the HE-SIG-A field of the PHY header of all transmitted PPDUs. This allows STAs to classify any incoming packet as intra-BSS (matching color) or inter-BSS (different color) at the PHY layer before decoding the MAC header.

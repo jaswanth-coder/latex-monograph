@@ -155,24 +155,17 @@ M/M/1 queue with balking, reneging and server breakdown.
 \end{tikzpicture}
 \end{figure}
 
-\item Reneging rate, $R$ 
+\begin{itemize}
+\item Reneging rate, $R$:
 \begin{equation} \label{eq:8}
 R= \sum_{k=0,1}^{ }\sum_{n=1}^{\infty}n \gamma \textit{   } \pi_{(n,k)} = E[N_{Q}] \gamma \nonumber 
 \end{equation}
-\item Balking rate, $B$
+\item Balking rate, $B$:
 \begin{equation}\label{eq:9}
 B= \sum_{k=0,1}^{ }\sum_{n=0}^{\infty} \lambda\hspace{1mm}b_{(n,k)}\hspace{1mm}\pi_{(n,k)} 
   \nonumber 
 \end{equation}
-\item Reneging rate, $R$ 
-\begin{equation} \label{eq:8}
-R= \sum_{k=0,1}^{ }\sum_{n=1}^{\infty}n \gamma \textit{   } \pi_{(n,k)} = E[N_{Q}] \gamma \nonumber 
-\end{equation}
-\item Balking rate, $B$
-\begin{equation}\label{eq:9}
-B= \sum_{k=0,1}^{ }\sum_{n=0}^{\infty} \lambda\hspace{1mm}b_{(n,k)}\hspace{1mm}\pi_{(n,k)} 
-  \nonumber 
-\end{equation}
+
 \item Probability that a packet gets reneged from queue, $P_{R}$ 
 \begin{equation}\label{eq:10}
 P_{R}=\frac{R}{\lambda}  \nonumber
