@@ -267,7 +267,7 @@ subjected to
 MDP can be solved using dynamic programming.
 
 \section{Exponential Distribution}
-In this section, we will discuss about Continuous Time Markov Chain. First we will discuss the  i) Exponential distribution and ii) Poisson Stochastic Process are crucial for developing the formalism of CTMC.
+In this section, we will discuss   i) Exponential distribution and ii) Poisson Stochastic Process that are crucial for developing the formalism of queueing theory.
 
 \textbf{Exponential Distribution:} A continuous valued random variable is said to be exponentially distributed with parameters $\lambda$ ( $\lambda \geq 0$) if its probability density function (PDF ) takes the form 
 
@@ -346,7 +346,7 @@ A queueing system is one in which customers, typically from a large pool come an
 \begin{itemize}
     \item Arrival Process \newline Arrival process of a customer maybe deterministic(for example constant bit rate traffic) or random. If the arrival is Poisson arrival process, the population size can be finite or infinite. And all arrivals are independent. 
     \item Arrivals \newline Arrivals can be single arrival or bulk arrival 
-    \item Service \newline 1 per customer or bulk(server can be a   bus and customers can wait in a queue)
+    \item Service \newline 1 per customer or bulk(server can be a   bus and customers can wait in a queue). Multiple servers each capable of handling one customer can work in parallel.
     \item Balking \newline Customers on arrival may take a decision whether to join the queue or not. This is called Balking. 
     \item Reneging \newline Customer joins the queue but if he is not serviced by a deadline, he comes out of the queue. 
     \item Priority \newline VVIP separate track. These customers are handled differently. 
@@ -600,10 +600,12 @@ The Laplace transform of the interference, $\mathcal{L}_I(s) = \mathbb{E}[e^{-sI
 \begin{equation}
     \mathcal{L}_I(s) = \exp\left(-\pi \lambda s^{2/\alpha} \Gamma(1 - 2/\alpha) \mathbb{E}[h^{2/\alpha}]\right)
 \end{equation}
-\chapter{Wireless Local Area Networks}
+
+This chapter has given an overview of the important stochastic modelling techniques needed to analyze wireless networks. For more detailed analysis refer to books mentioned in the reference section.
+\chapter{Wireless Local Area Networks MAC protocol: IEEE 802.11, 11e and 11ad.}
 \label{sec:chapter_wlan}
 
-This chapter reviews research efforts, analytical models, and protocol enhancements in the domain of Wireless Local Area Networks (WLANs). It focuses on fundamental channel access mechanisms, mathematical throughput and jitter modeling, Quality of Service (QoS) differentiation, millimeter-wave architectures, and cross-layer physical enhancements including Multi-Packet Reception (MPR), Successive Interference Cancellation (SIC), and Full-Duplex communication.
+This chapter reviews research efforts, analytical models, and protocol enhancements in the domain of Wireless Local Area Networks (WLANs). It focuses on fundamental channel access mechanisms, performance metrics such as, packet transmission delay, throughput and jitter and Quality of Service (QoS) differentiation, 
 
 \section{Architecture and Medium Access Fundamentals}
 The IEEE 802.11 WLAN architecture defines two fundamental deployment configurations: the \textbf{Basic Service Set (BSS)}, in which all client stations communicate through a centralized Access Point (AP), and the \textbf{Independent Basic Service Set (IBSS)}, in which stations communicate directly in an ad-hoc, decentralized manner without an infrastructure coordinator.
@@ -890,19 +892,21 @@ The closed-form delay expression reveals that the system remains stable as long 
 \end{equation}
 As $\lambda \to \lambda^*$, queue lengths grow asymptotically and packet delay becomes unbounded. This critical arrival rate provides a rigorous closed-form criterion for admission control and dynamic SP duration allocation in IEEE 802.11ad millimeter-wave networks~\cite{hemanth2014iet, hemanth2019tett}.
 
-\section{Physical Layer Enhancements: Multi-Packet Reception (MPR) MAC}
+In this chapter we reviewed the basic of the medium access mechanics in IEEE 802.11 standard, the Bianchi's Markov chain model, its extension to analyse unsaturated traffic conditions etc. We then lokked at how IEEE 802.11e offers serivce differentiation. Finally we looked at the hybrid channel access mechanism of IEEE 802.11ad standard.
+
+\chapter{Physical Layer Enhancements: Multi-Packet Reception (MPR) MAC}
 Traditional wireless Medium Access Control protocols are premised on the physical-layer abstraction of the \textbf{collision channel}. In a collision channel, simultaneous transmissions by two or more nodes result in complete mutual interference, yielding a destructive collision and ternary feedback $(0, 1, e)$ denoting idle, success, or error. However, modern physical-layer technologies---including Multi-User Detection (MUD), Direct-Sequence Code Division Multiple Access (DS-CDMA), Multi-User MIMO (MU-MIMO), and Successive Interference Cancellation (SIC)---fundamentally dismantle this bottleneck by enabling a receiver to decode multiple overlapping packets simultaneously. This capability is designated as \textbf{Multi-Packet Reception (MPR)}.
 
 In an ideal $K$-MPR channel, the receiver successfully decodes up to $K$ concurrent packets without error; if more than $K$ packets overlap in the channel, all packets are corrupted. In a \textbf{Generalized MPR} channel, the reception capability is defined by a reception matrix $\mathbf{C} = [R_{n,k}]$, where $R_{n,k}$ denotes the probability that $k$ packets are successfully resolved given $n$ concurrent transmissions. To exploit this capability at the network layer, Venkatesh and Arun \cite{arun2013order, balan2015analysis, arun2017design} developed a comprehensive family of random-access protocols tailored for MPR channels.
 
-\subsection{Order Statistics Analysis of Pure ALOHA under MPR}
+\section{Order Statistics Analysis of Pure ALOHA under MPR}
 To determine the fundamental capacity limits of uncoordinated channel access, Arun and Venkatesh \cite{arun2013order} formulated an exact throughput analysis of Pure ALOHA under a $K$-MPR channel model using order statistics. 
 
 Consider an infinite-user network with Poisson packet arrivals of aggregate rate $\Lambda$ and fixed packet durations normalized to 1. The throughput $S$ is defined as the time-average number of successful packet deliveries: $S = \Lambda \Pr(\text{Success of a tagged packet})$.
 
 Let a tagged packet start transmission at time $t=0$, occupying the unit interval $[0, 1]$. Any other transmission initiating in the \textit{vulnerable interval} $[-1, 1]$ will overlap with the tagged packet. This interval is partitioned into two sub-intervals: $I_1 = [-1, 0]$ (with $A_1 = a_1$ arrivals) and $I_2 = [0, 1]$ (with $A_2 = a_2$ arrivals), with total overlapping arrivals $A = A_1 + A_2 = a_1 + a_2 = a$.
 
-\subsubsection{Throughput Bounds}
+\subsection{Throughput Bounds}
 Conditioning on total arrivals $A$ within $[-1, 1]$, universal bounds on Pure ALOHA throughput under $K$-MPR are established:
 \begin{align}
     S_{\text{ALOHA}}^{\text{lower}} &= \Lambda \sum_{i=0}^{K-1} \frac{(2\Lambda)^i e^{-2\Lambda}}{i!} \label{eq:mpr_aloha_lower} \\
@@ -910,7 +914,7 @@ Conditioning on total arrivals $A$ within $[-1, 1]$, universal bounds on Pure AL
 \end{align}
 The lower bound corresponds to the pessimistic assumption that any arrival in $[-1, 1]$ interferes with every other arrival, while the upper bound assumes perfect independence across $I_1$ and $I_2$.
 
-\subsubsection{Order Statistics Formulation}
+\subsection{Order Statistics Formulation}
 Conditioned on $A_1 = a_1$ and $A_2 = a_2$, the arrival instants in $I_1$ and $I_2$ are uniformly and independently distributed over $[0, 1]$ when measured from the start of their respective intervals. Let $X_{(i)}$ denote the $i$-th smallest arrival time in $I_1$ ($i$-th order statistic from $a_1$ uniform random variables), and let $Y_{(j)}$ denote the $j$-th smallest arrival time in $I_2$ ($j$-th order statistic from $a_2$ uniform random variables).
 
 Let $S_1 = \{X_{(1)}, \dots, X_{(a_1)}\}$ and $S_2 = \{Y_{(1)}, \dots, Y_{(a_2)}\}$ be the ordered sets of arrival instants. A transmission originating in $I_1$ at $X_{(i)}$ and another in $I_2$ at $Y_{(j)}$ do not overlap with each other if the elapsed time between them exceeds 1:
@@ -977,10 +981,10 @@ Under Generalized MPR with reception matrix $\mathbf{C} = [R_{n,k}]$, the throug
 \end{equation}
 where $\bar{R}_{j+1}$ is the expected number of successfully decoded packets out of $j+1$ concurrent transmissions.
 
-\subsection{Analytical Modeling of CSMA under MPR}
+\section{Analytical Modeling of CSMA under MPR}
 Carrier Sense Multiple Access (CSMA) protocol designs are evaluated under MPR by Balan and Venkatesh \cite{balan2015analysis}.
 
-\subsubsection{Non-Persistent CSMA (NP-CSMA) under MPR}
+\subsection{Non-Persistent CSMA (NP-CSMA) under MPR}
 In unslotted NP-CSMA, stations sense the channel before transmitting. If the channel is sensed idle, transmission starts immediately; if sensed busy, the packet is rescheduled after a random back-off.
 
 The channel timeline alternates between idle periods of mean $1/\Lambda$ and busy periods initiated by an arrival at $t$. During the carrier sensing delay $a$ (propagation delay), any arriving packet will also begin transmission. The cumulative distribution of the last arrival $Y$ in $[t, t+a]$ is $F_Y(y) = e^{-\Lambda(a - y)}$ for $0 \le y \le a$. The mean busy period duration is:
@@ -1001,7 +1005,7 @@ Applying the renewal-reward theorem, the normalized throughput of NP-CSMA under 
 
 Carrier sensing delay $a$ dictates the optimal arrival rate $\Lambda^*$: as $a \to 0$, the optimal throughput scales linearly with $K$.
 
-\subsubsection{1-Persistent CSMA (1P-CSMA) under MPR}
+\subsection{1-Persistent CSMA (1P-CSMA) under MPR}
 In 1-Persistent CSMA, packets arriving during a busy channel persist and transmit immediately upon channel clearance. Balan and Venkatesh \cite{balan2015analysis} classify the transmission periods (TP) into three types:
 \begin{itemize}
     \item \textbf{Type 0 (Idle):} The channel is idle between transmission periods.
@@ -1034,7 +1038,7 @@ where $\hat{S}_1 = \sum_{i=0}^{K-1} (i+1) \frac{(a\Lambda)^i}{i!} e^{-a\Lambda}$
     \label{fig:balan_2015_fig6}
 \end{figure}
 
-\subsection{Adaptive Backoff DCF Protocol under MPR}
+\section{IEEE 802.11 Adaptive Backoff DCF Protocol for MPR channel}
 In IEEE 802.11 DCF, nodes freeze their back-off counters whenever the channel is sensed busy ($i \ge 1$). While necessary in collision channels, this freezing behavior severely throttles medium efficiency in MPR-capable networks, where up to $K$ concurrent transmissions can be accommodated.
 
 To overcome this, Arun and Venkatesh \cite{arun2017design} designed an \textbf{adaptive back-off DCF protocol}. Rather than freezing, nodes dynamically adjust their back-off counter decrement step size $d(i)$ based on the number of ongoing transmissions $i$:
@@ -1047,7 +1051,7 @@ To overcome this, Arun and Venkatesh \cite{arun2017design} designed an \textbf{a
 \end{equation}
 where $K_t < K$ is an operational threshold. When channel utilization is low, back-off counters decrement rapidly ($K - i$), allowing nodes to transmit sooner and boosting channel utilization. Nodes defer only when ongoing transmissions exceed $K_t$.
 
-\subsubsection{Generalized Counter Decrements and Channel State Markov Chain}
+\subsection{Generalized Counter Decrements and Channel State Markov Chain}
 The protocol is analyzed via a coupled analytical framework:
 \begin{enumerate}
     \item \textbf{Back-off Process DTMC:} For uniform decrements by $d \ge 1$, the back-off stages are partitioned into sub-states $S_k = \{(k-1)d+1, \dots, kd\}$ for $k \in [0, J_i - 1]$ with $J_i - 1 = \lfloor (W_i - 1) / d \rfloor$. Solving the balance equations yields the per-slot transmission probability $\tau_d$.
@@ -1080,7 +1084,7 @@ The collision probability is $p_c = \frac{\sum_{i=0}^K \sum_{j=K+1}^N \pi_i p_{i
 \end{equation}
 where $\sigma$ is the average slot duration. Compared to standard IEEE 802.11 DCF, the adaptive MPR protocol achieves over $3\times$ higher throughput and dramatically reduces MAC delay.
 
-\subsection{Adaptive EDCA for Prioritized MPR Channels}
+\section{Adaptive EDCA for Prioritized MPR Channels}
 To deliver differentiated Quality of Service (QoS) in IEEE 802.11ac/ax networks supporting MPR, Arun and Venkatesh extended the adaptive back-off mechanism to EDCA. In addition to traditional parameters ($CW_{min}$, $CW_{max}$, and $AIFSN$), two parameters provide cross-layer QoS differentiation: the \textbf{channel threshold $K_t$} and the \textbf{counter decrement function $d_{AC}(i)$}.
 
 \begin{table}[htbp]
@@ -1088,7 +1092,7 @@ To deliver differentiated Quality of Service (QoS) in IEEE 802.11ac/ax networks 
 \small
 \begin{tabular}{|l|l|l|}
 \hline
-\textbf{Access Category} & \textbf{Traffic Type} & \textbf{MPR Backoff Decrement \& Threshold Parameters} \\ \hline
+\textbf{Access Category} & \textbf{Traffic Type} & \textbf{MPR Backoff  \& Threshold Parameters} \\ \hline
 $\text{AC}_0$ & Real-time Voice & $K_t = K - 1$, Adaptive countdown $d(i) = K - i$ \\ \hline
 $\text{AC}_1$ & Video Playback & $K_t = \lceil K / 2 \rceil$, Adaptive countdown $d(i) = K - i$ \\ \hline
 $\text{AC}_2$ & Best Effort & $K_t = \lceil K / 4 \rceil$, Non-adaptive countdown ($d = 1$) \\ \hline
@@ -1100,12 +1104,14 @@ $\text{AC}_3$ & File Transfer / Background & $K_t = 1$, Non-adaptive countdown (
 
 High-priority Access Categories ($\text{AC}_0$ and $\text{AC}_1$) maintain high thresholds ($K_t = K-1$ and $\lceil K/2 \rceil$) and decrement their back-off counters rapidly in proportion to spare channel headroom ($K - i$). Consequently, voice and video streams seize immediate transmission opportunities whenever the medium is lightly loaded, preserving ultra-low latency bounds even under heavy aggregate offered traffic. Best-effort and background traffic ($\text{AC}_2$ and $\text{AC}_3$) operate with restrictive thresholds and unit decrements, yielding medium airtime to urgent traffic while maintaining high overall MPR channel utilization.
 
-\section{IEEE 802.11ax Multi-User Enhancements}
+In this chapter we looked at the various adaptations of the medium access protocol for channels supporting multi packet reception. Starting with the basic Aloha protocol, followed by the 1 and p -persistent CSMA protocol, we extended the idea to the most important IEEE 802.11 MAC mechanism. Finally we also showed how MPR can be leveraged by offering QOS for IEEE 802.11e scheme.
+
+\chapter{IEEE 802.11ax MU MIMO MU OFDMA based hybrid access mechanism}
 IEEE 802.11ax (marketed as Wi-Fi 6) represents a paradigm shift in WLAN design, explicitly architected to overcome the performance degradation encountered in ultra-dense use-case environments such as smart homes, corporate enterprises, airports, and sports stadiums. Rather than prioritizing peak single-link data rates under idealized conditions, the central objective of IEEE 802.11ax is to achieve a four-fold ($4\times$) increase in average per-station (STA) throughput under dense, heterogeneous deployments compared to legacy IEEE 802.11ac systems.
 
 To fulfill these demands, the standard introduces key Physical (PHY) and Medium Access Control (MAC) layer enhancements: Multi-User Orthogonal Frequency Division Multiple Access (MU-OFDMA), Multi-User MIMO (MU-MIMO), Target Wake Time (TWT), Basic Service Set (BSS) Coloring, and Multi-TID frame aggregation. Venkatesh and Behara \cite{behara2022fluid, behara2023performance} formulated an extensive mathematical framework capturing the performance of these multi-user enhancements under both ideal and error-prone physical channel environments.
 
-\subsection{OBSS Interference Mitigation and Frequency Reuse}
+\section{OBSS Interference Mitigation and Frequency Reuse}
 In dense WLAN deployments, multiple overlapping Basic Service Sets (OBSS) share the available RF spectrum, causing severe co-channel contention and packet deferrals. IEEE 802.11ax mitigates OBSS interference through coordinated spectral subdivision and spatial reuse:
 \begin{enumerate}
     \item \textbf{Spectrum Utilization:} Operates across the 2.4~GHz band (offering 3 non-overlapping 20~MHz channels), the 5~GHz band (offering up to 23 non-overlapping 20~MHz channels), and the 6~GHz band (Wi-Fi 6E/7), providing abundant contiguous spectrum for wideband operations.
@@ -1113,7 +1119,7 @@ In dense WLAN deployments, multiple overlapping Basic Service Sets (OBSS) share 
     \item \textbf{BSS Coloring and Spatial Reuse:} Each BSS is allocated a 6-bit numerical color advertised in the preamble HE-SIG-A field. Client STAs differentiate between intra-BSS transmissions (matching color) and inter-BSS transmissions (differing color). Under dynamic OBSS Packet Detect (OBSS-PD) rules, STAs adjust their clear channel assessment (CCA) threshold from $-82$~dBm up to $-62$~dBm, transmitting concurrently with OBSS transmissions when received interference is sufficiently low. NS-3 network simulations demonstrate an average 20\% throughput improvement per BSS when BSS coloring is enabled compared to legacy single-threshold networks.
 \end{enumerate}
 
-\subsection{Hybrid Access (HA) Methodology and System Model}
+\section{Hybrid Access (HA) Methodology and System Model}
 \label{sec:ha_proc}
 In pure Scheduled Access (SA), the Access Point (AP) deterministically allocates RUs to active STAs, eliminating collisions and maximizing data packing efficiency. However, centralized polling of station queue backlogs introduces significant signaling latency, penalizing newly arriving stations. Conversely, pure Random Access (RA) provides low joining latency for sporadic traffic, but suffers devastating collision overhead and throughput collapse under dense station populations.
 
@@ -1137,7 +1143,7 @@ The complete duration of this operational epoch, termed a \textit{TF-cycle} ($t_
     t_s = T_{\text{TF-R}} + 4 T_{\text{SIFS}} + T_{\text{BSR}} + T_{\text{TF}} + T_{\text{data}} + T_{\text{MS-BACK}}
 \end{equation}
 
-\subsection{Markov Chain Modeling and Fixed-Point Analysis (FPA)}
+\section{Markov Chain Modeling and Fixed-Point Analysis (FPA)}
 Venkatesh and Behara model this access mechanism using a 2D discrete-time Markov chain $\{s(t), b(t)\}$, where $s(t) \in [0, m+f]$ represents the back-off stage and $b(t)$ represents the back-off counter.
 
 \begin{figure}[htbp]
@@ -1198,7 +1204,7 @@ Under Fixed-Point Analysis (FPA), this equilibrium is obtained by evaluating the
     where $S_{iP}$ is the per-STA throughput of station $i$.
 \end{enumerate}
 
-\subsection{Non-Ideal PHY Channel Modeling: Fading, Path Loss, and Coverage}
+\section{Non-Ideal PHY Channel Modeling: Fading, Path Loss, and Coverage}
 In practical deployments, physical signals experience distance-dependent attenuation and multipath fading. Venkatesh and Behara model a single BSS with $N$ stations distributed within a circular cell of radius $R$ around the central AP according to a spatial distribution $f(r)$:
 \begin{equation}
     f(r) = \frac{2r}{R^2}, \quad 0 \le r \le R \quad \text{(Triangular / 2D Uniform Spatial Density)}
@@ -1223,7 +1229,7 @@ yielding the non-ideal aggregate throughput $S_e = \frac{N_a L n_{se}}{t_s}$, sp
 
 Channel errors elevate packet drops and latency while depressing aggregate throughput compared to ideal channels.
 
-\subsection{Integration with Target Wake Time, MU-MIMO, and Non-Saturated Traffic}
+\section{Integration with Target Wake Time, MU-MIMO, and Non-Saturated Traffic}
 \begin{enumerate}
     \item \textbf{Target Wake Time (TWT):} To prolong battery life, stations negotiate periodic wake intervals $t_i$. The average number of active STAs per TWT service period is $n_a = \sum_{i=1}^{n_t} (1/t_i)$. As the mean wake interval $t_{Mean}$ increases, the number of contending stations in any single TF-cycle drops, dramatically reducing contention collisions and boosting energy efficiency.
     
@@ -1240,11 +1246,175 @@ Channel errors elevate packet drops and latency while depressing aggregate throu
     Throughput scales dynamically with $\lambda$, transitioning smoothly from contention-free operation to full saturation.
 \end{enumerate}
 
-\section{Physical Layer Enhancements: SIC and Full-Duplex MAC}
+
+\section{High Throughput PHY-MAC Integrations}
+To support multi-gigabit speeds and dense deployments, Wi-Fi 6 integrates PHY and MAC layers through spatial multiplexing and spectral subdivision:
+\begin{itemize}
+    \item \textbf{MU-MIMO:} Supports simultaneous transmission to or from multiple users over distinct spatial streams.
+    \item \textbf{MU-OFDMA:} Subdivides the channel bandwidth into orthogonal subchannels called Resource Units (RUs).
+\end{itemize}
+
+\subsection{OFDMA Resource Unit Allocation}
+Under IEEE 802.11ax, the channel bandwidth is divided into fixed-position RUs of varying sizes: 26-tone, 52-tone, 106-tone, 242-tone, 484-tone, and 996-tone RUs. The smallest unit is the 26-tone RU, which occupies approximately 2~MHz of bandwidth. Tone allocations and pilot densities are detailed in:
+\begin{table}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.6.png}
+    \caption{Data and Pilot Subcarriers for Different RUs}
+    \label{tab:susinder_book_tab3.6}
+\end{table}
+
+In trigger-based uplink transmissions, the AP controls the transmit power of participating STAs by calculating path loss from the trigger frame's transmit power and specifying a target RSSI. This power control ensures that uplink signals arrive at the AP receiver within its dynamic range, avoiding adjacent subcarrier interference.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.8.png}
+    \caption{Uplink MU operation timeline using Trigger Frame}
+    \label{fig:susinder_book_fig3.8}
+\end{figure}
+
+\subsection{MU-OFDMA Uplink Hybrid Access (HA) Mechanism and Back-off Decrementation}
+To reconcile the conflicting demands of deterministic high-throughput scheduled data delivery and low-latency access for new or uncoordinated stations, IEEE 802.11ax incorporates a Multi-User Uplink Hybrid Access (HA) mechanism. Behara and Venkatesh \cite{behara2022fluid, behara2023performance} provide a comprehensive analytical treatment of this architecture, delineating the interplay between Random Access (RA) and Scheduled Access (SA).
+
+The complete uplink transmission epoch, designated as a \textit{TF-cycle} (serving as the discrete unit time slot $t_s$), is partitioned into an RA contention phase followed by an SA transmission phase:
+\begin{equation}
+    t_s = d_{tfr} + d_{bsr} + d_{tf} + d_{ppdu} + d_{mb} + 4 d_{sifs}
+\end{equation}
+where $d_{tfr}$, $d_{bsr}$, $d_{tf}$, $d_{ppdu}$, and $d_{mb}$ denote the transmission durations of the Trigger Frame-Request (TF-R), Buffer Status Report (BSR), Trigger Frame (TF), physical protocol data unit (TB-PPDU), and Multi-STA Block Acknowledgment (MS-BACK), respectively, separated by Short Inter-frame Spacings ($d_{sifs}$).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2023_1.png}
+    \caption{Multi-user (MU) based Uplink Hybrid Access (Random Access + Scheduled Access) System Model across the frequency-time domain \cite{behara2023performance}.}
+    \label{fig:behara_2023_ha}
+\end{figure}
+
+As depicted in \cref{fig:behara_2023_ha}, the total channel bandwidth $B$ is subdivided into $R_{ru}$ Resource Units (RUs). The Access Point allocates $R_{sa}$ RUs for Scheduled Access, where pre-associated stations with established queue reservations transmit data directly without contending. The remaining $R_{ra} = R_{ru} - R_{sa}$ RUs are advertised in the TF-R frame for OFDMA-based Random Access (UORA).
+
+Unlike legacy Distributed Coordination Function (DCF) where contending stations decrement their back-off counters by 1 for each idle physical slot, IEEE 802.11ax stations decrement their OFDMA Back-Off (OBO) counter by the number of available RA RUs ($R_{ra}$ or $N_{RA}$) in each TF-cycle:
+\begin{equation}
+    OBO(v+1) = OBO(v) - R_{ra}
+\end{equation}
+When a station's counter drops to $\le 0$, it randomly selects one of the $R_{ra}$ RUs to transmit its BSR packet.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/fig_behara_2022_2.png}
+    \caption{Back-off decrementation process in an MU-OFDMA system with $k = W_m - 1$ and $r = N_{RA}$ \cite{behara2022fluid}.}
+    \label{fig:behara_2022_backoff}
+\end{figure}
+
+The discrete nature of decrementing by $R_{ra}$ introduces floor and ceiling discontinuities. Behara and Venkatesh \cite{behara2022fluid} resolve this by introducing an error approximation term $\delta_{i,m} = \lceil i / N_{RA} \rceil - i / N_{RA}$ across back-off stage $m$ (with contention window $W_m = 2^m W_{min}$). Summing over $r^* = \lfloor (W_m - 1) / N_{RA} \rfloor$ intervals yields:
+\begin{equation}
+    \sum_{i=0}^{W_m - 1} \delta_{i,m} \approx \sum_{l=0}^{N_{RA}-1} \frac{N_{RA} - l}{N_{RA}} \cdot r^* = \frac{N_{RA} - 1}{2} \left\lfloor \frac{W_m - 1}{N_{RA}} \right\rfloor
+\end{equation}
+Substituting this closed-form approximation into the average back-off duration $b_m = \frac{1}{W_m} [1 + \sum_{i=1}^{W_m - 1} \lceil i / N_{RA} \rceil]$ yields the closed-form transmission probability $\tau_m$ for a station in back-off stage $m$:
+\begin{equation}
+    \tau_m \approx b_m^{-1} \approx \frac{2 N_{RA} W_m}{2 N_{RA} + W_m(W_m + N_{RA} - 2)}
+    \label{eq:behara_tau_m}
+\end{equation}
+This formulation captures the direct dependence of transmission aggressiveness on RU availability $N_{RA}$ and contention window size $W_m$.
+
+\subsection{Analytical Modeling of MU-OFDMA: Fixed-Point Analysis vs. Fluid-Limit Model}
+To determine the steady-state performance of the MU-OFDMA network, two distinct modeling methodologies have been established:
+
+\subsubsection{Fixed-Point Analysis}
+In moderate-density networks, the coupling between transmission attempts and collision probability can be modeled via fixed-point iterations \cite{behara2023performance}. Let $n_{ra}$ denote the number of contending RA stations. The conditional collision probability $\gamma$ that a BSR transmission encounters collision on a given RA RU is:
+\begin{equation}
+    \gamma = 1 - \left(1 - \frac{\tau}{R_{ra}}\right)^{n_{ra} - 1}
+    \label{eq:behara_gamma}
+\end{equation}
+Given maximum retry limit $m + f$ (where $m$ is the maximum back-off stage and $f$ is the additional persistence retry stage at $W_{max}$), the back-off stage distribution is $P_i = \gamma^i P_0$ for $0 \le i \le m+f$. Normalizing $\sum_{i=0}^{m+f} P_i = 1$ yields $P_0 = (1 - \gamma) / (1 - \gamma^{m+f+1})$. The aggregate transmission probability is:
+\begin{equation}
+    \tau = \sum_{i=0}^{m+f} P_i \tau_i
+    \label{eq:behara_tau_agg}
+\end{equation}
+The non-linear coupled system of \cref{eq:behara_gamma,eq:behara_tau_agg} is solved iteratively via numerical fixed-point iteration, converging rapidly to the equilibrium pair $(\tau^*, \gamma^*)$.
+
+\subsubsection{Fluid-Limit Model (FLM)}
+When the station density grows exceedingly large ($n \to \infty$), traditional multidimensional Markov chain state spaces explode combinatorially, rendering analytical solutions intractable. Behara and Venkatesh \cite{behara2022fluid} address this fundamental bottleneck by formulating a Fluid-Limit Model (FLM).
+
+The system state at discrete TF-cycle $v$ is represented by the occupancy measure vector:
+\begin{equation}
+    \tilde{\Phi}^{(n)}(v) = \left( \tilde{\xi}_0^{(n)}(v), \tilde{\xi}_1^{(n)}(v), \dots, \tilde{\xi}_K^{(n)}(v) \right), \quad \sum_{i=0}^K \tilde{\xi}_i^{(n)}(v) = 1
+\end{equation}
+where $\tilde{\xi}_i^{(n)}(v) = X_i^{(n)}(v) / n$ denotes the fraction of stations residing in back-off stage $i$. The idle probability on a given RU under asymptotic conditions is $I(\tilde{\Phi}) \approx \prod_{i=0}^K (1 - \tau_i / N_{RA})^{n \tilde{\xi}_i}$. The conditional expected drift of the occupancy process per time slot is:
+\begin{align}
+    \Delta_0(\tilde{\Phi}) &= \sum_{i=0}^{K-1} \tilde{\xi}_i \tau_i I(\tilde{\Phi}) + \tilde{\xi}_K \tau_K - \tilde{\xi}_0 \tau_0 \\
+    \Delta_i(\tilde{\Phi}) &= \tilde{\xi}_{i-1} \tau_{i-1}(1 - I(\tilde{\Phi})) - \tilde{\xi}_i \tau_i, \quad i \in [1, K) \\
+    \Delta_K(\tilde{\Phi}) &= \tilde{\xi}_{K-1} \tau_{K-1}(1 - I(\tilde{\Phi})) - \tilde{\xi}_K \tau_K
+\end{align}
+By time-scaling each time slot into $n$ mini-slots of duration $1/n$, the scaled continuous-time process $\Phi^{(n)}(t) := \tilde{\Phi}^{(n)}(\lfloor nt \rfloor)$ converges, via Kurtz's limit theorem, to the unique deterministic trajectory governed by the Ordinary Differential Equation (ODE):
+\begin{equation}
+    \frac{d\mu(t)}{dt} = F_i(\mu(t)), \quad F_i(\mu(t)) = \lim_{n \to \infty} \Delta_i(\Phi), \quad 0 \le i \le K
+\end{equation}
+The stationary point $\mu = (\mu_0, \dots, \mu_K)$ satisfies $F_i(\mu) = 0$, directly yielding the aggregate steady-state transmission probability $\tau = \sum_{m=0}^K \mu_m \tau_m$.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2022_4.png}
+    \caption{Time evolution of (a) the fraction of STAs in the maximum back-off stage ($\tilde{\xi}_K$) and (b) average throughput ($S_{avg}$) for the IEEE 802.11ax system comparing simulation ('S') and FLM analytical ('A') models \cite{behara2022fluid}.}
+    \label{fig:behara_2022_evolution}
+\end{figure}
+
+As exhibited in \cref{fig:behara_2022_evolution}, the fluid limit trajectory closely tracks discrete event simulations. Furthermore, increasing the available RA RUs ($N_{RA}$) accelerates back-off decrementation and forces the occupancy measure to reach stationarity within fewer time slots, justifying the quasi-stationary assumption required for fluid-limit approximations in dynamic Wi-Fi 6 networks.
+
+\subsection{Dynamic MU-OFDMA Resource Allocation and the Throughput--RA Capability Trade-off}
+In practical networks, client buffer occupancies fluctuate wildly over time. Rather than maintaining static partitioning of RUs, real-world Wi-Fi 6 APs employ dynamic scheduling, redistributing RUs between RA and SA based on Buffer Status Reports (BSRs).
+
+Behara and Venkatesh \cite{behara2022fluid, behara2023performance} model dynamic MU-OFDMA where stations request transmission of $\alpha$ aggregated frames, with $\alpha$ uniformly distributed over $[1, \alpha_{Max}]$. Stations with active reservations transmit during scheduled RUs. When a scheduled station exhausts its buffer ($\alpha = 1 \to 0$), its RU reverts to the RA pool in the subsequent TF-cycle ($N_{RA}(v+1)$ expands). Conversely, newly winning RA stations are transitioned into scheduled RUs ($N_{SA}(v+1)$ expands).
+
+The dynamic system is governed by a Discrete-Time Markov Chain (DTMC) with state vector $Z(v) = (N_s(v), N_{\alpha_{Max}}(v), \dots, N_2(v))$, where $N_s(v)$ is the number of scheduled RUs and $N_\alpha(v)$ is the count of RUs allocated to stations holding $\alpha$ remaining frames.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/fig_behara_2022_3.png}
+    \caption{Markov chain state transition diagram for dynamic MU-OFDMA with $\alpha_{Max} = 4$ and $N_{RU} = 2$ \cite{behara2022fluid}.}
+    \label{fig:behara_2022_dtmc}
+\end{figure}
+
+The transition probability $P(I, J)$ from state $I = (i_1, \dots, i_\varepsilon)$ to $J = (j_1, \dots, j_\varepsilon)$ follows a multinomial distribution:
+\begin{equation}
+    P(I, J) = \frac{(N_{RU} - \sum_{l=2}^\varepsilon i_l)!}{(N_{RU} - j_1)! (j_1 - \sum_{l=2}^\varepsilon j_l - i_\varepsilon)! \prod_{l=3}^\varepsilon (j_l - i_{l-1})! j_2!} (sp)^{r_s} f^{N_{RU} - j_1}
+\end{equation}
+where $r_s$ is the number of successful RUs, $s = \delta e^{-\delta}$ is the success probability per RA RU, $f = 1 - s$, and $p = 1 / \alpha_{Max}$.
+
+A fundamental operational trade-off identified by Behara and Venkatesh governs this hybrid access architecture:
+\begin{itemize}
+    \item \textbf{Random Access (RA) Capability ($\beta$):} Defined as the average number of new stations that successfully gain initial access to the medium per TF-cycle:
+    \begin{equation}
+        \beta = \sum_{I \in \mathcal{S}} \pi_I \sum_{J \in \mathcal{S}} P(I, J) b(I, J)
+    \end{equation}
+    where $b(I, J)$ is the count of newly admitted stations during transition $I \to J$.
+    \item \textbf{Aggregate Throughput ($S_u$):} Proportional to the number of scheduled bulk payload transmissions:
+    \begin{equation}
+        S_u = \frac{N_a L}{t_{tc}} \sum_{Z_i \in \mathcal{S}} i_1 \pi_{Z_i}
+    \end{equation}
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2023_5.png}
+    \caption{Impact of RU distribution between $R_{ra}$ and $R_{sa}$ for an MU-OFDMA hybrid access mechanism ($R_{ru} = 16$): (a) Throughput, (b) RA capability (semilog), (c) Delay, (d) Power consumed, and (e) Energy efficiency (semilog) \cite{behara2023performance}.}
+    \label{fig:behara_2023_tradeoff}
+\end{figure}
+
+As substantiated in \cref{fig:behara_2023_tradeoff}, increasing the proportion of random access RUs ($R_{ra}$) exponentially amplifies the RA capability $\beta$, dramatically reducing network access delay for unassociated and intermittent IoT stations. However, this comes at the expense of aggregate throughput, because scheduled RUs carrying dense multi-packet payloads are curtailed.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/fig_behara_2023_15.png}
+    \caption{BSR-based dynamic MU-OFDMA scheduling performance comparing Poisson and Pareto traffic arrivals \cite{behara2023performance}.}
+    \label{fig:behara_2023_bsr}
+\end{figure}
+
+\Cref{fig:behara_2023_bsr} illustrates that dynamic scheduling matches the channel capacity to bursty queue dynamics: under light load, dynamic allocation yields lower contention delay; under heavy load, it approaches the peak efficiency of dedicated scheduled access.
+
+In this chapter we looked at the performance analysis of the hybrid access mechanism of the IEEE 802.11ax MAC protocol considering the various PHY layer enhancements such as MU MIMO, TWT, BSR coloring etc. In a subsequent chapter we will explore the WiFi 7. Extremely High Throughput (EHT) WLAN standard.
+
+\chapter{Physical Layer Enhancements: Successive Interference cancellation and Full-Duplex MAC}
 \label{sec:sic_fd_mac}
 In dense wireless networks and massive machine-type communications (mMTC), random access protocols encounter severe throughput degradation and unbounded packet collision rates when operating under classical collision models. To break through the fundamental capacity limits of conventional ALOHA and Carrier Sense Multiple Access (CSMA), multi-packet reception techniques such as Successive Interference Cancellation (SIC) and in-band Full-Duplex (FD) wireless communications have emerged as transformative physical-layer enhancements. This section develops the comprehensive theoretical frameworks pioneered by Gupta and Venkatesh \cite{gupta2022sic, gupta2022design}, spanning order-statistics-based SIC Slotted ALOHA (SIC-SA), imperfect channel state information (CSI) and cancellation impairments, power-domain non-orthogonal multiple access (PD-NOMA), and synchronized Full-Duplex MAC protocols.
 
-\subsection{Successive Interference Cancellation: Motivation and Principles}
+\section{Successive Interference Cancellation: Motivation and Principles}
 The primary objective of next-generation wireless local area networks (WLANs) and cellular IoT systems is to simultaneously satisfy three conflicting imperatives: (i) massive connectivity of uncoordinated nodes, (ii) high area spectral efficiency and throughput, and (iii) strict energy efficiency for battery-limited devices. Conventional random access schemes discard all concurrent packet transmissions in a slot as lost collisions. In contrast, \textbf{Successive Interference Cancellation (SIC)} is a physical-layer non-orthogonal multiple access (NOMA) technique that allows a receiver to decode multiple overlapping packets arriving in the same frequency-time slot.
 
 The fundamental operational principle of SIC is to decode signals sequentially in descending order of their received powers:
@@ -1261,7 +1431,7 @@ The practical viability of SIC has been corroborated extensively across multiple
     \item \textbf{Software-Defined Radio (USRP) Testbeds:} Real-time implementations on Universal Software Radio Peripheral (USRP) platforms have established that digital signal processors can execute multi-stage cancellation within microsecond-level MAC slot durations, paving the way for standard cellular (e.g., IS-95 CDMA and 5G NOMA) and IEEE 802.11 WLAN integration.
 \end{itemize}
 
-\subsection{System and Channel Model of SIC-Based Slotted ALOHA (SIC-SA)}
+\section{System and Channel Model of SIC-Based Slotted ALOHA (SIC-SA)}
 Consider an uplink wireless network consisting of $N$ uncoordinated nodes communicating with a central Access Point (AP) over slotted time. Each node operates according to the Slotted ALOHA discipline, transmitting an acquired packet with probability $p$ in any given slot. 
 
 Let $M$ ($0 \le M \le N$) denote the random number of packets transmitted in a generic slot. Because nodes transmit independently, the number of active packets $M$ is governed by a binomial distribution:
@@ -1279,7 +1449,7 @@ where $\alpha \ge 2$ is the path-loss exponent, $P_i$ is the transmit power, and
     X_i = D_i^{-\alpha} P_i |h_i|^2 \sim \text{Exp}(\lambda_i), \qquad \lambda_i = \frac{1}{D_i^{-\alpha} P_i \sigma_i^2}
 \end{equation}
 
-\subsubsection{Order Statistics Formulation of Received Powers}
+\subsection{Order Statistics Formulation of Received Powers}
 In a contention slot with $M$ transmitting nodes ($M \ge 1$), let $\{X_1, X_2, \dots, X_M\}$ represent the unordered set of received signal powers at the AP. To facilitate successive cancellation, the AP sorts the received powers in ascending order:
 \begin{equation}
     \Theta = \left\{ X_{(1)}, X_{(2)}, \dots, X_{(M)} \right\}, \quad \text{such that } X_{(1)} < X_{(2)} < \dots < X_{(M)}
@@ -1301,7 +1471,7 @@ Accordingly, the instantaneous Signal-to-Interference-plus-Noise Ratio (SINR) fo
 \end{equation}
 where $N_0$ denotes background thermal noise. In interference-limited environments, aggregate co-channel interference dominates background noise ($\sum_{i=1}^{M-k} X_{(i)} \gg N_0$), permitting $N_0$ to be neglected. The $k$-th packet is decodable if $\text{SINR}_k \ge \theta_k$, where $\theta_k$ is the modulation-and-coding threshold.
 
-\subsection{Analytical Results for SIC-SA with Fixed-Distance Model}
+\section{Analytical Results for SIC-SA with Fixed-Distance Model}
 To isolate the intrinsic power diversity induced by multipath fading from spatial path-loss variations, consider first the scenario where all $N$ nodes are located at an equidistant radius from the AP ($D_i = D, P_i = P, \sigma_i^2 = \sigma^2$), so that $\lambda_i = \lambda$ for all $i$.
 
 The joint probability density function of the $M - k$ lowest order statistics $X_{(1)} < X_{(2)} < \dots < X_{(M-k)}$ drawn from an exponential distribution with rate parameter $\lambda$ is given by \cite{gupta2022sic}:
@@ -1322,7 +1492,7 @@ Applying the inverse Laplace transform to $M_{I_k}(s)$ yields the closed-form Pr
     f_{I_k}(s) = \lambda \sum_{n=1}^{M-k} (-1)^{n-1} \binom{M}{M-k} \binom{M-k-1}{n-1} \left( \frac{M-k-n+1}{k} \right)^{M-k} \exp\left( -\frac{\lambda s (M-n+1)}{M-k-n+1} \right)
 \end{equation}
 
-\subsubsection{Closed-Form Packet-Decoding Probability}
+\subsection{Closed-Form Packet-Decoding Probability}
 Define the signal-to-interference ratio random variable:
 \begin{equation}
     \Delta_k \triangleq \frac{X_{(M-k+1)}}{I_k + N_0} \approx \frac{X_{(M-k+1)}}{I_k}
@@ -1366,7 +1536,7 @@ Table~\ref{tab:sic_expected_packets} lists the expected number of decoded packet
 \end{tabular}
 \end{table}
 
-\subsubsection{Network-Wide Decoding Probabilities}
+\subsection{Network-Wide Decoding Probabilities}
 In a network of $N$ uncoordinated nodes, the unconditional probability of decoding at least $k$ packets in a slot given prior cancellation is obtained by averaging over the binomial distribution of active contenders $M$:
 \begin{equation}
     P_{k,\text{IC}} = \sum_{M=k}^N \binom{N}{M} p^M (1 - p)^{N - M} P_{k,M}
@@ -1448,7 +1618,7 @@ $\theta$ & $N$ & $p_{\text{opt}}$ & $G_{\text{opt}}$ & $S_{\text{opt}}$ & $D_{\t
 \end{tabular}
 \end{table}
 
-\subsection{SIC-SA with Random Distribution of Nodes (InID Channel Powers)}
+\section{SIC-SA with Random Distribution of Nodes (InID Channel Powers)}
 In practical ad-hoc networks and WLAN cells, nodes are distributed randomly across the coverage area (e.g., following a spatial Poisson Point Process), resulting in heterogeneous distances $\{D_1, \dots, D_N\}$. Consequently, the received signal powers $\{X_1, \dots, X_M\}$ are \textbf{Independent and non-Identically Distributed (InID)} exponential random variables with distinct rate parameters $\Theta_\lambda = \{\lambda_{(1)}, \lambda_{(2)}, \dots, \lambda_{(M)}\}$.
 
 To analyze the sum of lower order statistics under InID variables, Gupta and Venkatesh adopted Nagaraja's top order statistics framework \cite{gupta2022sic}. Define the sum of the $M - i$ highest order statistics:
@@ -1477,24 +1647,24 @@ Because $I_k$ is the difference of two correlated sums, its PDF is evaluated usi
 \end{equation}
 where $f_{T_{M-k}}(t)$ is derived using the combinatorial partition sums across subsets $\Upsilon(j)$ formulated in \cite{gupta2022sic}. Following the ratio integral $f_{\Delta_k}(r) = \int_0^\infty s f_{X_{(M-k+1)}}(r s) f_{I_k}(s) \, ds$, the decoding probability $P_{k,M} = \int_{\theta_k}^\infty f_{\Delta_k}(r) \, dr$ and throughput $S$ are evaluated numerically.
 
-\subsubsection{Path Loss Exponent and Power-Domain NOMA (PD-NOMA)}
+\subsection{Path Loss Exponent and Power-Domain NOMA (PD-NOMA)}
 Analytical and simulation studies reveal two critical physical-layer insights:
 \begin{enumerate}
     \item \textbf{Path Loss Exponent Scaling:} As the path loss exponent $\alpha$ increases from $2$ to $4$, the throughput $S$ increases monotonically. Higher path loss steepens the disparity in received signal powers from nodes at varying distances, creating natural power segregation that enhances the capture effect and accelerates SIC decoding success.
     \item \textbf{Power-Domain NOMA Allocation:} By intentionally assigning transmit power levels according to a structured geometric power set (e.g., $\{1, 3, 5\}$ or $\{1, 5, 9\}$ units), nodes artificially emulate distance disparity. This deliberate power asymmetry guarantees sufficient SINR separation even when nodes are clustered equidistant from the AP, maximizing the probability of decoding up to $M$ packets concurrently.
 \end{enumerate}
 
-\subsection{Impact of Imperfect CSI and Imperfect SIC}
+\section{Impact of Imperfect CSI and Imperfect SIC}
 In real hardware implementations, two fundamental physical impairments degrade multi-packet reception: channel estimation error at the transceivers and incomplete analog/digital cancellation at the AP.
 
-\subsubsection{Imperfect CSI Modeling}
+\subsection{Imperfect CSI Modeling}
 The estimated channel coefficient $\hat{h}_i$ between node $i$ and the AP differs from the true channel $h_i$ due to noisy pilot sounding:
 \begin{equation}
     h_i = \hat{h}_i + e_i, \qquad e_i \sim \mathcal{CN}(0, \sigma_{ei}^2)
 \end{equation}
 where $e_i$ is a complex Gaussian channel estimation error with variance $\sigma_{ei}^2$.
 
-\subsubsection{Residual Interference under Imperfect SIC}
+\subsection{Residual Interference under Imperfect SIC}
 When the $j$-th packet ($j \in \{M-k+2, \dots, M\}$) is canceled, residual signal power remains due to imperfect waveform reconstruction, clock jitter, and channel estimation inaccuracies. Let $\epsilon_j \in [0, 1]$ represent the residual interference cancellation factor (where $\epsilon_j = 0$ corresponds to ideal cancellation and $\epsilon_j = 1$ implies no cancellation). The instantaneous SINR at the $k$-th decoding stage becomes:
 \begin{equation}
     \text{SINR}_k = \frac{X_{(M-k+1)}}{\sum_{i=1}^{M-k} X_{(i)} + \sum_{j=M-k+2}^M \epsilon_j X_{(j)} + N_0}
@@ -1520,7 +1690,7 @@ Sensitivity investigations indicate that while single-packet capture ($k=1$) is 
 \subsection{SIC-Based Slotted ALOHA with Signal Diversity}
 Building on single-slot successive cancellation, Gupta and Venkatesh extended SIC-SA to incorporate \textbf{Signal Transmission Diversity}. In this protocol, each contending node transmits multiple packet replicas across randomly chosen time slots within a frame. Collisions in earlier slots that cannot be resolved immediately are stored in baseband memory. Once an uncollided packet replica is decoded in a later slot, its waveform is subtracted retrospectively from all earlier collision slots in which its copies participated. This iterative forward-backward graph-based message-passing decoding breaks the deadlock of severe contention, virtually doubling the throughput limit of traditional random access.
 
-\subsection{Synchronized Mode Full-Duplex MAC (SM-FD MAC)}
+\section{Synchronized Mode Full-Duplex MAC (SM-FD MAC)}
 In-band Full-Duplex communication allows a node to transmit and receive simultaneously on the same frequency band. Gupta and Venkatesh \cite{gupta2022design} developed the \textbf{Synchronized Mode Full-Duplex (SM-FD)} MAC protocol, compatible with legacy Half-Duplex (HD) stations.
 
 \begin{figure}[htbp]
@@ -1537,17 +1707,18 @@ SM-FD MAC supports three link types:
     \item \textbf{Half-Duplex Link:} Legacy single-direction transmission.
 \end{enumerate}
 
-\subsubsection{Address-4 Piggybacking and Packet Alignment}
-To eliminate RTS/CTS handshaking overhead in steady state, a Slot Allocated (SA) node piggybacks its next chosen backoff slot inside the unused \textbf{Address 4} field of the standard IEEE 802.11 MAC header. 
 
-In asymmetrical links, the AP enforces \textbf{preamble alignment}: the downlink packet to node $N_b$ starts at least a preamble duration before the uplink transmission from $N_a$:
+
+
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_3.png}
     \caption{Packet alignment and capture effect in SM-FD MAC}
     \label{fig:gupta_2022_fig3}
 \end{figure}
-This alignment allows the receiver at $N_b$ to lock onto the AP's preamble first and successfully decode the packet via the capture effect despite co-channel uplink interference from $N_a$.
+
+
+
 
 \begin{figure}[htbp]
     \centering
@@ -1556,7 +1727,7 @@ This alignment allows the receiver at $N_b$ to lock onto the AP's preamble first
     \label{fig:gupta_2022_fig4}
 \end{figure}
 
-The steady-state dynamics of SM-FD MAC are captured by three coupled discrete-time Markov chains:
+
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_5.png}
@@ -1569,6 +1740,7 @@ The steady-state dynamics of SM-FD MAC are captured by three coupled discrete-ti
     \caption{Markov chain for number of active SA nodes}
     \label{fig:gupta_2022_fig6}
 \end{figure}
+
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig_gupta_2022_7.png}
@@ -1576,5 +1748,11 @@ The steady-state dynamics of SM-FD MAC are captured by three coupled discrete-ti
     \label{fig:gupta_2022_fig7}
 \end{figure}
 
+\subsection{Address-4 Piggybacking and Packet Alignment}
+To eliminate RTS/CTS handshaking overhead in steady state, a Slot Allocated (SA) node piggybacks its next chosen backoff slot inside the unused \textbf{Address 4} field of the standard IEEE 802.11 MAC header. 
+
+In asymmetrical links, the AP enforces \textbf{preamble alignment}: the downlink packet to node $N_b$ starts at least a preamble duration before the uplink transmission from $N_a$:
+This alignment allows the receiver at $N_b$ to lock onto the AP's preamble first and successfully decode the packet via the capture effect despite co-channel uplink interference from $N_a$.
+The steady-state dynamics of SM-FD MAC are captured by three coupled discrete-time Markov chains:
 \subsection{Constellation-Based Full-Duplex MAC (C-FD MAC) and Channel Sounding}
 In Constellation-Based Full-Duplex MAC (C-FD MAC), physical-layer constellation mapping is exploited alongside efficient channel sounding to facilitate instant link discovery. By embedding sounding feedback directly into control signaling, the channel state information (CSI) required for self-interference cancellation is acquired with minimal protocol airtime overhead.

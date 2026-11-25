@@ -1,4 +1,4 @@
-\chapter{Advanced Features and QoS in IEEE 802.11}
+\chapter{Advanced Features in  the Extremely High Throughput (EHT) IEEE 802.11be standard}
 \label{sec:chapter2}
 
 This chapter explores the evolution of Quality of Service (QoS), frame optimization, power saving, and physical-MAC layer integrations across the modern iterations of the IEEE 802.11 standard, spanning IEEE 802.11e (EDCA), IEEE 802.11ax (Wi-Fi 6), IEEE 802.11be (Wi-Fi 7), and the upcoming IEEE 802.11bn (Wi-Fi 8) standards.
@@ -120,166 +120,8 @@ The network Energy Efficiency ($\eta_{EE}$) is defined as the ratio of aggregate
 
 As shown in \cref{fig:behara_2023_twt}, extending the TWT wake-up interval ($T_{wake}$) significantly reduces the average power consumed by client STAs. Although aggregate throughput exhibits a modest decrease due to fewer concurrent stations competing in any given TF-cycle, the dramatic order-of-magnitude reduction in power consumption leads to an exponential surge in energy efficiency (surpassing several thousand Mbits/Joule). This demonstrates that coupling MU-OFDMA with periodic TWT wake scheduling provides exceptional energy conservation for dense battery-constrained IoT devices without precipitating severe throughput degradation.
 
-\section{High Throughput PHY-MAC Integrations}
-To support multi-gigabit speeds and dense deployments, Wi-Fi 6 integrates PHY and MAC layers through spatial multiplexing and spectral subdivision:
-\begin{itemize}
-    \item \textbf{MU-MIMO:} Supports simultaneous transmission to or from multiple users over distinct spatial streams.
-    \item \textbf{MU-OFDMA:} Subdivides the channel bandwidth into orthogonal subchannels called Resource Units (RUs).
-\end{itemize}
 
-\subsection{OFDMA Resource Unit Allocation}
-Under IEEE 802.11ax, the channel bandwidth is divided into fixed-position RUs of varying sizes: 26-tone, 52-tone, 106-tone, 242-tone, 484-tone, and 996-tone RUs. The smallest unit is the 26-tone RU, which occupies approximately 2~MHz of bandwidth. Tone allocations and pilot densities are detailed in:
-\begin{table}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.6.png}
-    \caption{Data and Pilot Subcarriers for Different RUs}
-    \label{tab:susinder_book_tab3.6}
-\end{table}
 
-In trigger-based uplink transmissions, the AP controls the transmit power of participating STAs by calculating path loss from the trigger frame's transmit power and specifying a target RSSI. This power control ensures that uplink signals arrive at the AP receiver within its dynamic range, avoiding adjacent subcarrier interference.
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/fig_susinder_book_3.8.png}
-    \caption{Uplink MU operation timeline using Trigger Frame}
-    \label{fig:susinder_book_fig3.8}
-\end{figure}
-
-\subsection{MU-OFDMA Uplink Hybrid Access (HA) Mechanism and Back-off Decrementation}
-To reconcile the conflicting demands of deterministic high-throughput scheduled data delivery and low-latency access for new or uncoordinated stations, IEEE 802.11ax incorporates a Multi-User Uplink Hybrid Access (HA) mechanism. Behara and Venkatesh \cite{behara2022fluid, behara2023performance} provide a comprehensive analytical treatment of this architecture, delineating the interplay between Random Access (RA) and Scheduled Access (SA).
-
-The complete uplink transmission epoch, designated as a \textit{TF-cycle} (serving as the discrete unit time slot $t_s$), is partitioned into an RA contention phase followed by an SA transmission phase:
-\begin{equation}
-    t_s = d_{tfr} + d_{bsr} + d_{tf} + d_{ppdu} + d_{mb} + 4 d_{sifs}
-\end{equation}
-where $d_{tfr}$, $d_{bsr}$, $d_{tf}$, $d_{ppdu}$, and $d_{mb}$ denote the transmission durations of the Trigger Frame-Request (TF-R), Buffer Status Report (BSR), Trigger Frame (TF), physical protocol data unit (TB-PPDU), and Multi-STA Block Acknowledgment (MS-BACK), respectively, separated by Short Inter-frame Spacings ($d_{sifs}$).
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2023_1.png}
-    \caption{Multi-user (MU) based Uplink Hybrid Access (Random Access + Scheduled Access) System Model across the frequency-time domain \cite{behara2023performance}.}
-    \label{fig:behara_2023_ha}
-\end{figure}
-
-As depicted in \cref{fig:behara_2023_ha}, the total channel bandwidth $B$ is subdivided into $R_{ru}$ Resource Units (RUs). The Access Point allocates $R_{sa}$ RUs for Scheduled Access, where pre-associated stations with established queue reservations transmit data directly without contending. The remaining $R_{ra} = R_{ru} - R_{sa}$ RUs are advertised in the TF-R frame for OFDMA-based Random Access (UORA).
-
-Unlike legacy Distributed Coordination Function (DCF) where contending stations decrement their back-off counters by 1 for each idle physical slot, IEEE 802.11ax stations decrement their OFDMA Back-Off (OBO) counter by the number of available RA RUs ($R_{ra}$ or $N_{RA}$) in each TF-cycle:
-\begin{equation}
-    OBO(v+1) = OBO(v) - R_{ra}
-\end{equation}
-When a station's counter drops to $\le 0$, it randomly selects one of the $R_{ra}$ RUs to transmit its BSR packet.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/fig_behara_2022_2.png}
-    \caption{Back-off decrementation process in an MU-OFDMA system with $k = W_m - 1$ and $r = N_{RA}$ \cite{behara2022fluid}.}
-    \label{fig:behara_2022_backoff}
-\end{figure}
-
-The discrete nature of decrementing by $R_{ra}$ introduces floor and ceiling discontinuities. Behara and Venkatesh \cite{behara2022fluid} resolve this by introducing an error approximation term $\delta_{i,m} = \lceil i / N_{RA} \rceil - i / N_{RA}$ across back-off stage $m$ (with contention window $W_m = 2^m W_{min}$). Summing over $r^* = \lfloor (W_m - 1) / N_{RA} \rfloor$ intervals yields:
-\begin{equation}
-    \sum_{i=0}^{W_m - 1} \delta_{i,m} \approx \sum_{l=0}^{N_{RA}-1} \frac{N_{RA} - l}{N_{RA}} \cdot r^* = \frac{N_{RA} - 1}{2} \left\lfloor \frac{W_m - 1}{N_{RA}} \right\rfloor
-\end{equation}
-Substituting this closed-form approximation into the average back-off duration $b_m = \frac{1}{W_m} [1 + \sum_{i=1}^{W_m - 1} \lceil i / N_{RA} \rceil]$ yields the closed-form transmission probability $\tau_m$ for a station in back-off stage $m$:
-\begin{equation}
-    \tau_m \approx b_m^{-1} \approx \frac{2 N_{RA} W_m}{2 N_{RA} + W_m(W_m + N_{RA} - 2)}
-    \label{eq:behara_tau_m}
-\end{equation}
-This formulation captures the direct dependence of transmission aggressiveness on RU availability $N_{RA}$ and contention window size $W_m$.
-
-\subsection{Analytical Modeling of MU-OFDMA: Fixed-Point Analysis vs. Fluid-Limit Model}
-To determine the steady-state performance of the MU-OFDMA network, two distinct modeling methodologies have been established:
-
-\subsubsection{Fixed-Point Analysis}
-In moderate-density networks, the coupling between transmission attempts and collision probability can be modeled via fixed-point iterations \cite{behara2023performance}. Let $n_{ra}$ denote the number of contending RA stations. The conditional collision probability $\gamma$ that a BSR transmission encounters collision on a given RA RU is:
-\begin{equation}
-    \gamma = 1 - \left(1 - \frac{\tau}{R_{ra}}\right)^{n_{ra} - 1}
-    \label{eq:behara_gamma}
-\end{equation}
-Given maximum retry limit $m + f$ (where $m$ is the maximum back-off stage and $f$ is the additional persistence retry stage at $W_{max}$), the back-off stage distribution is $P_i = \gamma^i P_0$ for $0 \le i \le m+f$. Normalizing $\sum_{i=0}^{m+f} P_i = 1$ yields $P_0 = (1 - \gamma) / (1 - \gamma^{m+f+1})$. The aggregate transmission probability is:
-\begin{equation}
-    \tau = \sum_{i=0}^{m+f} P_i \tau_i
-    \label{eq:behara_tau_agg}
-\end{equation}
-The non-linear coupled system of \cref{eq:behara_gamma,eq:behara_tau_agg} is solved iteratively via numerical fixed-point iteration, converging rapidly to the equilibrium pair $(\tau^*, \gamma^*)$.
-
-\subsubsection{Fluid-Limit Model (FLM)}
-When the station density grows exceedingly large ($n \to \infty$), traditional multidimensional Markov chain state spaces explode combinatorially, rendering analytical solutions intractable. Behara and Venkatesh \cite{behara2022fluid} address this fundamental bottleneck by formulating a Fluid-Limit Model (FLM).
-
-The system state at discrete TF-cycle $v$ is represented by the occupancy measure vector:
-\begin{equation}
-    \tilde{\Phi}^{(n)}(v) = \left( \tilde{\xi}_0^{(n)}(v), \tilde{\xi}_1^{(n)}(v), \dots, \tilde{\xi}_K^{(n)}(v) \right), \quad \sum_{i=0}^K \tilde{\xi}_i^{(n)}(v) = 1
-\end{equation}
-where $\tilde{\xi}_i^{(n)}(v) = X_i^{(n)}(v) / n$ denotes the fraction of stations residing in back-off stage $i$. The idle probability on a given RU under asymptotic conditions is $I(\tilde{\Phi}) \approx \prod_{i=0}^K (1 - \tau_i / N_{RA})^{n \tilde{\xi}_i}$. The conditional expected drift of the occupancy process per time slot is:
-\begin{align}
-    \Delta_0(\tilde{\Phi}) &= \sum_{i=0}^{K-1} \tilde{\xi}_i \tau_i I(\tilde{\Phi}) + \tilde{\xi}_K \tau_K - \tilde{\xi}_0 \tau_0 \\
-    \Delta_i(\tilde{\Phi}) &= \tilde{\xi}_{i-1} \tau_{i-1}(1 - I(\tilde{\Phi})) - \tilde{\xi}_i \tau_i, \quad i \in [1, K) \\
-    \Delta_K(\tilde{\Phi}) &= \tilde{\xi}_{K-1} \tau_{K-1}(1 - I(\tilde{\Phi})) - \tilde{\xi}_K \tau_K
-\end{align}
-By time-scaling each time slot into $n$ mini-slots of duration $1/n$, the scaled continuous-time process $\Phi^{(n)}(t) := \tilde{\Phi}^{(n)}(\lfloor nt \rfloor)$ converges, via Kurtz's limit theorem, to the unique deterministic trajectory governed by the Ordinary Differential Equation (ODE):
-\begin{equation}
-    \frac{d\mu(t)}{dt} = F_i(\mu(t)), \quad F_i(\mu(t)) = \lim_{n \to \infty} \Delta_i(\Phi), \quad 0 \le i \le K
-\end{equation}
-The stationary point $\mu = (\mu_0, \dots, \mu_K)$ satisfies $F_i(\mu) = 0$, directly yielding the aggregate steady-state transmission probability $\tau = \sum_{m=0}^K \mu_m \tau_m$.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2022_4.png}
-    \caption{Time evolution of (a) the fraction of STAs in the maximum back-off stage ($\tilde{\xi}_K$) and (b) average throughput ($S_{avg}$) for the IEEE 802.11ax system comparing simulation ('S') and FLM analytical ('A') models \cite{behara2022fluid}.}
-    \label{fig:behara_2022_evolution}
-\end{figure}
-
-As exhibited in \cref{fig:behara_2022_evolution}, the fluid limit trajectory closely tracks discrete event simulations. Furthermore, increasing the available RA RUs ($N_{RA}$) accelerates back-off decrementation and forces the occupancy measure to reach stationarity within fewer time slots, justifying the quasi-stationary assumption required for fluid-limit approximations in dynamic Wi-Fi 6 networks.
-
-\subsection{Dynamic MU-OFDMA Resource Allocation and the Throughput--RA Capability Trade-off}
-In practical networks, client buffer occupancies fluctuate wildly over time. Rather than maintaining static partitioning of RUs, real-world Wi-Fi 6 APs employ dynamic scheduling, redistributing RUs between RA and SA based on Buffer Status Reports (BSRs).
-
-Behara and Venkatesh \cite{behara2022fluid, behara2023performance} model dynamic MU-OFDMA where stations request transmission of $\alpha$ aggregated frames, with $\alpha$ uniformly distributed over $[1, \alpha_{Max}]$. Stations with active reservations transmit during scheduled RUs. When a scheduled station exhausts its buffer ($\alpha = 1 \to 0$), its RU reverts to the RA pool in the subsequent TF-cycle ($N_{RA}(v+1)$ expands). Conversely, newly winning RA stations are transitioned into scheduled RUs ($N_{SA}(v+1)$ expands).
-
-The dynamic system is governed by a Discrete-Time Markov Chain (DTMC) with state vector $Z(v) = (N_s(v), N_{\alpha_{Max}}(v), \dots, N_2(v))$, where $N_s(v)$ is the number of scheduled RUs and $N_\alpha(v)$ is the count of RUs allocated to stations holding $\alpha$ remaining frames.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/fig_behara_2022_3.png}
-    \caption{Markov chain state transition diagram for dynamic MU-OFDMA with $\alpha_{Max} = 4$ and $N_{RU} = 2$ \cite{behara2022fluid}.}
-    \label{fig:behara_2022_dtmc}
-\end{figure}
-
-The transition probability $P(I, J)$ from state $I = (i_1, \dots, i_\varepsilon)$ to $J = (j_1, \dots, j_\varepsilon)$ follows a multinomial distribution:
-\begin{equation}
-    P(I, J) = \frac{(N_{RU} - \sum_{l=2}^\varepsilon i_l)!}{(N_{RU} - j_1)! (j_1 - \sum_{l=2}^\varepsilon j_l - i_\varepsilon)! \prod_{l=3}^\varepsilon (j_l - i_{l-1})! j_2!} (sp)^{r_s} f^{N_{RU} - j_1}
-\end{equation}
-where $r_s$ is the number of successful RUs, $s = \delta e^{-\delta}$ is the success probability per RA RU, $f = 1 - s$, and $p = 1 / \alpha_{Max}$.
-
-A fundamental operational trade-off identified by Behara and Venkatesh governs this hybrid access architecture:
-\begin{itemize}
-    \item \textbf{Random Access (RA) Capability ($\beta$):} Defined as the average number of new stations that successfully gain initial access to the medium per TF-cycle:
-    \begin{equation}
-        \beta = \sum_{I \in \mathcal{S}} \pi_I \sum_{J \in \mathcal{S}} P(I, J) b(I, J)
-    \end{equation}
-    where $b(I, J)$ is the count of newly admitted stations during transition $I \to J$.
-    \item \textbf{Aggregate Throughput ($S_u$):} Proportional to the number of scheduled bulk payload transmissions:
-    \begin{equation}
-        S_u = \frac{N_a L}{t_{tc}} \sum_{Z_i \in \mathcal{S}} i_1 \pi_{Z_i}
-    \end{equation}
-\end{itemize}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig_behara_2023_5.png}
-    \caption{Impact of RU distribution between $R_{ra}$ and $R_{sa}$ for an MU-OFDMA hybrid access mechanism ($R_{ru} = 16$): (a) Throughput, (b) RA capability (semilog), (c) Delay, (d) Power consumed, and (e) Energy efficiency (semilog) \cite{behara2023performance}.}
-    \label{fig:behara_2023_tradeoff}
-\end{figure}
-
-As substantiated in \cref{fig:behara_2023_tradeoff}, increasing the proportion of random access RUs ($R_{ra}$) exponentially amplifies the RA capability $\beta$, dramatically reducing network access delay for unassociated and intermittent IoT stations. However, this comes at the expense of aggregate throughput, because scheduled RUs carrying dense multi-packet payloads are curtailed.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/fig_behara_2023_15.png}
-    \caption{BSR-based dynamic MU-OFDMA scheduling performance comparing Poisson and Pareto traffic arrivals \cite{behara2023performance}.}
-    \label{fig:behara_2023_bsr}
-\end{figure}
-
-\Cref{fig:behara_2023_bsr} illustrates that dynamic scheduling matches the channel capacity to bursty queue dynamics: under light load, dynamic allocation yields lower contention delay; under heavy load, it approaches the peak efficiency of dedicated scheduled access.
 
 \subsection{Channel Sounding Overhead in Synchronous Uplink MU-MIMO}
 In IEEE 802.11ax, Resource Units comprising 106 subcarriers or more can simultaneously support Multi-User MIMO (MU-MIMO), transmitting orthogonal spatial streams over the same spectral allocation. To decode concurrent spatial streams without inter-stream interference, the AP requires accurate Channel State Information at the Receiver (CSIR).
@@ -450,3 +292,5 @@ To achieve these reliability targets, Wi-Fi 8 introduces key enhancements across
 To prevent the packet losses and high latency spikes associated with cell transitions, Wi-Fi 8 defines a \textbf{Seamless Mobility Domain (SMD)} \cite{karamysheva2025tutorial}. An SMD coordinates a cluster of independent AP MLDs, creating a shared database of client connection states (handshake states, session keys, sequence numbers, and buffer states).
 
 When a client MLD roams within an SMD, the context is transferred proactively to the target AP MLD. The client MLD can perform a step-by-step per-link transition (e.g., keeping its 5~GHz link active with the source AP while migrating its 6~GHz link to the target AP), guaranteeing zero-downtime, lossless cell transitions.
+
+In this chapter we looked at some of the enhancements of the medium access layer incorporated in the IEEE 802.11be standard that includes, Multi AP coordination, advanced channel sounding schemes and multi link operations.
