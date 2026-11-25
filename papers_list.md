@@ -489,30 +489,24 @@ Every entry includes:
 
 ---
 
-## Chapter 15: Analytical Techniques for MAC Performance Evaluation
-*Focus: Analytical modeling methodologies, Software-Defined Networks (SDN) under non-stationary conditions, hybrid IP/SDN candidate selection algorithms, and stochastic stability modeling.*
+---
+
+## Chapter: Software Defined Networking
+*Focus: Software-Defined Networking (SDN) and Hybrid IP/SDN architectures, candidate switch selection under single (SLF) and multi-link failures (MLF), non-shortest path routing, network scaling, budget constraints, non-stationary traffic characterization (ADF test), PSFFA fluid flow queueing modeling, and PID/DRED congestion control.*
 
 ### Journals
 - **Candidate Selection Algorithms for Hybrid IP SDN Networks With Multi-Link Failures**
   - *Authors:* Navya Vuppalapati and T. G. Venkatesh
-  - *Mapped Topic:* Integer linear programming (ILP) and heuristic candidate selection algorithms for incremental SDN router deployment tolerating multi-link failures.
-  - *Venue / File:* IEEE Transactions on Network and Service Management (2023) / `papers/Candidate_Selection_Algorithms_for_Hybrid_IP_SDN_Networks_With_Multi-Link_Failures.pdf`
+  - *Mapped Topic:* Non-Shortest Path (NSP) based candidate selection algorithms (G-FTU, M-FTU, G-PTU, M-PTU), dynamic network expansion (S-CSA), and budget-constrained deployments (B-CSA) for multi-link failure survivability.
+  - *Venue / File:* IEEE Transactions on Network and Service Management, Vol. 22, No. 2, pp. 1219–1232 (2025) / `papers/Candidate_Selection_Algorithms_for_Hybrid_IP_SDN_Networks_With_Multi-Link_Failures.pdf`
 - **Minimum Candidate Selection Algorithm for Hybrid IP SDN Networks With Single Link Failures**
   - *Authors:* Navya Vuppalapati and T. G. Venkatesh
-  - *Mapped Topic:* Greedy candidate selection algorithms for single link failure survivability in hybrid IP/SDN backbones.
-  - *Venue / File:* IEEE Networking Letters, Vol. 3, No. 3, pp. 138–142 (2021) / `papers/Minimum_Candidate_Selection_Algorithm_for_Hybrid_IP_SDN_Networks_With_Single_Link_Failures.pdf`
+  - *Mapped Topic:* Minimum Candidate Selection (MCS) algorithm considering all equal-length shortest paths, affected destination minimization, and post-recovery optimization (MCS-ARPL and MCS-AMLU).
+  - *Venue / File:* IEEE Networking Letters, Vol. 4, No. 3, pp. 152–156 (2022) / `papers/Minimum_Candidate_Selection_Algorithm_for_Hybrid_IP_SDN_Networks_With_Single_Link_Failures.pdf`
 - **Modeling & analysis of software defined networks under non-stationary conditions**
   - *Authors:* Navya Vuppalapati and T. G. Venkatesh
-  - *Mapped Topic:* Transient queueing models, fluid flow approximations, and time-dependent controller response in non-stationary SDN networks.
+  - *Mapped Topic:* Augmented Dickey-Fuller (ADF) traffic non-stationarity testing, Pointwise Stationary Fluid Flow Approximation (PSFFA) differential equations for switch/controller queues, and PID/DRED feedback congestion control.
   - *Venue / File:* Peer-to-Peer Networking and Applications, Vol. 14, pp. 1174–1189 (2021) / `papers/Modeling & analysis of software defined networks under non-stationary conditions.pdf`
-- **Voltage stability – Case study of saddle node bifurcation with stochastic load dynamics**
-  - *Authors:* R. C. Kumaran, K. S. Swarup, and T. G. Venkatesh
-  - *Mapped Topic:* Stochastic differential equations (SDE), Langevin formulations, and saddle-node bifurcations.
-  - *Venue / File:* Electrical Power and Energy Systems, Elsevier, Vol. 33, pp. 1384–1388 (2011) / `papers/Voltage stability – Case study of saddle node bifurcation with stochastic load dynamics.pdf`
-- **Damped bistable system driven by colored noise: A digital simulation study**
-  - *Authors:* Chitralekha Mahanta and T. G. Venkatesh
-  - *Mapped Topic:* Non-Markovian noise processes, colored noise driving potential systems, and escape times.
-  - *Venue / File:* Physical Review E, Vol. 58, No. 4, pp. 4141–4146 (1998) / `papers/amped bistable system driven by colored noise: A digital simulation study.pdf`
 
 ### Conference Papers
 - **A Class of Candidate Selection Algorithms for Hybrid IP/SDN to Tolerate Single Bidirectional Link Failures with Budget Constraints**
@@ -523,6 +517,23 @@ Every entry includes:
   - *Authors:* Navya Vuppalapati, T. G. Venkatesh, and Bhaswar Majumder
   - *Mapped Topic:* OpenFlow control plane queueing and packet-in message arrival characterization.
   - *Venue / File:* IEEE ICACCE 2020
+
+---
+
+## Chapter 15: Analytical Techniques for MAC Performance Evaluation
+*Focus: Analytical modeling methodologies, stochastic stability modeling, and simulation tools.*
+
+### Journals
+- **Voltage stability – Case study of saddle node bifurcation with stochastic load dynamics**
+  - *Authors:* R. C. Kumaran, K. S. Swarup, and T. G. Venkatesh
+  - *Mapped Topic:* Stochastic differential equations (SDE), Langevin formulations, and saddle-node bifurcations.
+  - *Venue / File:* Electrical Power and Energy Systems, Elsevier, Vol. 33, pp. 1384–1388 (2011) / `papers/Voltage stability – Case study of saddle node bifurcation with stochastic load dynamics.pdf`
+- **Damped bistable system driven by colored noise: A digital simulation study**
+  - *Authors:* Chitralekha Mahanta and T. G. Venkatesh
+  - *Mapped Topic:* Non-Markovian noise processes, colored noise driving potential systems, and escape times.
+  - *Venue / File:* Physical Review E, Vol. 58, No. 4, pp. 4141–4146 (1998) / `papers/amped bistable system driven by colored noise: A digital simulation study.pdf`
+
+### Conference Papers
 - **Performance Evaluation of MAC protocols for Next Generation Wireless Networks using SIMPY**
   - *Authors:* C. Hemanth, T. G. Venkatesh, and Sriram V. Iyer
   - *Mapped Topic:* Discrete-event simulation methodology for wireless MAC protocols using SimPy.

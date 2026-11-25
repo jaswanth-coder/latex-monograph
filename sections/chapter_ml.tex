@@ -1,6 +1,5 @@
 \chapter{Machine Learning Applications}
 \label{sec:chapter_ml}
-\begin{refsection}[sections/chapter_ml_references.bib]
 
 % ============================================================
 \section{Introduction}
@@ -522,6 +521,3 @@ SSH-Patator        & 1  & 90.08 \\
 The six case studies show machine learning entering network design at several layers. For scheduling and resource allocation, the decision problems are combinatorial and their environments change over time. Population-based search (BIOS) yields conflict-free TSCH schedules with lower delay and energy use. Deep RL learns allocation policies directly from experience, whether by phasic policy gradient for IIoT cell and power allocation or by a lightweight DQN that adapts the URLLC reservation in 5G to the instantaneous load. For classification, carefully designed hybrid CNNs identify modulation formats accurately with modest model size. In intrusion detection, statistically selected derived features give highly accurate and fast classifiers, and an outlier detector placed on top of a CNN lets the system recognise attacks it has never seen.
 
 Several themes recur. Domain knowledge remains essential: the constraints of the TSCH schedule, the structure of the 5G frame and the choice of traffic features all shape what the learner can achieve. Model size must be kept small enough for real-time operation, and several of the designs above deliberately trade a little accuracy for speed. Finally, adaptivity, whether through mutation, continual policy updates or feedback of new attack samples, is what allows learning-based methods to cope with the changing conditions that defeat static protocols.
-
-\printbibliography[heading=subbibliography,title={References}]
-\end{refsection}
