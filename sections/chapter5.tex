@@ -1,4 +1,4 @@
-\chapter{Personal Area Networks \& Machine-to-Machine Communication}
+\chapter{Machine-to-Machine Communication}
 \label{sec:chapter5}
 
 Machine-to-Machine (M2M) communication constitutes the foundational transmission fabric underpinning the Internet of Things (IoT) ecosystem \cite{george2018performance, george2020multipacket}. Encompassing autonomous data exchange between remote physical instrumentation and central processing infrastructure without human intervention, M2M systems power ubiquitous applications including smart electricity and gas utility metering, environmental telemetry, structural health monitoring, smart city asset tracking, and industrial process automation.
@@ -257,48 +257,14 @@ As documented in Table~\ref{tab:mpr_scaling_params}, increasing the physical-lay
 
 Furthermore, because contending nodes resolve their packets in substantially fewer cycles (Equation~\eqref{eq:RnK_kuw_bound}) and frames are substantially shorter ($m_{i, K} = \beta_K n_i$), transceiver active duty cycles are slashed by up to $78\%$, enabling multi-decade battery life for subterranean and deep-indoor IoT utility sensors \cite{george2020multipacket}.
 
----
 
-\section{Order Statistics Analysis of Pure ALOHA with Multipacket Reception}
-\label{sec:pure_aloha_mpr}
 
-While slotted protocols like DFSA govern coordinated frame-based clusters, unslotted **Pure ALOHA** remains critical for ultra-low-complexity sensor nodes that lack synchronization transceivers. In Pure ALOHA, nodes transmit packets asynchronously whenever generated. 
-
-In classical Pure ALOHA, a packet of duration $T_p$ is corrupted if any other transmission begins within the vulnerable window $(-T_p, T_p)$ of duration $2 T_p$, limiting maximum channel throughput to $1/(2e) \approx 0.184$. Arun I.~B. and Venkatesh \cite{arun2013order} introduced an analytical framework based on **order statistics** to characterize pure ALOHA throughput in channels supporting Multi-Packet Reception.
-
-\subsection{Order Statistics Formulation of Overlapping Arrivals}
-Let packet generation follow a spatial Poisson Point Process with aggregate rate $\lambda$ packets per second. A tagged packet arrives at time $t_0 = 0$ and spans interval $[0, T_p]$. The vulnerable period is $[-T_p, T_p]$.
-
-Let $M$ denote the number of interfering packets arriving in the vulnerable window. Given $M = m$, the arrival epochs $\{t_1, t_2, \dots, t_m\}$ are independently and uniformly distributed in $[-T_p, T_p]$. Let $t_{(1)} \le t_{(2)} \le \dots \le t_{(m)}$ denote the corresponding **order statistics**.
-
-The joint probability density function of the ordered arrival epochs is:
-\begin{equation}
-    f_{t_{(1)}, \dots, t_{(m)}}(u_1, \dots, u_m) = \frac{m!}{(2 T_p)^m}, \qquad -T_p \le u_1 \le u_2 \le \dots \le u_m \le T_p
-\end{equation}
-
-\subsection{SIR Distribution and Capture Probability}
-Let $P_0$ denote the received signal power of the tagged packet, and let $P_k$ denote the received power of the $k$-th interfering packet. Under Rayleigh fading and path loss exponent $\alpha$, received powers are exponentially distributed: $P_k \sim \mathrm{Exp}(\mu_k)$.
-
-At any time $t \in [0, T_p]$, the instantaneous Signal-to-Interference Ratio (SIR) is:
-\begin{equation}
-    \mathrm{SIR}(t) = \frac{P_0}{\sum_{k \in \mathcal{I}(t)} P_k}
-\end{equation}
-where $\mathcal{I}(t) = \{k : t_k \le t \le t_k + T_p\}$ represents the active interferer set at instant $t$.
-
-The tagged packet is successfully captured if the SIR exceeds a physical receiver threshold $\gamma_{\mathrm{th}}$ throughout its entire transmission duration:
-\begin{equation}
-    P_{\mathrm{capture}}(m) = \mathbb{P}\left( \min_{0 \le t \le T_p} \mathrm{SIR}(t) \ge \gamma_{\mathrm{th}} \;\Bigg|\; M = m \right)
-\end{equation}
-Using the joint order statistics distribution, Arun and Venkatesh \cite{arun2013order} derived closed-form expressions for $P_{\mathrm{capture}}(m)$, demonstrating that receiver multi-packet capture expands pure ALOHA throughput well beyond the classical $18.4\%$ limit, approaching that of slotted architectures without requiring network-wide synchronization.
-
----
-
-\section{Summary and Research Synthesis}
+\section{Conclusions}
 \label{sec:m2m_summary}
 
-This chapter synthesized medium access control protocols for machine-to-machine and personal area networks developed by Arun George, Arun I.~B., and T.~G.~Venkatesh:
+This chapter synthesized medium access control protocols for machine-to-machine and personal area networks:
 \begin{enumerate}
     \item \textbf{DFSA Algorithm Bounds:} By leveraging the Karp-Upfal-Wigderson inequality, the average duration of a Data Collection Round was proven to satisfy $\mathbb{E}[R_n] \le e \ln n$, with backlog decaying geometrically as $\mathbb{E}[N_i] \approx n(1-e^{-1})^{i-1}$, establishing the fundamental throughput lower bound $\mathrm{TP} \ge \frac{8 n P_D}{n e(T_{\mathrm{slot}} + T_{\mathrm{FBP}}) + 2e T_{\mathrm{IFS}} \ln n}$ \cite{george2018performance}.
     \item \textbf{MPR-DFSA Optimization:} Sizing contention frames using the optimal scaling factor $\beta_K$ ($\frac{1}{K} < \beta_K < \frac{1}{(K!)^{1/K}}$) enables physical-layer multi-packet reception to achieve super-linear throughput gains ($5.33\times$ at $K=4$) while reducing device energy consumption by over $75\%$ \cite{george2020multipacket}.
-    \item \textbf{Order Statistics in Asynchronous ALOHA:} Formulating packet arrival overlaps via order statistics provided exact closed-form capture probabilities for asynchronous sensor telemetry \cite{arun2013order}.
+   
 \end{enumerate}

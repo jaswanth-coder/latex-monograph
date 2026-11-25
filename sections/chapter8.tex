@@ -431,35 +431,7 @@ If transmitting consumes $\mathcal{E}_{\text{tx}}$ and listening/deferral consum
 
 Real-time testbed implementations on OpenMote-B sensor platforms validate that CBPF improves network throughput by up to $34\%$ over equal-probability ALOHA while ensuring strictly fair queue depletion across heterogeneous sensor nodes.
 
-\section{Machine-to-Machine (M2M) Data Collection: Dynamic Frame-Slotted ALOHA}
-\label{sec:m2m_dfsa}
 
-In dense RFID and Machine-to-Machine (M2M) sensor networks, uncoordinated devices periodically report telemetry to a central data collection sink. Arun George and T. G. Venkatesh \cite{george2018performance, george2020multipacket} modeled and optimized **Dynamic Frame-Slotted ALOHA (DFSA)** for these topologies.
-
-\subsection{Classical DFSA Frame Length Optimization}
-In DFSA, time is organized into frames of variable length $L$ slots. When $N$ uncoordinated tags contend across $L$ slots, the probability that a slot contains exactly $k$ packet arrivals follows the Poisson distribution with parameter $\rho = N/L$:
-\begin{equation}
-    P_k = \frac{\rho^k e^{-\rho}}{k!}
-\end{equation}
-Under classical single-packet reception, a slot succeeds if and only if $k = 1$, yielding efficiency:
-\begin{equation}
-    \eta = P_1 = \rho e^{-\rho} = \frac{N}{L} e^{-N/L}
-\end{equation}
-Differentiating with respect to $L$ establishes that maximum efficiency ($\eta_{\max} = 1/e \approx 0.368$) occurs when the frame length equals the backlog:
-\begin{equation}
-    L^* = \lceil N \rceil
-\end{equation}
-
-\subsection{Multi-Packet Reception (MPR) DFSA}
-George and Venkatesh \cite{george2020multipacket} generalized DFSA to physical layers supporting Multi-Packet Reception (MPR), where the receiver can decode up to $K$ overlapping signals concurrently. The frame efficiency becomes:
-\begin{equation}
-    \eta_{\text{MPR}} = \sum_{k=1}^K k P_k + \sum_{k=K+1}^\infty K P_k
-\end{equation}
-Under MPR capacity $K$, the optimal frame length scales down to:
-\begin{equation}
-    L_{\text{MPR}}^* \approx \left\lceil \frac{N}{K} \right\rceil
-\end{equation}
-This contraction of frame length radically compresses reading cycle latency, curtailing tag active radio on-time and extending battery life in industrial sensor networks by over $70\%$.
 
 \section{Comparative Synthesis and Architectural Trade-Offs}
 \label{sec:iot_comparison}
